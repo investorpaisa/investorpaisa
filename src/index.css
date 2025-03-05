@@ -1,5 +1,5 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -93,7 +93,11 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground antialiased;
+  }
+
+  h1, h2, h3 {
+    @apply font-playfair;
   }
 
   /* Custom animations */
@@ -106,6 +110,19 @@
     @apply shadow-hover;
   }
 
+  /* Premium UI Elements */
+  .premium-gradient {
+    @apply bg-gradient-to-r from-ip-blue-800 to-ip-blue-900;
+  }
+  
+  .premium-card {
+    @apply bg-white border border-gray-100 rounded-xl shadow-smooth hover:shadow-hover transition-all duration-300;
+  }
+  
+  .premium-button {
+    @apply bg-gradient-to-r from-ip-teal to-ip-teal-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300;
+  }
+
   /* Glass effect */
   .glass {
     @apply bg-white bg-opacity-70 backdrop-blur-md border border-white border-opacity-20 shadow-smooth;
@@ -113,6 +130,19 @@
 
   .glass-dark {
     @apply bg-ip-blue-900 bg-opacity-70 backdrop-blur-md border border-ip-blue-800 border-opacity-20 shadow-smooth;
+  }
+  
+  /* Premium Text Styles */
+  .heading-xl {
+    @apply font-playfair text-4xl md:text-5xl lg:text-6xl font-bold leading-tight;
+  }
+  
+  .heading-lg {
+    @apply font-playfair text-3xl md:text-4xl font-bold leading-tight;
+  }
+  
+  .heading-md {
+    @apply font-playfair text-2xl md:text-3xl font-bold leading-tight;
   }
 }
 
@@ -156,4 +186,46 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Premium badge animation */
+.badge-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.badge-shine::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to right, 
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(30deg);
+  animation: shine 3s infinite;
+}
+
+@keyframes shine {
+  from {
+    transform: translateX(-100%) rotate(30deg);
+  }
+  to {
+    transform: translateX(100%) rotate(30deg);
+  }
+}
+
+/* Card hover effects */
+.premium-hover {
+  transition: all 0.3s ease;
+}
+
+.premium-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
 }
