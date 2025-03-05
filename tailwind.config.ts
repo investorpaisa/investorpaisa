@@ -102,6 +102,46 @@ export default {
 					700: "#6586AE",
 					800: "#4F76A3",
 					900: "#627D98"
+				},
+				// Premium dark colors
+				"premium-dark": {
+					DEFAULT: "#1A1F2C",
+					50: "#F2F3F7",
+					100: "#E5E7EF",
+					200: "#CFD3E0",
+					300: "#B8BFD0",
+					400: "#A2ABC1",
+					500: "#8B96B1",
+					600: "#7582A2",
+					700: "#5F6D92",
+					800: "#495983",
+					900: "#1A1F2C"
+				},
+				"premium-gold": {
+					DEFAULT: "#E6B45E",
+					50: "#FCF7ED",
+					100: "#F9EFDB",
+					200: "#F3DFB6",
+					300: "#EED092",
+					400: "#E8C06D",
+					500: "#E6B45E",
+					600: "#DF9F2F",
+					700: "#BD8420",
+					800: "#8C6218",
+					900: "#5A3F10"
+				},
+				"premium-charcoal": {
+					DEFAULT: "#221F26",
+					50: "#E9E8E9",
+					100: "#D3D1D4",
+					200: "#A7A3A9",
+					300: "#7C767E",
+					400: "#504953",
+					500: "#221F26",
+					600: "#1E1B21",
+					700: "#19171C",
+					800: "#151317",
+					900: "#100E12"
 				}
 			},
 			borderRadius: {
@@ -144,13 +184,15 @@ export default {
 				"slide-in-left": 'slide-in-left 0.4s ease-out'
 			},
 			fontFamily: {
-				sans: ['Inter', 'sans-serif'],
-				playfair: ['Playfair Display', 'serif']
+				sans: ['Montserrat', 'sans-serif'],
+				playfair: ['Playfair Display', 'serif'],
+				heading: ['Cormorant Garamond', 'serif']
 			},
 			boxShadow: {
-				'smooth': '0 4px 20px rgba(0, 0, 0, 0.05)',
-				'hover': '0 10px 25px rgba(0, 0, 0, 0.08)',
-				'card': '0 2px 10px rgba(0, 0, 0, 0.03)'
+				'smooth': '0 4px 20px rgba(0, 0, 0, 0.08)',
+				'hover': '0 10px 25px rgba(0, 0, 0, 0.12)',
+				'card': '0 2px 10px rgba(0, 0, 0, 0.05)',
+				'premium': '0 8px 30px rgba(0, 0, 0, 0.15)'
 			}
 		}
 	},

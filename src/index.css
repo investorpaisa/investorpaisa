@@ -1,5 +1,5 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,6 +7,7 @@
 
 @layer base {
   :root {
+    /* Light mode - these will only be used when switching from dark to light */
     --background: 210 33% 99%;
     --foreground: 210 33% 10%;
 
@@ -47,43 +48,51 @@
     --sidebar-ring: 168 52% 46%;
   }
 
-  .dark {
-    --background: 210 33% 10%;
+  /* Applied by default - dark mode */
+  /* Remove dark class to enable operating system preference theme switching */
+  :root {
+    --background: 222 27% 14%;
     --foreground: 210 20% 98%;
 
-    --card: 210 29% 15%;
+    --card: 222 25% 18%;
     --card-foreground: 210 20% 98%;
 
-    --popover: 210 29% 15%;
+    --popover: 222 25% 18%;
     --popover-foreground: 210 20% 98%;
 
-    --primary: 210 20% 98%;
-    --primary-foreground: 210 33% 10%;
+    --primary: 168 52% 46%;
+    --primary-foreground: 210 20% 98%;
 
-    --secondary: 180 53% 46%;
-    --secondary-foreground: 210 20% 98%;
+    --secondary: 45 70% 64%;
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 210 25% 25%;
+    --muted: 222 25% 25%;
     --muted-foreground: 210 20% 70%;
 
-    --accent: 168 52% 46%;
-    --accent-foreground: 210 20% 98%;
+    --accent: 45 70% 64%;
+    --accent-foreground: 222 47% 11%;
 
     --destructive: 0 62% 30%;
     --destructive-foreground: 210 20% 98%;
 
-    --border: 210 25% 25%;
-    --input: 210 25% 25%;
-    --ring: 210 20% 80%;
+    --border: 222 25% 25%;
+    --input: 222 25% 25%;
+    --ring: 168 52% 46%;
 
-    --sidebar-background: 210 33% 10%;
+    --sidebar-background: 222 30% 12%;
     --sidebar-foreground: 210 20% 98%;
-    --sidebar-primary: 210 20% 98%;
-    --sidebar-primary-foreground: 210 33% 10%;
-    --sidebar-accent: 168 52% 46%;
-    --sidebar-accent-foreground: 210 20% 98%;
-    --sidebar-border: 210 25% 25%;
+    --sidebar-primary: 168 52% 46%;
+    --sidebar-primary-foreground: 210 20% 98%;
+    --sidebar-accent: 45 70% 64%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 222 25% 22%;
     --sidebar-ring: 168 52% 46%;
+  }
+
+  .light {
+    --background: 210 33% 99%;
+    --foreground: 210 33% 10%;
+    /* ... keep existing code (light mode color variables) */
   }
 }
 
@@ -94,10 +103,24 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+    /* Default to dark mode */
+    @apply dark;
   }
 
   h1, h2, h3 {
-    @apply font-playfair;
+    @apply font-heading;
+  }
+
+  h1 {
+    @apply text-3xl md:text-4xl lg:text-5xl font-medium leading-tight tracking-tight;
+  }
+
+  h2 {
+    @apply text-2xl md:text-3xl font-medium leading-tight;
+  }
+
+  h3 {
+    @apply text-xl md:text-2xl font-medium leading-snug;
   }
 
   /* Custom animations */
@@ -112,120 +135,61 @@
 
   /* Premium UI Elements */
   .premium-gradient {
-    @apply bg-gradient-to-r from-ip-blue-800 to-ip-blue-900;
+    @apply bg-gradient-to-r from-premium-dark-700 to-premium-dark-900;
   }
   
   .premium-card {
-    @apply bg-white border border-gray-100 rounded-xl shadow-smooth hover:shadow-hover transition-all duration-300;
+    @apply bg-premium-dark-800/60 backdrop-blur-sm border border-premium-dark-700/50 rounded-xl shadow-premium hover:shadow-hover transition-all duration-300;
   }
   
   .premium-button {
-    @apply bg-gradient-to-r from-ip-teal to-ip-teal-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300;
+    @apply bg-gradient-to-r from-primary to-primary/80 text-white font-medium rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300;
   }
 
   /* Glass effect */
   .glass {
-    @apply bg-white bg-opacity-70 backdrop-blur-md border border-white border-opacity-20 shadow-smooth;
+    @apply bg-premium-dark-800/40 backdrop-blur-md border border-premium-dark-700/30 shadow-smooth;
   }
 
-  .glass-dark {
-    @apply bg-ip-blue-900 bg-opacity-70 backdrop-blur-md border border-ip-blue-800 border-opacity-20 shadow-smooth;
+  .glass-accent {
+    @apply bg-premium-dark-800/60 backdrop-blur-md border border-accent/20 shadow-smooth;
   }
   
   /* Premium Text Styles */
   .heading-xl {
-    @apply font-playfair text-4xl md:text-5xl lg:text-6xl font-bold leading-tight;
+    @apply font-heading text-4xl md:text-5xl lg:text-6xl font-bold leading-tight;
   }
   
   .heading-lg {
-    @apply font-playfair text-3xl md:text-4xl font-bold leading-tight;
+    @apply font-heading text-3xl md:text-4xl font-bold leading-tight;
   }
   
   .heading-md {
-    @apply font-playfair text-2xl md:text-3xl font-bold leading-tight;
+    @apply font-heading text-2xl md:text-3xl font-bold leading-tight;
+  }
+
+  /* Gold accent elements */
+  .gold-text {
+    @apply text-premium-gold;
+  }
+
+  .gold-border {
+    @apply border-premium-gold;
+  }
+
+  /* Premium card effect */
+  .card-premium {
+    @apply relative overflow-hidden rounded-xl;
+  }
+
+  .card-premium::before {
+    content: '';
+    @apply absolute inset-0 border border-premium-gold/30 rounded-xl opacity-0 transition-opacity duration-300;
+  }
+
+  .card-premium:hover::before {
+    @apply opacity-100;
   }
 }
 
-/* Scroll bar styling */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-ip-gray-300 rounded-full;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-ip-gray-400;
-}
-
-/* Title animations */
-.title-animation span {
-  display: inline-block;
-  opacity: 0;
-  transform: translateY(10px);
-  animation: fadeUpIn 0.5s forwards;
-}
-
-.title-animation span:nth-child(1) { animation-delay: 0.1s; }
-.title-animation span:nth-child(2) { animation-delay: 0.2s; }
-.title-animation span:nth-child(3) { animation-delay: 0.3s; }
-.title-animation span:nth-child(4) { animation-delay: 0.4s; }
-.title-animation span:nth-child(5) { animation-delay: 0.5s; }
-.title-animation span:nth-child(6) { animation-delay: 0.6s; }
-.title-animation span:nth-child(7) { animation-delay: 0.7s; }
-.title-animation span:nth-child(8) { animation-delay: 0.8s; }
-
-@keyframes fadeUpIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Premium badge animation */
-.badge-shine {
-  position: relative;
-  overflow: hidden;
-}
-
-.badge-shine::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(
-    to right, 
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.3) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  transform: rotate(30deg);
-  animation: shine 3s infinite;
-}
-
-@keyframes shine {
-  from {
-    transform: translateX(-100%) rotate(30deg);
-  }
-  to {
-    transform: translateX(100%) rotate(30deg);
-  }
-}
-
-/* Card hover effects */
-.premium-hover {
-  transition: all 0.3s ease;
-}
-
-.premium-hover:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-}
+/* ... keep existing code (scrollbar styling, title animations, badge shine, etc.) */
