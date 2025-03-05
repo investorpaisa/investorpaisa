@@ -80,7 +80,7 @@ export function MainSidebar() {
               {mainNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
-                    active={isActive(item.path)}
+                    isActive={isActive(item.path)}
                     onClick={() => navigate(item.path)}
                   >
                     <item.icon className="h-4 w-4" />
@@ -99,7 +99,7 @@ export function MainSidebar() {
               {financeNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
-                    active={isActive(item.path)}
+                    isActive={isActive(item.path)}
                     onClick={() => navigate(item.path)}
                   >
                     <item.icon className="h-4 w-4" />
