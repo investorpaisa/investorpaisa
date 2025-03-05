@@ -144,7 +144,8 @@ export default {
 				"slide-in-left": 'slide-in-left 0.4s ease-out'
 			},
 			fontFamily: {
-				sans: ['Inter', 'sans-serif']
+				sans: ['Inter', 'sans-serif'],
+				playfair: ['Playfair Display', 'serif']
 			},
 			boxShadow: {
 				'smooth': '0 4px 20px rgba(0, 0, 0, 0.05)',
