@@ -1,6 +1,6 @@
 
 import { Link } from 'react-router-dom';
-import { ArrowRight, ChevronRight, Users, Wallet, Shield, LineChart, MessageSquare, Info } from 'lucide-react';
+import { ArrowRight, ChevronRight, Users, Wallet, Shield, LineChart, MessageSquare, Info, Home, Compass, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
