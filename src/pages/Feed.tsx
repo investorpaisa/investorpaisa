@@ -65,7 +65,7 @@ const feedPosts = [
     },
     category: 'Personal Finance',
     title: 'Five credit card hacks that saved me ₹50,000 last year',
-    content: 'Credit cards, when used wisely, can be powerful financial tools. Over the past year, I've implemented several strategies that helped me save money and maximize rewards. Here are five credit card hacks that resulted in significant savings...',
+    content: 'Credit cards, when used wisely, can be powerful financial tools. Over the past year, I\'ve implemented several strategies that helped me save money and maximize rewards. Here are five credit card hacks that resulted in significant savings...',
     timestamp: '1 day ago',
     likes: 320,
     comments: 78,
