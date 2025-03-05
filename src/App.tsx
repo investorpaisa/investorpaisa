@@ -34,6 +34,9 @@ const App = () => {
   const [showCookieConsent, setShowCookieConsent] = useState(false);
   
   useEffect(() => {
+    // Ensure dark mode is applied
+    document.documentElement.classList.add('dark');
+    
     // Check if user has already accepted cookies
     const hasAcceptedCookies = localStorage.getItem('cookiesAccepted');
     if (!hasAcceptedCookies) {

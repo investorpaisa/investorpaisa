@@ -7,7 +7,7 @@
 
 @layer base {
   :root {
-    /* Light mode - these will only be used when switching from dark to light */
+    /* Light mode variables */
     --background: 210 33% 99%;
     --foreground: 210 33% 10%;
 
@@ -48,9 +48,7 @@
     --sidebar-ring: 168 52% 46%;
   }
 
-  /* Applied by default - dark mode */
-  /* Remove dark class to enable operating system preference theme switching */
-  :root {
+  .dark {
     --background: 222 27% 14%;
     --foreground: 210 20% 98%;
 
@@ -88,12 +86,6 @@
     --sidebar-border: 222 25% 22%;
     --sidebar-ring: 168 52% 46%;
   }
-
-  .light {
-    --background: 210 33% 99%;
-    --foreground: 210 33% 10%;
-    /* ... keep existing code (light mode color variables) */
-  }
 }
 
 @layer base {
@@ -103,8 +95,10 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    /* Default to dark mode */
-    @apply dark;
+  }
+
+  html {
+    @apply dark; /* Apply dark mode to html element */
   }
 
   h1, h2, h3 {
