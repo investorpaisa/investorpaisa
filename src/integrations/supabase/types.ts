@@ -293,6 +293,54 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      decrement_comments: {
+        Args: {
+          post_id: string
+        }
+        Returns: undefined
+      }
+      decrement_followers: {
+        Args: {
+          user_id: string
+        }
+        Returns: undefined
+      }
+      decrement_following: {
+        Args: {
+          user_id: string
+        }
+        Returns: undefined
+      }
+      decrement_likes: {
+        Args: {
+          post_id: string
+        }
+        Returns: undefined
+      }
+      increment_comments: {
+        Args: {
+          post_id: string
+        }
+        Returns: undefined
+      }
+      increment_followers: {
+        Args: {
+          user_id: string
+        }
+        Returns: undefined
+      }
+      increment_following: {
+        Args: {
+          user_id: string
+        }
+        Returns: undefined
+      }
+      increment_likes: {
+        Args: {
+          post_id: string
+        }
+        Returns: undefined
+      }
       is_admin: {
         Args: {
           user_id: string

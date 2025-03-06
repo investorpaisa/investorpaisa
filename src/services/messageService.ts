@@ -119,17 +119,18 @@ class MessageService {
         throw new Error("You must be logged in to view messages");
       }
       
-      // Get messages between users
+      // Get messages between users, using specific column naming to avoid ambiguity
       const { data, error } = await supabase
         .from('messages')
         .select(`
-          *,
-          sender_profile:sender_id (
-            id, full_name, username, avatar_url, role, followers, following
-          ),
-          receiver_profile:receiver_id (
-            id, full_name, username, avatar_url, role, followers, following
-          )
+          id,
+          content,
+          created_at,
+          is_read,
+          sender_id,
+          receiver_id,
+          sender:sender_id(id, full_name, username, avatar_url, role, followers, following),
+          receiver:receiver_id(id, full_name, username, avatar_url, role, followers, following)
         `)
         .or(`and(sender_id.eq.${userData.user.id},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${userData.user.id})`)
         .order('created_at', { ascending: true });
@@ -147,8 +148,8 @@ class MessageService {
         .eq('is_read', false);
       
       return data.map(message => {
-        const senderProfile = message.sender_profile;
-        const receiverProfile = message.receiver_profile;
+        const senderProfile = message.sender;
+        const receiverProfile = message.receiver;
         
         const sender: User = {
           id: senderProfile.id,
@@ -200,6 +201,7 @@ class MessageService {
         throw new Error("You must be logged in to send messages");
       }
       
+      // Insert message, using specific column naming for relationships
       const { data, error } = await supabase
         .from('messages')
         .insert({
@@ -209,13 +211,14 @@ class MessageService {
           is_read: false
         })
         .select(`
-          *,
-          sender_profile:sender_id (
-            id, full_name, username, avatar_url, role, followers, following
-          ),
-          receiver_profile:receiver_id (
-            id, full_name, username, avatar_url, role, followers, following
-          )
+          id,
+          content,
+          created_at,
+          is_read,
+          sender_id,
+          receiver_id,
+          sender:sender_id(id, full_name, username, avatar_url, role, followers, following),
+          receiver:receiver_id(id, full_name, username, avatar_url, role, followers, following)
         `)
         .single();
         
@@ -223,8 +226,8 @@ class MessageService {
         throw error;
       }
       
-      const senderProfile = data.sender_profile;
-      const receiverProfile = data.receiver_profile;
+      const senderProfile = data.sender;
+      const receiverProfile = data.receiver;
       
       const sender: User = {
         id: senderProfile.id,
