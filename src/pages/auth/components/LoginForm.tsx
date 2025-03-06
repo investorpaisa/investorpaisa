@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Loader2 } from 'lucide-react';
-import { authService } from '@/services/authService';
+import { authService } from '@/services/auth';
 import { toast } from '@/hooks/use-toast';
 import { LoginFormFields } from './LoginFormFields';
 import { LoginFooter } from './LoginFooter';
