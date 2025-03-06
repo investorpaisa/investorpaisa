@@ -12,24 +12,15 @@ export const login = async (email: string, password: string) => {
     });
 
     if (authError) {
-      // If it's an email not confirmed error but email confirmation is disabled, try to continue
+      // Email not confirmed errors should be handled gracefully
       if (authError.message.includes('Email not confirmed') || authError.code === 'email_not_confirmed') {
-        console.log("Email not confirmed error detected, attempting to continue anyway");
-        
-        // Try to get the user's data from supabase auth
-        const { data: userData } = await supabase.auth.getUser();
-        
-        if (userData && userData.user) {
-          // Get user profile data
-          const profileData = await fetchUserProfile(userData.user.id);
-          
-          showToast(
-            "Login successful",
-            "Welcome back to Investor Paisa!"
-          );
-          
-          return formatUser(userData.user, profileData);
-        }
+        // Instead of trying to login anyway, suggest email verification
+        showToast(
+          "Email not verified",
+          "Please check your inbox and verify your email before logging in",
+          "destructive"
+        );
+        return null;
       }
       
       throw authError;
@@ -58,7 +49,6 @@ export const login = async (email: string, password: string) => {
       "destructive"
     );
     
-    // We're not re-throwing the error anymore to allow the UI to continue
     return null;
   }
 };

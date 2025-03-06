@@ -8,11 +8,12 @@ import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
 import { authService } from '@/services/auth';
 import { toast } from '@/hooks/use-toast';
 import { LoginFormFields } from './LoginFormFields';
 import { LoginFooter } from './LoginFooter';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
@@ -24,6 +25,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 export const LoginForm: React.FC = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [emailError, setEmailError] = useState(false);
   
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -35,6 +37,7 @@ export const LoginForm: React.FC = () => {
 
   async function onSubmit(data: LoginFormValues) {
     setIsLoading(true);
+    setEmailError(false);
     
     try {
       const user = await authService.login(data.email, data.password);
@@ -44,12 +47,17 @@ export const LoginForm: React.FC = () => {
           navigate('/feed');
         }, 500);
       } else {
-        // Login failed but no error was thrown
-        toast({
-          title: "Login failed",
-          description: "Please check your credentials and try again.",
-          variant: "destructive"
-        });
+        // If error message contains "email", show the email verification alert
+        if (document.body.textContent?.includes('Email not verified')) {
+          setEmailError(true);
+        } else {
+          // Generic login error
+          toast({
+            title: "Login failed",
+            description: "Please check your credentials and try again.",
+            variant: "destructive"
+          });
+        }
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -69,6 +77,15 @@ export const LoginForm: React.FC = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {emailError && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Email not verified. Please check your inbox and verify your email before logging in.
+            </AlertDescription>
+          </Alert>
+        )}
+        
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <LoginFormFields control={form.control} />
