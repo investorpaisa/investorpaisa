@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 import { fontFamily } from "tailwindcss/defaultTheme";
 import animatePlugin from "tailwindcss-animate";
@@ -31,14 +30,19 @@ const config = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
 
-        // New dark mode colors
-        "dark-100": "#1E1E1E", // Lightest dark background
+        // New premium colors
+        "p-100": "#F87C00",
+        "p-200": "#5D3C00",
+        "p-300": "#322115",
+
+        // Dark mode colors
+        "dark-100": "#1E1E1E", 
         "dark-200": "#181818", 
         "dark-300": "#141414", 
         "dark-400": "#121212", // Main dark background
         "dark-500": "#0F0F0F",
         "dark-600": "#0A0A0A",
-        "dark-700": "#070707", // Darkest dark background
+        "dark-700": "#070707", 
         "dark-800": "#050505",
         "dark-900": "#000000",
         
@@ -54,41 +58,13 @@ const config = {
         "gray-800": "#2E2E2E",
         "gray-900": "#1A1A1A",
         
-        // Purple accent colors
-        "purple-100": "#E5DEFF", // Soft Purple
-        "purple-200": "#D6BCFA", // Light Purple
-        "purple-300": "#B39DDB",
-        "purple-400": "#9B87F5", // Primary Purple
-        "purple-500": "#8B5CF6", // Vivid Purple
-        "purple-600": "#7E69AB", // Secondary Purple
-        "purple-700": "#6E59A5", // Tertiary Purple
-        "purple-800": "#5E4A9D",
-        "purple-900": "#1A1F2C", // Dark Purple
-        
-        // IP brand colors
-        "ip-blue": "#1A3A6C",
-        "ip-blue-600": "#14305A",
-        "ip-blue-700": "#102648",
-        "ip-blue-800": "#0C1C36", 
-        "ip-blue-900": "#081424",
-        "ip-blue-50": "#E5EAF2",
-        "ip-blue-100": "#B3C3DC",
-        
-        "ip-teal": "#27B0AC",
-        "ip-teal-600": "#1E8C89",
-        "ip-teal-700": "#186865",
-        "ip-teal-800": "#114443",
-        "ip-teal-900": "#0B2C2B",
-        "ip-teal-50": "#E6F5F5",
-        "ip-teal-100": "#B0E3E1",
-        
         // Premium colors - updated for better dark mode
-        "premium-gold": "#DFBD69",
-        "premium-gold-light": "#F1D689",
-        "premium-gold-dark": "#C0A65C",
-        "premium-dark-900": "#0A0A0A", 
-        "premium-dark-800": "#121212",
-        "premium-dark-700": "#1A1A1A",
+        "premium-gold": "#F87C00",      // Updated to P-100
+        "premium-gold-light": "#FFA857", // Lighter version of P-100
+        "premium-gold-dark": "#5D3C00",  // P-200
+        "premium-dark-900": "#322115",   // P-300
+        "premium-dark-800": "#221A14",
+        "premium-dark-700": "#1A1410",
         "premium-dark-600": "#222222",
         "premium-dark-500": "#2A2A2A",
 
@@ -122,8 +98,8 @@ const config = {
         },
       },
       boxShadow: {
-        premium: "0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 2px 8px -2px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(223, 189, 105, 0.05)",
-        "premium-hover": "0 20px 40px -12px rgba(0, 0, 0, 0.6), 0 4px 12px -4px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(223, 189, 105, 0.1)",
+        premium: "0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 2px 8px -2px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(248, 124, 0, 0.05)",
+        "premium-hover": "0 20px 40px -12px rgba(0, 0, 0, 0.6), 0 4px 12px -4px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(248, 124, 0, 0.1)",
         smooth: "0 4px 20px -2px rgba(0, 0, 0, 0.2), 0 2px 6px -1px rgba(0, 0, 0, 0.15)",
         hover: "0 10px 30px -5px rgba(0, 0, 0, 0.25), 0 5px 15px -3px rgba(0, 0, 0, 0.15)",
       },

@@ -1,11 +1,25 @@
 
+@tailwind utilities;
+
 @layer utilities {
-  /* Gold accent elements */
+  /* Premium accent elements */
   .gold-text {
-    @apply text-premium-gold;
+    @apply text-p-100;
   }
 
   .gold-border {
-    @apply border-premium-gold;
+    @apply border-p-100;
+  }
+  
+  .premium-text {
+    @apply text-p-100;
+  }
+  
+  .premium-bg {
+    @apply bg-p-100;
+  }
+  
+  .premium-border {
+    @apply border-p-100;
   }
 }
