@@ -27,7 +27,7 @@ export const LoginFormFields: React.FC<LoginFormFieldsProps> = ({ control }) => 
                 <Input 
                   placeholder="your.email@example.com" 
                   {...field} 
-                  className="bg-dark-300 border-gray-700 focus:border-purple-400/50 pl-10" 
+                  className="bg-dark-300 border-gray-700 focus-visible:border-purple-400/50 focus-visible:ring-purple-400/30 pl-10" 
                 />
               </div>
             </FormControl>
@@ -48,7 +48,7 @@ export const LoginFormFields: React.FC<LoginFormFieldsProps> = ({ control }) => 
                   type="password" 
                   placeholder="••••••••" 
                   {...field} 
-                  className="bg-dark-300 border-gray-700 focus:border-purple-400/50 pl-10" 
+                  className="bg-dark-300 border-gray-700 focus-visible:border-purple-400/50 focus-visible:ring-purple-400/30 pl-10" 
                 />
               </div>
             </FormControl>
