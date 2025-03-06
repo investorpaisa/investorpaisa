@@ -17,8 +17,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { LegalDisclaimer } from '@/components/LegalDisclaimer';
-import { apiService } from '@/services/api';
 import { Loader2, Lock, Mail, Sparkles } from 'lucide-react';
+import { authService } from '@/services/authService';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
@@ -42,7 +42,7 @@ const Login = () => {
   async function onSubmit(data: LoginFormValues) {
     setIsLoading(true);
     try {
-      const user = await apiService.login(data.email, data.password);
+      const user = await authService.login(data.email, data.password);
       if (user) {
         // Successful login
         setTimeout(() => {

@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,7 +17,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
-import { Lock, User, Mail, Shield, Sparkles } from 'lucide-react';
+import { Lock, User, Mail, Shield, Sparkles, Loader2 } from 'lucide-react';
+import { authService } from '@/services/authService';
 
 const registerSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters' }),
@@ -35,6 +36,9 @@ const registerSchema = z.object({
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 const Register = () => {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -46,10 +50,21 @@ const Register = () => {
     },
   });
 
-  function onSubmit(data: RegisterFormValues) {
-    console.log('Form submitted:', data);
-    // In a real app, you would handle the registration here
-    // For demo purposes, we'll just log the data and keep it simple
+  async function onSubmit(data: RegisterFormValues) {
+    setIsLoading(true);
+    try {
+      const user = await authService.register(data.name, data.email, data.password);
+      if (user) {
+        // Successful registration
+        setTimeout(() => {
+          navigate('/app/feed');
+        }, 500);
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -156,8 +171,19 @@ const Register = () => {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="btn-premium w-full">
-              Create account
+            <Button 
+              type="submit" 
+              className="btn-premium w-full" 
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating account...
+                </>
+              ) : (
+                "Create account"
+              )}
             </Button>
           </form>
         </Form>
