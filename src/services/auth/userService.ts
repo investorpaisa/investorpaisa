@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { User } from "../api";
 import { fetchUserProfile, formatUser, showToast } from "./utils";
 
-export const logout = async (): Promise<boolean> {
+export const logout = async () => {
   try {
     const { error } = await supabase.auth.signOut();
     
@@ -28,7 +28,7 @@ export const logout = async (): Promise<boolean> {
   }
 };
 
-export const getCurrentUser = async (): Promise<User | null> {
+export const getCurrentUser = async () => {
   try {
     const { data: { session }, error } = await supabase.auth.getSession();
     

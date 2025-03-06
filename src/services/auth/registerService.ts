@@ -4,7 +4,7 @@ import { User } from "../api";
 import { showToast } from "./utils";
 import { login } from "./loginService";
 
-export const register = async (name: string, email: string, password: string): Promise<User | null> {
+export const register = async (name: string, email: string, password: string) => {
   try {
     // Register user with Supabase
     const { data: authData, error: authError } = await supabase.auth.signUp({

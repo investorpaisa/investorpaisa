@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { User } from "../api";
 import { fetchUserProfile, formatUser, showToast } from "./utils";
 
-export const login = async (email: string, password: string): Promise<User | null> {
+export const login = async (email: string, password: string) => {
   try {
     // Login with Supabase
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
