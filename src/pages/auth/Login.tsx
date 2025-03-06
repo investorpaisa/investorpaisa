@@ -46,7 +46,7 @@ const Login = () => {
       if (user) {
         // Successful login
         setTimeout(() => {
-          navigate('/app/feed');
+          navigate('/feed');
         }, 500);
       }
     } catch (error) {
