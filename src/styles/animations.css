@@ -1,5 +1,5 @@
 
-@layer base {
+@layer components {
   /* Custom animations */
   .animate-hover-rise {
     transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;

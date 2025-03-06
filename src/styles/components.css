@@ -1,5 +1,5 @@
 
-@layer base {
+@layer components {
   /* Premium UI Elements - Based on design files */
   .bg-gradient-premium {
     @apply bg-dark-400;

@@ -1,5 +1,5 @@
 
-@layer base {
+@layer utilities {
   /* Gold accent elements */
   .gold-text {
     @apply text-premium-gold;
