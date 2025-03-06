@@ -18,7 +18,10 @@ export const NSE_INDICES = {
  */
 export async function getMarketStatus(): Promise<MarketStatus> {
   try {
-    const data = await fetchProxyData('/marketStatus');
+    const data = await fetchProxyData('/marketStatus') as { 
+      marketState: string; 
+      marketStatus: string; 
+    };
     
     return {
       status: data.marketState.toLowerCase() as 'open' | 'closed' | 'pre-open' | 'post-close',
@@ -37,7 +40,14 @@ export async function getMarketStatus(): Promise<MarketStatus> {
  */
 export async function getStockQuote(symbol: string): Promise<StockQuote> {
   try {
-    const data = await fetchProxyData('/quote', { symbol });
+    const data = await fetchProxyData('/quote', { symbol }) as {
+      info: { symbol: string; companyName: string; industry: string; series: string };
+      priceInfo: { 
+        lastPrice: number; change: number; pChange: number; open: number; close: number; 
+        previousClose: number; intraDayHighLow: { min: number; max: number }
+      };
+      securityInfo: { tradedVolume: number };
+    };
     
     return {
       symbol: data.info.symbol,
@@ -65,7 +75,16 @@ export async function getStockQuote(symbol: string): Promise<StockQuote> {
  */
 export async function getIndexData(indexName: string): Promise<MarketIndex> {
   try {
-    const data = await fetchProxyData('/indexData', { index: indexName });
+    const data = await fetchProxyData('/indexData', { index: indexName }) as {
+      indexInfo: { name: string };
+      last: number;
+      open: number;
+      high: number;
+      low: number;
+      previousClose: number;
+      change: number;
+      percentChange: number;
+    };
     
     return {
       name: data.indexInfo.name,
@@ -90,9 +109,19 @@ export async function getIndexData(indexName: string): Promise<MarketIndex> {
  */
 export async function getTopGainers(): Promise<StockQuote[]> {
   try {
-    const data = await fetchProxyData('/marketData/topGainers');
+    const data = await fetchProxyData('/marketData/topGainers') as Array<{
+      symbol: string;
+      lastPrice: number;
+      change: number;
+      pChange: number;
+      open?: number;
+      high?: number;
+      low?: number;
+      previousClose?: number;
+      tradedQuantity?: number;
+    }>;
     
-    return data.map((item: any) => ({
+    return data.map((item) => ({
       symbol: item.symbol,
       companyName: item.symbol,
       lastPrice: item.lastPrice,
@@ -118,9 +147,19 @@ export async function getTopGainers(): Promise<StockQuote[]> {
  */
 export async function getTopLosers(): Promise<StockQuote[]> {
   try {
-    const data = await fetchProxyData('/marketData/topLosers');
+    const data = await fetchProxyData('/marketData/topLosers') as Array<{
+      symbol: string;
+      lastPrice: number;
+      change: number;
+      pChange: number;
+      open?: number;
+      high?: number;
+      low?: number;
+      previousClose?: number;
+      tradedQuantity?: number;
+    }>;
     
-    return data.map((item: any) => ({
+    return data.map((item) => ({
       symbol: item.symbol,
       companyName: item.symbol,
       lastPrice: item.lastPrice,
@@ -146,15 +185,25 @@ export async function getTopLosers(): Promise<StockQuote[]> {
  */
 export async function searchStocks(query: string): Promise<StockQuote[]> {
   try {
-    const data = await fetchProxyData('/search', { q: query });
+    const data = await fetchProxyData('/search', { q: query }) as Array<{
+      symbol: string;
+      name: string;
+      type: string;
+    }>;
     
     // For each stock found in search, get its quote data
     const stocks = await Promise.all(
-      data.map(async (item: any) => {
+      data.map(async (item) => {
         try {
           // In a real implementation, we would batch these requests
           // For the mock, we'll just simulate individual quotes
-          const quoteData = await fetchProxyData('/quote', { symbol: item.symbol });
+          const quoteData = await fetchProxyData('/quote', { symbol: item.symbol }) as {
+            priceInfo: { 
+              lastPrice: number; change: number; pChange: number; open: number; close: number; 
+              previousClose: number; intraDayHighLow: { min: number; max: number }
+            };
+            securityInfo: { tradedVolume: number };
+          };
           
           return {
             symbol: item.symbol,

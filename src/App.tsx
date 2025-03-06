@@ -1,3 +1,4 @@
+
 import { Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
@@ -5,16 +6,16 @@ import MainLayout from '@/layouts/MainLayout';
 import AuthLayout from '@/layouts/AuthLayout';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Market from '@/pages/Market';
-import Index from '@/pages';
-import Login from '@/pages/auth/login';
-import Register from '@/pages/auth/register';
-import Feed from '@/pages/feed';
-import Discover from '@/pages/discover';
-import Inbox from '@/pages/inbox';
-import Profile from '@/pages/profile';
-import Landing from '@/pages/landing';
-import NotFound from '@/pages/not-found';
-import { AuthProvider } from './context/AuthContext';
+import Index from '@/pages/Index';
+import Login from '@/pages/auth/Login';
+import Register from '@/pages/auth/Register';
+import Feed from '@/pages/Feed';
+import Discover from '@/pages/Discover';
+import Inbox from '@/pages/Inbox';
+import Profile from '@/pages/Profile';
+import Landing from '@/pages/Landing';
+import NotFound from '@/pages/NotFound';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 const queryClient = new QueryClient();
 

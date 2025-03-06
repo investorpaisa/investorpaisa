@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { Sidebar, SidebarContent, SidebarFooter } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
@@ -95,7 +96,7 @@ export function MainSidebar() {
       
       <SidebarFooter>
         <div className="flex flex-col space-y-3 px-4 py-3">
-          <PremiumButton variant="secondary" className="justify-center">
+          <PremiumButton variant="default" className="justify-center">
             <Bell className="mr-2 h-4 w-4" />
             Notifications
           </PremiumButton>
