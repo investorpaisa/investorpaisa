@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { User } from "./api";
@@ -28,7 +27,7 @@ class AuthService {
 
       toast({
         title: "Registration successful",
-        description: "Welcome to Investor Paisa!"
+        description: "Please check your email to confirm your account"
       });
 
       // Return user data
@@ -61,6 +60,10 @@ class AuthService {
       });
 
       if (authError) {
+        // Check specifically for email not confirmed error
+        if (authError.message.includes('Email not confirmed') || authError.code === 'email_not_confirmed') {
+          throw { ...authError, code: 'email_not_confirmed' };
+        }
         throw authError;
       }
 
@@ -97,12 +100,19 @@ class AuthService {
       };
     } catch (error) {
       console.error("Login error:", error);
+      
+      // Don't show toast for email_not_confirmed error since we'll handle it in the UI
+      if (error instanceof Error && error.message.includes('Email not confirmed') || 
+         (typeof error === 'object' && error !== null && 'code' in error && error.code === 'email_not_confirmed')) {
+        throw error;
+      }
+      
       toast({
         title: "Login failed",
         description: error instanceof Error ? error.message : "Something went wrong",
         variant: "destructive"
       });
-      return null;
+      throw error; // Re-throw to allow the component to handle it
     }
   }
 
