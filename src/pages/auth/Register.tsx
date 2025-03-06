@@ -55,9 +55,9 @@ const Register = () => {
     try {
       const user = await authService.register(data.name, data.email, data.password);
       if (user) {
-        // Successful registration
+        // Successful registration - Fixed the navigation path from /app/feed to /feed
         setTimeout(() => {
-          navigate('/app/feed');
+          navigate('/feed');
         }, 500);
       }
     } catch (error) {
