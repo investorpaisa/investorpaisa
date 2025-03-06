@@ -129,7 +129,11 @@
   }
 
   /* Premium UI Elements - Cred-inspired */
-  .premium-gradient {
+  .bg-gradient-premium {
+    @apply bg-gradient-to-br from-premium-dark-900 via-premium-dark-800 to-premium-dark-900;
+  }
+  
+  .bg-gradient-gold {
     @apply bg-gradient-to-r from-premium-gold via-premium-gold/90 to-premium-gold/80;
   }
   
