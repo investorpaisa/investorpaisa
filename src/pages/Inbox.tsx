@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, Send } from 'lucide-react';
-import { messageService } from '@/services/messageService';
+import { messageService } from '@/services/messages';
 import { Message, User } from '@/services/api';
 import { format } from 'date-fns';
 
