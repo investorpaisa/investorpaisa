@@ -1,5 +1,6 @@
 
 import { Link } from 'react-router-dom';
+import MobileNav from './MobileNav';
 
 const Header = () => {
   return (
@@ -25,13 +26,13 @@ const Header = () => {
             Sign Up
           </Link>
         </nav>
-        <div className="md:hidden flex items-center">
-          <Link to="/auth/login" className="text-sm text-muted-foreground hover:text-foreground mr-4">
+        
+        {/* Mobile Navigation */}
+        <div className="flex md:hidden items-center gap-4">
+          <Link to="/auth/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             Sign In
           </Link>
-          <Link to="/auth/register" className="btn-premium text-sm py-2 px-4">
-            Sign Up
-          </Link>
+          <MobileNav />
         </div>
       </div>
     </header>
