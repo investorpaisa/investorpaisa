@@ -1,10 +1,10 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
-import { User, Profile } from '@/services/api';
+import { User } from '@/services/api';
 
 export const profileService = {
-  async getProfile(userId: string): Promise<Profile | null> {
+  async getUserProfile(userId: string): Promise<User | null> {
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -13,57 +13,64 @@ export const profileService = {
         .single();
         
       if (error) {
-        toast({
-          title: "Failed to load profile",
-          description: error.message,
-          variant: "destructive"
-        });
-        return null;
+        throw error;
       }
       
       return {
         id: data.id,
         name: data.full_name || data.username || 'User',
-        bio: data.bio || '',
+        email: '',
         avatar: data.avatar_url,
-        role: data.role as 'user' | 'expert',
+        role: (data.role as 'user' | 'expert') || 'user',
         followers: data.followers || 0,
         following: data.following || 0,
-        joined: new Date(data.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+        joined: data.created_at
       };
     } catch (error) {
-      console.error("Error fetching profile:", error);
+      console.error(`Error fetching user profile for ${userId}:`, error);
+      toast({
+        title: "Failed to load profile",
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
+        variant: "destructive"
+      });
       return null;
     }
   },
   
-  async updateProfile(userId: string, profileData: { name: string, bio: string, avatar?: string }): Promise<boolean> {
+  async updateProfile(bio: string, fullName: string, avatarUrl: string): Promise<User | null> {
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ 
-          full_name: profileData.name,
-          bio: profileData.bio,
-          avatar_url: profileData.avatar,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', userId);
-        
-      if (error) {
-        toast({
-          title: "Failed to update profile",
-          description: error.message,
-          variant: "destructive"
-        });
-        return false;
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !userData.user) {
+        throw new Error("You must be logged in to update your profile");
       }
       
-      toast({
-        title: "Profile updated",
-        description: "Your profile has been successfully updated."
-      });
+      const { data, error } = await supabase
+        .from('profiles')
+        .update({
+          updated_at: new Date().toISOString(),
+          bio,
+          avatar_url: avatarUrl,
+          full_name: fullName
+        })
+        .eq('id', userData.user.id)
+        .select('*')
+        .single();
+        
+      if (error) {
+        throw error;
+      }
       
-      return true;
+      return {
+        id: data.id,
+        name: data.full_name || data.username || 'User',
+        email: '',
+        avatar: data.avatar_url,
+        role: (data.role as 'user' | 'expert') || 'user',
+        followers: data.followers || 0,
+        following: data.following || 0,
+        joined: data.created_at
+      };
     } catch (error) {
       console.error("Error updating profile:", error);
       toast({
@@ -71,7 +78,7 @@ export const profileService = {
         description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive"
       });
-      return false;
+      return null;
     }
   },
   
@@ -80,10 +87,9 @@ export const profileService = {
       const { data: userData, error: userError } = await supabase.auth.getUser();
       
       if (userError || !userData.user) {
-        throw new Error("You must be logged in to unfollow users");
+        throw new Error("You must be logged in to unfollow a user");
       }
       
-      // Delete the follow record
       const { error } = await supabase
         .from('follows')
         .delete()
@@ -94,7 +100,7 @@ export const profileService = {
         throw error;
       }
       
-      // Update follower and following counts
+      // Decrement followers/following counts
       await supabase.rpc('decrement_followers', { user_id: userId });
       await supabase.rpc('decrement_following', { user_id: userData.user.id });
       
@@ -115,10 +121,9 @@ export const profileService = {
       const { data: userData, error: userError } = await supabase.auth.getUser();
       
       if (userError || !userData.user) {
-        throw new Error("You must be logged in to follow users");
+        throw new Error("You must be logged in to follow a user");
       }
       
-      // Create the follow record
       const { error } = await supabase
         .from('follows')
         .insert({
@@ -130,7 +135,7 @@ export const profileService = {
         throw error;
       }
       
-      // Update follower and following counts
+      // Increment followers/following counts
       await supabase.rpc('increment_followers', { user_id: userId });
       await supabase.rpc('increment_following', { user_id: userData.user.id });
       
@@ -148,11 +153,11 @@ export const profileService = {
   
   async getFollowers(userId: string): Promise<User[]> {
     try {
+      // Get all followers of the user
       const { data, error } = await supabase
         .from('follows')
         .select(`
-          follower_id,
-          followers:profiles!follower_id(*)
+          follower:follower_id(id, full_name, username, avatar_url, role, followers, following)
         `)
         .eq('following_id', userId);
         
@@ -161,17 +166,17 @@ export const profileService = {
       }
       
       return data.map(item => ({
-        id: item.followers.id,
-        name: item.followers.full_name || item.followers.username || 'User',
+        id: item.follower.id,
+        name: item.follower.full_name || item.follower.username || 'User',
         email: '',
-        avatar: item.followers.avatar_url,
-        role: (item.followers.role as 'user' | 'expert') || 'user',
-        followers: item.followers.followers || 0,
-        following: item.followers.following || 0,
+        avatar: item.follower.avatar_url,
+        role: (item.follower.role as 'user' | 'expert') || 'user',
+        followers: item.follower.followers || 0,
+        following: item.follower.following || 0,
         joined: ''
       }));
     } catch (error) {
-      console.error(`Error fetching followers for user ${userId}:`, error);
+      console.error(`Error getting followers for user ${userId}:`, error);
       toast({
         title: "Failed to load followers",
         description: error instanceof Error ? error.message : "An unexpected error occurred",
@@ -183,11 +188,11 @@ export const profileService = {
   
   async getFollowing(userId: string): Promise<User[]> {
     try {
+      // Get all users followed by the user
       const { data, error } = await supabase
         .from('follows')
         .select(`
-          following_id,
-          following:profiles!following_id(*)
+          following:following_id(id, full_name, username, avatar_url, role, followers, following)
         `)
         .eq('follower_id', userId);
         
@@ -206,7 +211,7 @@ export const profileService = {
         joined: ''
       }));
     } catch (error) {
-      console.error(`Error fetching following for user ${userId}:`, error);
+      console.error(`Error getting following for user ${userId}:`, error);
       toast({
         title: "Failed to load following",
         description: error instanceof Error ? error.message : "An unexpected error occurred",

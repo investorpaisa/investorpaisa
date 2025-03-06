@@ -317,6 +317,14 @@ export type Database = {
         }
         Returns: undefined
       }
+      get_conversations: {
+        Args: {
+          user_id: string
+        }
+        Returns: {
+          other_user_id: string
+        }[]
+      }
       increment_comments: {
         Args: {
           post_id: string

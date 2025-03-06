@@ -12,39 +12,25 @@ export const messageService = {
         throw new Error("You must be logged in to view conversations");
       }
       
-      // Get conversations using a direct query instead of an RPC function
-      const { data, error } = await supabase
-        .from('messages')
-        .select('sender_id, receiver_id')
-        .or(`sender_id.eq.${userData.user.id},receiver_id.eq.${userData.user.id}`)
-        .order('created_at', { ascending: false });
+      // Get conversations using the get_conversations function
+      const { data: conversationUsers, error: convError } = await supabase
+        .rpc('get_conversations', { user_id: userData.user.id });
         
-      if (error) {
-        throw error;
+      if (convError) {
+        throw convError;
       }
       
-      if (!data || data.length === 0) {
+      if (!conversationUsers || conversationUsers.length === 0) {
         return [];
       }
       
-      // Get unique user IDs from conversations
-      const userIds = new Set<string>();
-      data.forEach(message => {
-        if (message.sender_id !== userData.user.id) {
-          userIds.add(message.sender_id);
-        }
-        if (message.receiver_id !== userData.user.id) {
-          userIds.add(message.receiver_id);
-        }
-      });
-      
       // For each conversation partner, get their profile details and conversation info
-      const conversationPromises = Array.from(userIds).map(async (userId) => {
+      const conversationPromises = conversationUsers.map(async (convUser) => {
         // Get user profile details
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('*')
-          .eq('id', userId)
+          .eq('id', convUser.other_user_id)
           .single();
           
         if (profileError) {
@@ -56,7 +42,7 @@ export const messageService = {
         const { data: messageData, error: messageError } = await supabase
           .from('messages')
           .select('content, is_read, created_at')
-          .or(`and(sender_id.eq.${userData.user.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${userData.user.id})`)
+          .or(`and(sender_id.eq.${userData.user.id},receiver_id.eq.${convUser.other_user_id}),and(sender_id.eq.${convUser.other_user_id},receiver_id.eq.${userData.user.id})`)
           .order('created_at', { ascending: false })
           .limit(1)
           .single();
@@ -70,7 +56,7 @@ export const messageService = {
         const { count, error: countError } = await supabase
           .from('messages')
           .select('*', { count: 'exact', head: true })
-          .eq('sender_id', userId)
+          .eq('sender_id', convUser.other_user_id)
           .eq('receiver_id', userData.user.id)
           .eq('is_read', false);
           
@@ -121,8 +107,8 @@ export const messageService = {
         .from('messages')
         .select(`
           id, content, is_read, created_at,
-          sender:profiles!sender_id(*),
-          receiver:profiles!receiver_id(*)
+          sender:sender_id(id, full_name, username, avatar_url, role, followers, following),
+          receiver:receiver_id(id, full_name, username, avatar_url, role, followers, following)
         `)
         .or(`and(sender_id.eq.${userData.user.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${userData.user.id})`)
         .order('created_at', { ascending: true });
@@ -199,8 +185,8 @@ export const messageService = {
         })
         .select(`
           id, content, is_read, created_at,
-          sender:profiles!sender_id(*),
-          receiver:profiles!receiver_id(*)
+          sender:sender_id(id, full_name, username, avatar_url, role, followers, following),
+          receiver:receiver_id(id, full_name, username, avatar_url, role, followers, following)
         `)
         .single();
         
