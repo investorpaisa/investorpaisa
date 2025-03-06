@@ -24,7 +24,8 @@ const premiumButtonVariants = cva(
       animation: {
         none: "",
         hover: "transform hover:-translate-y-1",
-        pulse: "animate-pulse",
+        pulse: "animate-pulse-gold",
+        glow: "hover:shadow-glow",
       },
     },
     defaultVariants: {

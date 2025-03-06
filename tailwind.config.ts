@@ -92,6 +92,7 @@ const config = {
         "premium-hover": "0 20px 40px -12px rgba(10, 11, 16, 0.8), 0 4px 12px -4px rgba(10, 11, 16, 0.5), 0 0 0 1px rgba(223, 189, 105, 0.1)",
         smooth: "0 4px 20px -2px rgba(10, 11, 16, 0.3), 0 2px 6px -1px rgba(10, 11, 16, 0.2)",
         hover: "0 10px 30px -5px rgba(10, 11, 16, 0.3), 0 5px 15px -3px rgba(10, 11, 16, 0.2)",
+        glow: "0 0 15px rgba(223, 189, 105, 0.4), 0 0 30px rgba(223, 189, 105, 0.2)",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -121,12 +122,43 @@ const config = {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.5" },
         },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-15px)" },
+        },
+        shimmer: {
+          "100%": { left: "150%" },
+        },
+        reveal: {
+          "0%": { 
+            opacity: "0",
+            transform: "translateY(20px)" 
+          },
+          "100%": { 
+            opacity: "1",
+            transform: "translateY(0)" 
+          },
+        },
+        glow: {
+          "from": {
+            boxShadow: "0 0 5px rgba(223, 189, 105, 0.2), 0 0 10px rgba(223, 189, 105, 0.1)"
+          },
+          "to": {
+            boxShadow: "0 0 10px rgba(223, 189, 105, 0.4), 0 0 20px rgba(223, 189, 105, 0.2)"
+          }
+        }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.5s ease-out forwards",
         "pulse-gold": "pulse-gold 2s ease-in-out infinite",
+        "float": "float 8s ease-in-out infinite",
+        "float-slow": "float 12s ease-in-out infinite",
+        "float-reverse": "float 10s ease-in-out infinite reverse",
+        "shimmer": "shimmer 2.5s infinite",
+        "reveal": "reveal 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards",
+        "glow": "glow 2s ease-in-out infinite alternate",
       },
     },
   },

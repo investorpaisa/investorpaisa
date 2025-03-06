@@ -1,36 +1,120 @@
 
+import { useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Shield, Users, TrendingUp } from 'lucide-react';
 import { PremiumButton } from '../ui/premium/button';
 
 const HeroSection = () => {
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const imageContainerRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    // Adding a staggered animation effect to title
+    const titleElement = titleRef.current;
+    const imageContainer = imageContainerRef.current;
+    
+    if (titleElement) {
+      setTimeout(() => {
+        titleElement.classList.add('animate-reveal');
+        titleElement.classList.remove('opacity-0');
+      }, 300);
+    }
+    
+    if (imageContainer) {
+      setTimeout(() => {
+        imageContainer.classList.add('animate-float');
+        imageContainer.classList.remove('opacity-0', 'translate-y-8');
+      }, 600);
+    }
+  }, []);
+  
   return (
-    <section className="py-6 px-4 bg-premium-dark-800/60 backdrop-blur-sm border border-premium-dark-700/30 rounded-lg mb-6">
-      <div className="flex flex-col md:flex-row items-center gap-6">
+    <section className="py-10 px-6 bg-premium-dark-800/60 backdrop-blur-sm border border-premium-dark-700/30 rounded-lg mb-6 overflow-hidden relative">
+      {/* Decorative elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-10 w-20 h-20 rounded-full bg-premium-gold/10 blur-xl"></div>
+        <div className="absolute bottom-10 right-10 w-32 h-32 rounded-full bg-premium-gold/5 blur-xl"></div>
+        <div className="absolute w-full h-px bg-gradient-to-r from-transparent via-premium-gold/20 to-transparent top-10"></div>
+        <div className="absolute w-full h-px bg-gradient-to-r from-transparent via-premium-gold/10 to-transparent bottom-10"></div>
+      </div>
+      
+      <div className="flex flex-col md:flex-row items-center gap-10 relative z-10">
         <div className="flex-1 text-center md:text-left">
-          <h1 className="text-2xl md:text-3xl font-bold mb-4 leading-tight">
-            <span className="bg-gradient-gold bg-clip-text text-transparent">Join the community</span> of 
-            <br />financial experts & enthusiasts
+          <h1 
+            ref={titleRef}
+            className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight opacity-0 transition-opacity duration-1000"
+          >
+            <span className="bg-gradient-gold bg-clip-text text-transparent">Where Finance Meets</span>{' '}
+            <br className="hidden md:block" />
+            <span className="relative">
+              Community
+              <span className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-premium-gold to-transparent"></span>
+            </span>
           </h1>
-          <p className="text-sm md:text-base text-muted-foreground mb-4">
-            Get reliable financial insights, advice, and connect with like-minded individuals.
+          
+          <p className="text-sm md:text-base text-muted-foreground mb-6 max-w-md">
+            Get reliable financial insights, connect with experts, and join a thriving community of financial enthusiasts.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
-            <PremiumButton asChild size="sm">
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+            <PremiumButton asChild size="lg" animation="glow">
               <Link to="/auth/register">
-                Get Started
-                <ArrowRight className="ml-2 h-4 w-4" />
+                Join Now
+                <ArrowRight className="ml-1 h-5 w-5" />
+              </Link>
+            </PremiumButton>
+            <PremiumButton asChild variant="outline" size="lg">
+              <Link to="/auth/login">
+                Sign In
               </Link>
             </PremiumButton>
           </div>
+          
+          <div className="mt-10 grid grid-cols-3 gap-2">
+            <div className="flex flex-col items-center md:items-start p-2">
+              <div className="flex items-center gap-2 mb-1">
+                <TrendingUp className="h-4 w-4 text-premium-gold" />
+                <span className="text-sm font-medium">Market Data</span>
+              </div>
+              <p className="text-xs text-muted-foreground hidden md:block">Real-time insights</p>
+            </div>
+            <div className="flex flex-col items-center md:items-start p-2">
+              <div className="flex items-center gap-2 mb-1">
+                <Users className="h-4 w-4 text-premium-gold" />
+                <span className="text-sm font-medium">Expert Community</span>
+              </div>
+              <p className="text-xs text-muted-foreground hidden md:block">Connect with pros</p>
+            </div>
+            <div className="flex flex-col items-center md:items-start p-2">
+              <div className="flex items-center gap-2 mb-1">
+                <Shield className="h-4 w-4 text-premium-gold" />
+                <span className="text-sm font-medium">Trusted Advice</span>
+              </div>
+              <p className="text-xs text-muted-foreground hidden md:block">Verified information</p>
+            </div>
+          </div>
         </div>
-        <div className="flex-1 relative max-w-[200px] mx-auto md:max-w-none">
-          <div className="aspect-square rounded-lg overflow-hidden">
-            <img 
-              src="/placeholder.svg"
-              alt="Community discussion" 
-              className="w-full h-full object-cover"
-            />
+        
+        <div 
+          ref={imageContainerRef}
+          className="flex-1 relative max-w-[250px] md:max-w-sm opacity-0 translate-y-8 transition-all duration-1000 ease-out"
+        >
+          <div className="relative">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-premium-gold to-premium-gold/20 rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000"></div>
+            <div className="relative aspect-square rounded-lg overflow-hidden border border-premium-dark-700/50 bg-premium-dark-800/90">
+              <img 
+                src="/placeholder.svg"
+                alt="Financial Community" 
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-premium-dark-800 border border-premium-gold/20 flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-xs text-muted-foreground">Join</div>
+                <div className="text-xl font-bold text-premium-gold">20K+</div>
+                <div className="text-xs text-muted-foreground">Members</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

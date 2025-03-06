@@ -117,7 +117,22 @@
   h3 {
     @apply text-xl md:text-2xl font-medium leading-snug;
   }
+  
+  /* Scrollbars */
+  ::-webkit-scrollbar {
+    @apply w-1.5;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-premium-gold/20 rounded-full hover:bg-premium-gold/30 transition-colors;
+  }
+}
 
+@layer components {
   /* Custom animations */
   .animate-hover-rise {
     transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
@@ -190,19 +205,6 @@
     @apply opacity-100;
   }
   
-  /* Elegant scrollbar */
-  ::-webkit-scrollbar {
-    @apply w-1.5;
-  }
-  
-  ::-webkit-scrollbar-track {
-    @apply bg-transparent;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    @apply bg-premium-gold/20 rounded-full hover:bg-premium-gold/30 transition-colors;
-  }
-  
   /* Button styles */
   .btn-premium {
     @apply bg-gradient-to-r from-premium-gold to-premium-gold/80 text-premium-dark-900 font-medium py-2.5 px-5 rounded-lg 
@@ -235,6 +237,37 @@
   .badge-premium {
     @apply bg-premium-gold/20 text-premium-gold text-xs font-medium px-2.5 py-0.5 rounded-full;
   }
+}
+
+@layer utilities {
+  /* New utility classes for animations */
+  .animate-float {
+    animation: float 8s ease-in-out infinite;
+  }
+  
+  .animate-float-slow {
+    animation: float 12s ease-in-out infinite;
+  }
+  
+  .animate-float-reverse {
+    animation: float 10s ease-in-out infinite reverse;
+  }
+  
+  .animate-reveal {
+    animation: reveal 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+  
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+  
+  .animate-pulse-gold {
+    animation: pulseGold 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .shadow-glow {
+    box-shadow: 0 0 15px rgba(223, 189, 105, 0.5), 0 0 30px rgba(223, 189, 105, 0.3);
+  }
   
   /* Shimmer animation for premium elements */
   .shimmer {
@@ -250,6 +283,47 @@
   @keyframes shimmer {
     100% {
       left: 150%;
+    }
+  }
+  
+  @keyframes float {
+    0% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-15px);
+    }
+    100% {
+      transform: translateY(0px);
+    }
+  }
+  
+  @keyframes reveal {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes glow {
+    from {
+      box-shadow: 0 0 5px rgba(223, 189, 105, 0.2), 0 0 10px rgba(223, 189, 105, 0.1);
+    }
+    to {
+      box-shadow: 0 0 10px rgba(223, 189, 105, 0.4), 0 0 20px rgba(223, 189, 105, 0.2);
+    }
+  }
+  
+  @keyframes pulseGold {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
     }
   }
 }
