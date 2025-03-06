@@ -1,8 +1,9 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@/services/api';
-import { authService } from '@/services/authService';
+import { authService } from '@/services/auth';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 interface AuthContextType {
   user: User | null;
@@ -22,9 +23,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Check if user is already logged in
     const checkUser = async () => {
       setIsLoading(true);
-      const currentUser = await authService.getCurrentUser();
-      setUser(currentUser);
-      setIsLoading(false);
+      try {
+        const currentUser = await authService.getCurrentUser();
+        setUser(currentUser);
+      } catch (error) {
+        console.error("Error checking authentication:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     checkUser();
@@ -32,6 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log("Auth state changed:", event, session?.user?.id);
         if (event === 'SIGNED_IN' && session) {
           const currentUser = await authService.getCurrentUser();
           setUser(currentUser);
@@ -51,8 +58,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     try {
       const user = await authService.login(email, password);
-      setUser(user);
+      if (user) {
+        setUser(user);
+      }
       return user;
+    } catch (error) {
+      console.error("Login error in context:", error);
+      toast({
+        title: "Login failed",
+        description: error instanceof Error ? error.message : "Something went wrong",
+        variant: "destructive"
+      });
+      return null;
     } finally {
       setIsLoading(false);
     }
@@ -64,6 +81,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const user = await authService.register(name, email, password);
       setUser(user);
       return user;
+    } catch (error) {
+      console.error("Registration error:", error);
+      return null;
     } finally {
       setIsLoading(false);
     }
@@ -77,6 +97,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(null);
       }
       return success;
+    } catch (error) {
+      console.error("Logout error:", error);
+      return false;
     } finally {
       setIsLoading(false);
     }

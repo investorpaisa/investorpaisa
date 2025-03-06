@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Loader2, AlertCircle } from 'lucide-react';
-import { authService } from '@/services/auth';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { LoginFormFields } from './LoginFormFields';
 import { LoginFooter } from './LoginFooter';
@@ -24,6 +24,8 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export const LoginForm: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [emailError, setEmailError] = useState(false);
   
@@ -35,16 +37,25 @@ export const LoginForm: React.FC = () => {
     },
   });
 
+  // Get the intended destination from location state, or default to /feed
+  const from = location.state?.from?.pathname || '/feed';
+
   async function onSubmit(data: LoginFormValues) {
     setIsLoading(true);
     setEmailError(false);
     
     try {
-      const user = await authService.login(data.email, data.password);
+      const user = await login(data.email, data.password);
       if (user) {
         // Successful login
+        toast({
+          title: "Login successful",
+          description: "Welcome back to Investor Paisa!",
+        });
+        
+        // Use a short timeout to allow the toast to appear before redirecting
         setTimeout(() => {
-          navigate('/feed');
+          navigate(from);
         }, 500);
       } else {
         // If error message contains "email", show the email verification alert
