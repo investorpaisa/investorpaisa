@@ -1,70 +1,57 @@
-
-import React from 'react';
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
-import MainLayout from '@/layouts/MainLayout';
-import Landing from '@/pages/Landing';
-import Login from '@/pages/auth/Login';
-import Register from '@/pages/auth/Register';
-import Feed from '@/pages/Feed';
-import Profile from '@/pages/Profile';
-import Inbox from '@/pages/Inbox';
+import { Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Toaster } from '@/components/ui/toaster';
+import { Toaster } from '@/components/ui/sonner';
+import MainLayout from '@/layouts/MainLayout';
+import AuthLayout from '@/layouts/AuthLayout';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import { AuthProvider } from '@/contexts/AuthContext';
-
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Landing />,
-  },
-  {
-    path: "/auth/login",
-    element: <Login />,
-  },
-  {
-    path: "/auth/register",
-    element: <Register />,
-  },
-  {
-    path: "/app",
-    element: <MainLayout />,
-    children: [
-      {
-        path: "feed",
-        element: <ProtectedRoute><Feed /></ProtectedRoute>,
-      },
-      {
-        path: "profile",
-        element: <ProtectedRoute><Profile /></ProtectedRoute>,
-      },
-      {
-        path: "profile/:id",
-        element: <ProtectedRoute><Profile /></ProtectedRoute>,
-      },
-      {
-        path: "inbox",
-        element: <ProtectedRoute><Inbox /></ProtectedRoute>,
-      },
-    ],
-  },
-]);
+import Market from '@/pages/Market';
+import Index from '@/pages';
+import Login from '@/pages/auth/login';
+import Register from '@/pages/auth/register';
+import Feed from '@/pages/feed';
+import Discover from '@/pages/discover';
+import Inbox from '@/pages/inbox';
+import Profile from '@/pages/profile';
+import Landing from '@/pages/landing';
+import NotFound from '@/pages/not-found';
+import { AuthProvider } from './context/AuthContext';
 
 const queryClient = new QueryClient();
 
-const App = () => {
-  
+function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Toaster />
       <AuthProvider>
-        <RouterProvider router={router} />
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/landing" element={<Landing />} />
+        
+        <Route path="/auth" element={<AuthLayout />}>
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
+        </Route>
+        
+        <Route 
+          path="/" 
+          element={
+            <ProtectedRoute>
+              <MainLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="feed" element={<Feed />} />
+          <Route path="discover" element={<Discover />} />
+          <Route path="inbox" element={<Inbox />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="market" element={<Market />} />
+        </Route>
+
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      <Toaster />
       </AuthProvider>
     </QueryClientProvider>
   );
-};
+}
 
 export default App;

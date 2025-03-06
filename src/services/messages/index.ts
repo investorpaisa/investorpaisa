@@ -1,7 +1,7 @@
 
 import { getConversations } from './conversationService';
 import { getMessages, sendMessage } from './messageService';
-import type { Conversation, Message } from './types';
+import type { Conversation, Message, StockQuote, MarketStatus, MarketIndex } from './types';
 
 export const messageService = {
   getConversations,
@@ -9,4 +9,4 @@ export const messageService = {
   sendMessage
 };
 
-export type { Conversation, Message };
+export type { Conversation, Message, StockQuote, MarketStatus, MarketIndex };
