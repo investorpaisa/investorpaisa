@@ -1,6 +1,8 @@
+
 import { Link } from 'react-router-dom';
 import { SidebarTrigger } from './ui/sidebar';
 import { PremiumButton } from './ui/premium/button';
+import { Button } from './ui/button';
 import { BarChart2, Bell, Home, Globe, Inbox, User, Menu } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from '@/contexts/AuthContext';
