@@ -1,0 +1,29 @@
+
+@layer base {
+  /* Custom animations */
+  .animate-hover-rise {
+    transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+  }
+
+  .animate-hover-rise:hover {
+    transform: translateY(-3px);
+    @apply shadow-hover;
+  }
+  
+  /* Shimmer animation for premium elements */
+  .shimmer {
+    @apply relative overflow-hidden;
+  }
+  
+  .shimmer::after {
+    content: '';
+    @apply absolute top-0 -left-full w-full h-full bg-gradient-to-r from-transparent via-white/5 to-transparent transform -skew-x-12;
+    animation: shimmer 2.5s infinite;
+  }
+  
+  @keyframes shimmer {
+    100% {
+      left: 150%;
+    }
+  }
+}

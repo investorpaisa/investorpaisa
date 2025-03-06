@@ -1,0 +1,11 @@
+
+@layer base {
+  /* Gold accent elements */
+  .gold-text {
+    @apply text-premium-gold;
+  }
+
+  .gold-border {
+    @apply border-premium-gold;
+  }
+}
