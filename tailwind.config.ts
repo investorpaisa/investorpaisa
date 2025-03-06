@@ -63,6 +63,46 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
+				// Premium colors for Investor Paisa
+				"ip-gold": {
+					DEFAULT: "#E6B45E",
+					50: "#FCF7ED",
+					100: "#F9EFDB",
+					200: "#F3DFB6",
+					300: "#EED092",
+					400: "#E8C06D",
+					500: "#E6B45E",
+					600: "#DF9F2F",
+					700: "#BD8420",
+					800: "#8C6218",
+					900: "#5A3F10"
+				},
+				"ip-purple": {
+					DEFAULT: "#9C6ADE",
+					50: "#F4EEFB",
+					100: "#E9DDF7",
+					200: "#D3BCF0",
+					300: "#BE9BE8",
+					400: "#AA82E1",
+					500: "#9C6ADE",
+					600: "#7E3CD4",
+					700: "#6626B6",
+					800: "#4D1D88",
+					900: "#34135A"
+				},
+				"ip-dark": {
+					DEFAULT: "#111419",
+					50: "#F2F3F4",
+					100: "#E5E6E9",
+					200: "#CDD0D4",
+					300: "#B4B8BF",
+					400: "#9CA2AB",
+					500: "#838B97",
+					600: "#697480",
+					700: "#505866",
+					800: "#373C46",
+					900: "#111419"
+				},
 				// Custom colors for Investor Paisa
 				"ip-blue": {
 					DEFAULT: "#0A2540",
@@ -103,45 +143,45 @@ export default {
 					800: "#4F76A3",
 					900: "#627D98"
 				},
-				// Premium dark colors
+				// Premium dark colors - Cred-inspired
 				"premium-dark": {
-					DEFAULT: "#1A1F2C",
-					50: "#F2F3F7",
-					100: "#E5E7EF",
-					200: "#CFD3E0",
-					300: "#B8BFD0",
-					400: "#A2ABC1",
-					500: "#8B96B1",
-					600: "#7582A2",
-					700: "#5F6D92",
-					800: "#495983",
-					900: "#1A1F2C"
+					DEFAULT: "#141418",
+					50: "#F2F2F6",
+					100: "#E5E5ED",
+					200: "#CDCDDB",
+					300: "#B4B4C9",
+					400: "#9A9AB7",
+					500: "#8080A5",
+					600: "#66668C",
+					700: "#4D4D69",
+					800: "#333346",
+					900: "#141418"
 				},
 				"premium-gold": {
-					DEFAULT: "#E6B45E",
-					50: "#FCF7ED",
-					100: "#F9EFDB",
-					200: "#F3DFB6",
-					300: "#EED092",
-					400: "#E8C06D",
-					500: "#E6B45E",
-					600: "#DF9F2F",
-					700: "#BD8420",
-					800: "#8C6218",
-					900: "#5A3F10"
+					DEFAULT: "#ECBF45",
+					50: "#FDF9ED",
+					100: "#FBF3DB",
+					200: "#F7E8B7",
+					300: "#F3DD93",
+					400: "#EFD26F",
+					500: "#ECBF45",
+					600: "#E6AD18",
+					700: "#BC8C10",
+					800: "#8D680C",
+					900: "#5E4508"
 				},
 				"premium-charcoal": {
-					DEFAULT: "#221F26",
-					50: "#E9E8E9",
-					100: "#D3D1D4",
-					200: "#A7A3A9",
-					300: "#7C767E",
-					400: "#504953",
-					500: "#221F26",
-					600: "#1E1B21",
-					700: "#19171C",
-					800: "#151317",
-					900: "#100E12"
+					DEFAULT: "#1A1A22",
+					50: "#E9E9EA",
+					100: "#D2D2D6",
+					200: "#A5A5AD",
+					300: "#797984",
+					400: "#4C4C5B",
+					500: "#1A1A22",
+					600: "#17171E",
+					700: "#14141A",
+					800: "#111116",
+					900: "#0E0E12"
 				}
 			},
 			borderRadius: {
@@ -173,6 +213,18 @@ export default {
 				"slide-in-left": {
 					from: { transform: 'translateX(-100%)' },
 					to: { transform: 'translateX(0)' }
+				},
+				"glow": {
+					'0%, 100%': { 
+						boxShadow: '0 0 15px rgba(236, 191, 69, 0.3), 0 0 30px rgba(236, 191, 69, 0.1)' 
+					},
+					'50%': { 
+						boxShadow: '0 0 25px rgba(236, 191, 69, 0.5), 0 0 50px rgba(236, 191, 69, 0.2)' 
+					}
+				},
+				"shimmer": {
+					'0%': { backgroundPosition: '-1000px 0' },
+					'100%': { backgroundPosition: '1000px 0' }
 				}
 			},
 			animation: {
@@ -181,7 +233,9 @@ export default {
 				"fade-in": 'fade-in 0.3s ease-out',
 				"fade-up": 'fade-up 0.4s ease-out',
 				"slide-in-right": 'slide-in-right 0.4s ease-out',
-				"slide-in-left": 'slide-in-left 0.4s ease-out'
+				"slide-in-left": 'slide-in-left 0.4s ease-out',
+				"glow": 'glow 2s ease-in-out infinite',
+				"shimmer": 'shimmer 2s linear infinite'
 			},
 			fontFamily: {
 				sans: ['Montserrat', 'sans-serif'],
@@ -189,10 +243,17 @@ export default {
 				heading: ['Cormorant Garamond', 'serif']
 			},
 			boxShadow: {
-				'smooth': '0 4px 20px rgba(0, 0, 0, 0.08)',
-				'hover': '0 10px 25px rgba(0, 0, 0, 0.12)',
-				'card': '0 2px 10px rgba(0, 0, 0, 0.05)',
-				'premium': '0 8px 30px rgba(0, 0, 0, 0.15)'
+				'smooth': '0 4px 20px rgba(0, 0, 0, 0.15)',
+				'hover': '0 10px 25px rgba(0, 0, 0, 0.2)',
+				'card': '0 2px 10px rgba(0, 0, 0, 0.08)',
+				'premium': '0 8px 30px rgba(0, 0, 0, 0.25)', 
+				'premium-hover': '0 12px 40px rgba(0, 0, 0, 0.35), 0 0 15px rgba(236, 191, 69, 0.1)'
+			},
+			backgroundImage: {
+				'gradient-premium': 'linear-gradient(135deg, #141418 0%, #1A1A22 100%)',
+				'gradient-gold': 'linear-gradient(135deg, #ECBF45 0%, #E6AD18 100%)',
+				'gradient-card': 'linear-gradient(180deg, rgba(26, 26, 34, 0.8) 0%, rgba(20, 20, 24, 0.9) 100%)',
+				'gradient-dark': 'linear-gradient(180deg, #141418 0%, #0E0E12 100%)'
 			}
 		}
 	},

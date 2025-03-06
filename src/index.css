@@ -49,42 +49,43 @@
   }
 
   .dark {
-    --background: 222 27% 14%;
+    /* Cred-inspired premium dark theme */
+    --background: 222 25% 8%;
     --foreground: 210 20% 98%;
 
-    --card: 222 25% 18%;
+    --card: 222 24% 10%;
     --card-foreground: 210 20% 98%;
 
-    --popover: 222 25% 18%;
+    --popover: 222 25% 10%;
     --popover-foreground: 210 20% 98%;
 
-    --primary: 168 52% 46%;
-    --primary-foreground: 210 20% 98%;
+    --primary: 45 70% 60%;
+    --primary-foreground: 222 47% 11%;
 
-    --secondary: 45 70% 64%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 330 60% 55%;
+    --secondary-foreground: 210 20% 98%;
 
-    --muted: 222 25% 25%;
+    --muted: 222 25% 15%;
     --muted-foreground: 210 20% 70%;
 
-    --accent: 45 70% 64%;
-    --accent-foreground: 222 47% 11%;
+    --accent: 280 50% 50%;
+    --accent-foreground: 210 20% 98%;
 
-    --destructive: 0 62% 30%;
+    --destructive: 0 62% 45%;
     --destructive-foreground: 210 20% 98%;
 
-    --border: 222 25% 25%;
-    --input: 222 25% 25%;
-    --ring: 168 52% 46%;
+    --border: 222 25% 15%;
+    --input: 222 25% 15%;
+    --ring: 45 70% 60%;
 
-    --sidebar-background: 222 30% 12%;
+    --sidebar-background: 222 30% 6%;
     --sidebar-foreground: 210 20% 98%;
-    --sidebar-primary: 168 52% 46%;
-    --sidebar-primary-foreground: 210 20% 98%;
-    --sidebar-accent: 45 70% 64%;
-    --sidebar-accent-foreground: 222 47% 11%;
-    --sidebar-border: 222 25% 22%;
-    --sidebar-ring: 168 52% 46%;
+    --sidebar-primary: 45 70% 60%;
+    --sidebar-primary-foreground: 222 47% 11%;
+    --sidebar-accent: 330 60% 55%;
+    --sidebar-accent-foreground: 210 20% 98%;
+    --sidebar-border: 222 28% 12%;
+    --sidebar-ring: 45 70% 60%;
   }
 }
 
@@ -127,26 +128,26 @@
     @apply shadow-hover;
   }
 
-  /* Premium UI Elements */
+  /* Premium UI Elements - Cred-inspired */
   .premium-gradient {
-    @apply bg-gradient-to-r from-premium-dark-700 to-premium-dark-900;
+    @apply bg-gradient-to-r from-premium-gold via-premium-gold/90 to-premium-gold/80;
   }
   
   .premium-card {
-    @apply bg-premium-dark-800/60 backdrop-blur-sm border border-premium-dark-700/50 rounded-xl shadow-premium hover:shadow-hover transition-all duration-300;
+    @apply bg-premium-dark-800/90 backdrop-blur-md border border-premium-gold/10 rounded-xl shadow-premium hover:shadow-premium-hover transition-all duration-300;
   }
   
   .premium-button {
-    @apply bg-gradient-to-r from-primary to-primary/80 text-white font-medium rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300;
+    @apply bg-gradient-to-r from-primary to-primary/90 text-premium-dark-900 font-medium rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300;
   }
 
   /* Glass effect */
   .glass {
-    @apply bg-premium-dark-800/40 backdrop-blur-md border border-premium-dark-700/30 shadow-smooth;
+    @apply bg-premium-dark-800/40 backdrop-blur-lg border border-premium-dark-700/20 shadow-smooth;
   }
 
   .glass-accent {
-    @apply bg-premium-dark-800/60 backdrop-blur-md border border-accent/20 shadow-smooth;
+    @apply bg-premium-dark-800/60 backdrop-blur-lg border border-premium-gold/10 shadow-premium;
   }
   
   /* Premium Text Styles */
@@ -178,12 +179,73 @@
 
   .card-premium::before {
     content: '';
-    @apply absolute inset-0 border border-premium-gold/30 rounded-xl opacity-0 transition-opacity duration-300;
+    @apply absolute inset-0 border border-premium-gold/20 rounded-xl opacity-0 transition-opacity duration-300;
   }
 
   .card-premium:hover::before {
     @apply opacity-100;
   }
+  
+  /* Elegant scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-1.5;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-premium-gold/20 rounded-full hover:bg-premium-gold/30 transition-colors;
+  }
+  
+  /* Button styles */
+  .btn-premium {
+    @apply bg-gradient-to-r from-premium-gold to-premium-gold/80 text-premium-dark-900 font-medium py-2.5 px-5 rounded-lg 
+    shadow-md hover:shadow-premium transition-all duration-300 flex items-center justify-center gap-2;
+  }
+  
+  .btn-outline {
+    @apply border border-premium-gold/30 bg-transparent text-premium-gold hover:bg-premium-gold/10 
+    font-medium py-2.5 px-5 rounded-lg transition-all duration-300 flex items-center justify-center gap-2;
+  }
+  
+  .btn-ghost {
+    @apply bg-transparent text-foreground/80 hover:text-foreground font-medium py-2 px-4 
+    rounded-lg transition-all duration-300 flex items-center justify-center gap-2;
+  }
+  
+  /* Input styles */
+  .input-premium {
+    @apply bg-premium-dark-800/60 border border-premium-dark-700/50 focus:border-premium-gold/50 text-foreground 
+    rounded-lg px-4 py-2.5 outline-none focus:ring-1 focus:ring-premium-gold/30 transition-all;
+  }
+  
+  /* Card styles */
+  .card-luxe {
+    @apply bg-premium-dark-800/80 backdrop-blur-lg border border-premium-dark-700/30 rounded-xl p-6 
+    shadow-smooth hover:shadow-premium transition-all duration-300;
+  }
+  
+  /* Badge styles */
+  .badge-premium {
+    @apply bg-premium-gold/20 text-premium-gold text-xs font-medium px-2.5 py-0.5 rounded-full;
+  }
+  
+  /* Shimmer animation for premium elements */
+  .shimmer {
+    @apply relative overflow-hidden;
+  }
+  
+  .shimmer::after {
+    content: '';
+    @apply absolute top-0 -left-full w-full h-full bg-gradient-to-r from-transparent via-white/5 to-transparent transform -skew-x-12;
+    animation: shimmer 2.5s infinite;
+  }
+  
+  @keyframes shimmer {
+    100% {
+      left: 150%;
+    }
+  }
 }
-
-/* ... keep existing code (scrollbar styling, title animations, badge shine, etc.) */

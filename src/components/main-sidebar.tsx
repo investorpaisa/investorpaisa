@@ -11,7 +11,19 @@ import {
   SidebarMenuButton,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { Home, Compass, MessageSquare, User, TrendingUp, FileText, Calendar, Wallet } from 'lucide-react';
+import { 
+  Home, 
+  Compass, 
+  MessageSquare, 
+  User, 
+  TrendingUp, 
+  FileText, 
+  Calendar, 
+  Wallet,
+  Sparkles,
+  Users,
+  BookOpen
+} from 'lucide-react';
 
 export function MainSidebar() {
   const navigate = useNavigate();
@@ -62,19 +74,37 @@ export function MainSidebar() {
       path: '/app/personal-finance',
     },
   ];
+
+  const communityItems = [
+    {
+      title: 'Expert Circle',
+      icon: Sparkles,
+      path: '/app/expert-circle',
+    },
+    {
+      title: 'Groups',
+      icon: Users,
+      path: '/app/groups',
+    },
+    {
+      title: 'Learning Hub',
+      icon: BookOpen,
+      path: '/app/learning',
+    },
+  ];
   
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <Sidebar>
-      <SidebarContent>
-        <div className="px-4 py-6">
-          <h2 className="text-2xl font-bold text-ip-blue">Investor Paisa</h2>
-          <p className="text-xs text-muted-foreground">Your financial community</p>
+    <Sidebar className="border-r border-premium-dark-700/50">
+      <SidebarContent className="bg-gradient-premium">
+        <div className="px-4 py-6 flex flex-col items-center md:items-start">
+          <h2 className="text-2xl font-bold bg-gradient-gold bg-clip-text text-transparent">Investor Paisa</h2>
+          <p className="text-xs text-muted-foreground mt-1">Your financial community</p>
         </div>
         
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-premium-gold/70 font-medium text-xs uppercase tracking-wider">Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {mainNavItems.map((item) => (
@@ -82,6 +112,7 @@ export function MainSidebar() {
                   <SidebarMenuButton
                     isActive={isActive(item.path)}
                     onClick={() => navigate(item.path)}
+                    className={isActive(item.path) ? "bg-premium-dark-700/40 text-premium-gold border-l-2 border-premium-gold" : "hover:bg-premium-dark-700/20"}
                   >
                     <item.icon className="h-4 w-4" />
                     <span>{item.title}</span>
@@ -93,14 +124,15 @@ export function MainSidebar() {
         </SidebarGroup>
         
         <SidebarGroup>
-          <SidebarGroupLabel>Topics</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-premium-gold/70 font-medium text-xs uppercase tracking-wider">Community</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {financeNavItems.map((item) => (
+              {communityItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     isActive={isActive(item.path)}
                     onClick={() => navigate(item.path)}
+                    className={isActive(item.path) ? "bg-premium-dark-700/40 text-premium-gold border-l-2 border-premium-gold" : "hover:bg-premium-dark-700/20"}
                   >
                     <item.icon className="h-4 w-4" />
                     <span>{item.title}</span>
@@ -110,6 +142,36 @@ export function MainSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-premium-gold/70 font-medium text-xs uppercase tracking-wider">Topics</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {financeNavItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    isActive={isActive(item.path)}
+                    onClick={() => navigate(item.path)}
+                    className={isActive(item.path) ? "bg-premium-dark-700/40 text-premium-gold border-l-2 border-premium-gold" : "hover:bg-premium-dark-700/20"}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.title}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <div className="mt-auto p-4">
+          <div className="glass-accent rounded-xl p-4 text-center">
+            <p className="text-xs text-muted-foreground mb-2">Upgrade to Premium</p>
+            <button className="btn-premium text-xs w-full">
+              <Sparkles className="h-3 w-3" />
+              Unlock All Features
+            </button>
+          </div>
+        </div>
       </SidebarContent>
     </Sidebar>
   );

@@ -130,19 +130,19 @@ const App = () => {
           </Routes>
         </BrowserRouter>
         
-        {/* Cookie consent banner */}
+        {/* Premium-styled Cookie consent banner */}
         {showCookieConsent && (
-          <div className="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-md p-4 z-50 border-t border-white/10">
+          <div className="fixed bottom-0 left-0 right-0 bg-premium-dark-800/95 backdrop-blur-xl p-4 z-50 border-t border-premium-gold/20 shadow-[0_-4px_20px_rgba(0,0,0,0.2)]">
             <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
               <p className="text-white/80 text-sm">
                 We use cookies to enhance your experience. By continuing to visit this site you agree to our use of cookies.
               </p>
               <div className="flex gap-2">
-                <button className="px-4 py-1 bg-white/10 hover:bg-white/20 text-white rounded-md text-sm">
+                <button className="btn-outline text-xs py-1.5 px-3">
                   Privacy Policy
                 </button>
                 <button 
-                  className="px-4 py-1 bg-ip-teal text-white rounded-md text-sm"
+                  className="btn-premium text-xs py-1.5 px-3"
                   onClick={handleAcceptCookies}
                 >
                   Accept

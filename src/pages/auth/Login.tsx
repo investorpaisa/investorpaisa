@@ -18,7 +18,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Separator } from '@/components/ui/separator';
 import { LegalDisclaimer } from '@/components/LegalDisclaimer';
 import { apiService } from '@/services/api';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Lock, Mail, Sparkles } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
@@ -59,14 +59,15 @@ const Login = () => {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h1 className="font-playfair text-3xl font-bold mb-2">Welcome Back</h1>
+        <h1 className="font-heading text-3xl font-bold mb-2 bg-gradient-gold bg-clip-text text-transparent">Welcome Back</h1>
         <p className="text-muted-foreground">Continue your financial journey with Investor Paisa</p>
       </div>
       
-      <Card className="w-full shadow-lg border border-gray-100 bg-white/50 backdrop-blur-sm">
+      <Card className="premium-card overflow-hidden">
+        <div className="h-2 bg-gradient-gold w-full"></div>
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Sign in</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl font-bold text-premium-gold">Sign in</CardTitle>
+          <CardDescription className="text-muted-foreground">
             Enter your email and password to access your account
           </CardDescription>
         </CardHeader>
@@ -78,9 +79,16 @@ const Login = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel className="text-foreground/80">Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="your.email@example.com" {...field} className="border-gray-200 focus:border-ip-teal" />
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          placeholder="your.email@example.com" 
+                          {...field} 
+                          className="input-premium pl-10" 
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -91,9 +99,17 @@ const Login = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel className="text-foreground/80">Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} className="border-gray-200 focus:border-ip-teal" />
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          type="password" 
+                          placeholder="••••••••" 
+                          {...field} 
+                          className="input-premium pl-10" 
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -101,7 +117,7 @@ const Login = () => {
               />
               <Button 
                 type="submit" 
-                className="w-full premium-button"
+                className="btn-premium w-full"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -118,22 +134,22 @@ const Login = () => {
 
           <div className="mt-4">
             <div className="flex items-center mt-2">
-              <Separator className="flex-1" />
+              <Separator className="flex-1 bg-premium-dark-700/50" />
               <span className="px-3 text-xs text-muted-foreground">OR</span>
-              <Separator className="flex-1" />
+              <Separator className="flex-1 bg-premium-dark-700/50" />
             </div>
 
             <div className="grid gap-2 mt-4">
-              <Button variant="outline" className="w-full border-gray-200 hover:bg-gray-50">
+              <Button variant="outline" className="w-full btn-outline">
                 Continue with Google
               </Button>
             </div>
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col items-center space-y-2">
+        <CardFooter className="flex flex-col items-center space-y-2 border-t border-premium-dark-700/30 pb-6">
           <div className="text-sm text-muted-foreground">
             Don't have an account?{' '}
-            <Link to="/auth/register" className="text-ip-blue hover:underline font-medium">
+            <Link to="/auth/register" className="text-premium-gold hover:underline font-medium">
               Sign up
             </Link>
           </div>
@@ -142,6 +158,15 @@ const Login = () => {
           </Link>
         </CardFooter>
       </Card>
+
+      <div className="bg-premium-dark-800/60 rounded-xl p-4 border border-premium-dark-700/30 flex items-center gap-3">
+        <div className="shrink-0">
+          <Sparkles className="h-5 w-5 text-premium-gold" />
+        </div>
+        <div className="text-xs text-muted-foreground">
+          <p>Join Investor Paisa Premium for exclusive finance insights and expert advice.</p>
+        </div>
+      </div>
 
       <LegalDisclaimer />
     </div>
