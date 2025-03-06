@@ -1,6 +1,7 @@
 
 import { Link } from 'react-router-dom';
 import MobileNav from './MobileNav';
+import { PremiumButton } from '../ui/premium/button';
 
 const Header = () => {
   return (
@@ -22,9 +23,11 @@ const Header = () => {
           <Link to="/auth/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             Sign In
           </Link>
-          <Link to="/auth/register" className="btn-premium text-sm py-2 px-4">
-            Sign Up
-          </Link>
+          <PremiumButton asChild size="sm">
+            <Link to="/auth/register">
+              Sign Up
+            </Link>
+          </PremiumButton>
         </nav>
         
         {/* Mobile Navigation */}

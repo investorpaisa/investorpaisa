@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu, X } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { PremiumButton } from '../ui/premium/button';
 
 const MobileNav = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -61,13 +62,11 @@ const MobileNav = () => {
             >
               Sign In
             </Link>
-            <Link 
-              to="/auth/register" 
-              className="btn-premium text-lg py-3 px-4 w-full"
-              onClick={() => setIsOpen(false)}
-            >
-              Sign Up
-            </Link>
+            <PremiumButton asChild onClick={() => setIsOpen(false)}>
+              <Link to="/auth/register">
+                Sign Up
+              </Link>
+            </PremiumButton>
           </div>
         </div>
       </SheetContent>
