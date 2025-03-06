@@ -1,32 +1,56 @@
 
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { PremiumButton } from '../ui/premium/button';
 
 const CtaSection = () => {
   return (
-    <section className="py-20 px-4 bg-premium-dark-900 relative overflow-hidden">
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-premium-gold/20 via-transparent to-transparent"></div>
-        <div className="absolute bottom-0 right-0 w-full h-full bg-gradient-to-tl from-premium-gold/20 via-transparent to-transparent"></div>
-      </div>
-      <div className="max-w-5xl mx-auto text-center relative z-10">
-        <div className="inline-flex items-center rounded-full border border-premium-gold/30 px-4 py-1.5 text-sm font-medium mb-6">
-          <span className="block h-2 w-2 rounded-full bg-premium-gold mr-2"></span>
-          <span>Join Our Community</span>
+    <Card className="border-none bg-premium-dark-800/60 overflow-hidden">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg">Join Investor Paisa</CardTitle>
+        <CardDescription>Community-driven financial wisdom</CardDescription>
+      </CardHeader>
+      <CardContent className="p-3">
+        <div className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            Connect with thousands of users and experts on the same financial journey.
+          </p>
+          <ul className="text-sm space-y-2">
+            <li className="flex items-start">
+              <div className="h-5 w-5 rounded-full bg-premium-dark-700 flex items-center justify-center mr-2 mt-0.5">
+                <span className="text-xs text-premium-gold">1</span>
+              </div>
+              <span>Get personalized financial advice</span>
+            </li>
+            <li className="flex items-start">
+              <div className="h-5 w-5 rounded-full bg-premium-dark-700 flex items-center justify-center mr-2 mt-0.5">
+                <span className="text-xs text-premium-gold">2</span>
+              </div>
+              <span>Connect with certified experts</span>
+            </li>
+            <li className="flex items-start">
+              <div className="h-5 w-5 rounded-full bg-premium-dark-700 flex items-center justify-center mr-2 mt-0.5">
+                <span className="text-xs text-premium-gold">3</span>
+              </div>
+              <span>Learn from community experiences</span>
+            </li>
+          </ul>
+          
+          <div className="pt-2 space-y-2">
+            <PremiumButton asChild size="sm" className="w-full">
+              <Link to="/auth/register">
+                Create Account
+                <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+            </PremiumButton>
+            <p className="text-xs text-center text-muted-foreground">
+              Already a member? <Link to="/auth/login" className="text-premium-gold hover:underline">Sign In</Link>
+            </p>
+          </div>
         </div>
-        <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-gold bg-clip-text text-transparent">Ready to make better financial decisions?</h2>
-        <p className="text-lg text-muted-foreground mb-8 max-w-3xl mx-auto">
-          Join our community today and connect with thousands of users and experts who are on the same financial journey as you.
-        </p>
-        <Button asChild className="btn-premium px-8 py-6 rounded-lg animate-hover-rise">
-          <Link to="/auth/register">
-            Get Started Now
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Link>
-        </Button>
-      </div>
-    </section>
+      </CardContent>
+    </Card>
   );
 };
 
