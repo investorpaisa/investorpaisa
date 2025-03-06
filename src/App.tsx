@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   createBrowserRouter,
@@ -10,7 +11,7 @@ import Register from '@/pages/auth/Register';
 import Feed from '@/pages/Feed';
 import Profile from '@/pages/Profile';
 import Inbox from '@/pages/Inbox';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { AuthProvider } from '@/contexts/AuthContext';

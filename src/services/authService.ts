@@ -84,13 +84,13 @@ class AuthService {
         description: "Welcome back to Investor Paisa!"
       });
 
-      // Return user data
+      // Return user data with the correct role type
       return {
         id: authData.user.id,
         name: profileData?.full_name || authData.user.email?.split('@')[0] || 'User',
         email: authData.user.email || '',
         avatar: profileData?.avatar_url,
-        role: profileData?.role || 'user',
+        role: (profileData?.role as 'user' | 'expert') || 'user',
         followers: profileData?.followers || 0,
         following: profileData?.following || 0,
         joined: new Date(authData.user.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
@@ -155,7 +155,7 @@ class AuthService {
         name: profileData?.full_name || session.user.email?.split('@')[0] || 'User',
         email: session.user.email || '',
         avatar: profileData?.avatar_url,
-        role: profileData?.role || 'user',
+        role: (profileData?.role as 'user' | 'expert') || 'user',
         followers: profileData?.followers || 0,
         following: profileData?.following || 0,
         joined: new Date(session.user.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })

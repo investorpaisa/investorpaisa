@@ -1,4 +1,3 @@
-
 import { toast } from "@/hooks/use-toast";
 
 // Types
@@ -7,7 +6,6 @@ export interface User {
   name: string;
   email: string;
   avatar?: string;
-  bio?: string;
   role: 'user' | 'expert';
   followers: number;
   following: number;
