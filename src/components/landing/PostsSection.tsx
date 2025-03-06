@@ -40,42 +40,42 @@ const posts = [
 
 const PostCard = ({ post }: { post: typeof posts[0] }) => {
   return (
-    <Card className="mb-4 border-none bg-premium-dark-800/80 hover:bg-premium-dark-800/90 transition-colors backdrop-blur-md shadow-smooth hover:shadow-premium animate-fade-in">
+    <Card className="mb-4 border border-black/5 bg-white hover:bg-black/[0.01] transition-colors shadow-smooth hover:shadow-premium animate-fade-in">
       <div className="flex">
-        {/* Voting sidebar - improved contrast */}
-        <div className="flex flex-col items-center p-2 bg-premium-dark-700/90 backdrop-blur-sm rounded-l-lg border-r border-premium-dark-600/50">
-          <button className="text-foreground/80 hover:text-premium-gold transition-colors">
+        {/* Voting sidebar */}
+        <div className="flex flex-col items-center p-2 bg-black/[0.03] backdrop-blur-sm rounded-l-lg border-r border-black/5">
+          <button className="text-black/60 hover:text-gold transition-colors">
             <ArrowUp className="h-5 w-5" />
           </button>
-          <span className="text-sm font-medium my-1 text-premium-gold">{post.upvotes}</span>
-          <button className="text-foreground/80 hover:text-foreground transition-colors">
+          <span className="text-sm font-medium my-1 text-gold">{post.upvotes}</span>
+          <button className="text-black/60 hover:text-black transition-colors">
             <ArrowDown className="h-5 w-5" />
           </button>
         </div>
         
-        {/* Post content - improved text visibility */}
+        {/* Post content */}
         <CardContent className="p-3 w-full">
-          <div className="flex items-center text-xs text-foreground/70 mb-2">
-            <span className="font-medium text-premium-gold">p/{post.community}</span>
-            <span className="mx-1 text-foreground/70">•</span>
-            <span className="hover:text-foreground transition-colors cursor-pointer">Posted by u/{post.author}</span>
-            <span className="mx-1 text-foreground/70">•</span>
+          <div className="flex items-center text-xs text-black/60 mb-2">
+            <span className="font-medium text-gold">p/{post.community}</span>
+            <span className="mx-1 text-black/40">•</span>
+            <span className="hover:text-black transition-colors cursor-pointer">Posted by u/{post.author}</span>
+            <span className="mx-1 text-black/40">•</span>
             <span>{post.timePosted}</span>
           </div>
           
-          <h3 className="text-base font-medium mb-2 tracking-tight text-foreground hover:text-premium-gold transition-colors cursor-pointer">{post.title}</h3>
-          <p className="text-sm text-foreground/70 mb-3 leading-relaxed">{post.content}</p>
+          <h3 className="text-base font-medium mb-2 tracking-tight text-black hover:text-gold transition-colors cursor-pointer">{post.title}</h3>
+          <p className="text-sm text-black/70 mb-3 leading-relaxed">{post.content}</p>
           
-          <div className="flex items-center gap-4 text-xs text-foreground/60">
-            <button className="flex items-center gap-1 hover:bg-premium-dark-600/50 px-2 py-1 rounded transition-colors">
+          <div className="flex items-center gap-4 text-xs text-black/50">
+            <button className="flex items-center gap-1 hover:bg-black/5 px-2 py-1 rounded transition-colors">
               <MessageCircle className="h-4 w-4" />
               <span>{post.comments} Comments</span>
             </button>
-            <button className="flex items-center gap-1 hover:bg-premium-dark-600/50 px-2 py-1 rounded transition-colors">
+            <button className="flex items-center gap-1 hover:bg-black/5 px-2 py-1 rounded transition-colors">
               <Share className="h-4 w-4" />
               <span>Share</span>
             </button>
-            <button className="flex items-center gap-1 hover:bg-premium-dark-600/50 px-2 py-1 rounded transition-colors">
+            <button className="flex items-center gap-1 hover:bg-black/5 px-2 py-1 rounded transition-colors">
               <Bookmark className="h-4 w-4" />
               <span>Save</span>
             </button>
@@ -89,17 +89,17 @@ const PostCard = ({ post }: { post: typeof posts[0] }) => {
 const PostsSection = () => {
   return (
     <section className="space-y-4">
-      {/* Improved tab bar visibility */}
-      <div className="flex items-center bg-premium-dark-700/80 backdrop-blur-sm rounded-lg p-3 mb-4 border border-premium-dark-600/40 shadow-smooth">
-        <div className="flex items-center gap-2 text-sm font-medium border-b-2 border-premium-gold px-2 py-1 text-foreground">
-          <Flame className="h-4 w-4 text-premium-gold" />
+      {/* Tab bar */}
+      <div className="flex items-center bg-white backdrop-blur-sm rounded-lg p-3 mb-4 border border-black/5 shadow-smooth">
+        <div className="flex items-center gap-2 text-sm font-medium border-b-2 border-gold px-2 py-1 text-black">
+          <Flame className="h-4 w-4 text-gold" />
           <span>Popular Posts</span>
         </div>
-        <div className="flex items-center gap-2 text-sm text-foreground/70 hover:text-foreground px-2 py-1 ml-4 transition-colors">
+        <div className="flex items-center gap-2 text-sm text-black/60 hover:text-black px-2 py-1 ml-4 transition-colors">
           <Clock className="h-4 w-4" />
           <span>New</span>
         </div>
-        <div className="flex items-center gap-2 text-sm text-foreground/70 hover:text-foreground px-2 py-1 ml-4 transition-colors">
+        <div className="flex items-center gap-2 text-sm text-black/60 hover:text-black px-2 py-1 ml-4 transition-colors">
           <TrendingUp className="h-4 w-4" />
           <span>Top</span>
         </div>
@@ -113,7 +113,7 @@ const PostsSection = () => {
       
       <div className="flex justify-center py-4">
         <PremiumButton variant="outline" size="sm" animation="pulse" className="group">
-          <span className="group-hover:text-premium-gold-light transition-colors">See More Posts</span>
+          <span className="group-hover:text-gold transition-colors">See More Posts</span>
         </PremiumButton>
       </div>
     </section>

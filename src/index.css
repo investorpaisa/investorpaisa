@@ -1,5 +1,5 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,400&f[]=clash-display@200,600,700,400,500&display=swap');
+@import url('https://fonts.cdnfonts.com/css/gilroy-bold');
 
 @tailwind base;
 @tailwind components;
@@ -8,84 +8,44 @@
 @layer base {
   :root {
     /* Light mode variables */
-    --background: 210 33% 99%;
-    --foreground: 210 33% 10%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
 
     --card: 0 0% 100%;
-    --card-foreground: 210 33% 10%;
+    --card-foreground: 0 0% 0%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 210 33% 10%;
+    --popover-foreground: 0 0% 0%;
 
-    --primary: 210 77% 14%;
-    --primary-foreground: 210 0% 98%;
+    --primary: 0 0% 0%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 180 53% 46%;
-    --secondary-foreground: 210 0% 98%;
+    --secondary: 0 0% 95%;
+    --secondary-foreground: 0 0% 0%;
 
-    --muted: 210 20% 96%;
-    --muted-foreground: 210 20% 60%;
+    --muted: 0 0% 95%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 168 52% 46%;
-    --accent-foreground: 210 0% 98%;
+    --accent: 45 70% 64%;
+    --accent-foreground: 0 0% 0%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 0% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 210 20% 92%;
-    --input: 210 20% 92%;
-    --ring: 210 77% 14%;
+    --border: 0 0% 92%;
+    --input: 0 0% 92%;
+    --ring: 45 70% 64%;
 
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 210 33% 25%;
-    --sidebar-primary: 210 77% 14%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 168 52% 46%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 210 20% 92%;
-    --sidebar-ring: 168 52% 46%;
-  }
-
-  .dark {
-    /* Cred-inspired premium dark theme with improved visibility */
-    --background: 222 25% 8%;
-    --foreground: 210 20% 98%;
-
-    --card: 222 24% 10%;
-    --card-foreground: 210 20% 98%;
-
-    --popover: 222 25% 10%;
-    --popover-foreground: 210 20% 98%;
-
-    --primary: 45 70% 60%;
-    --primary-foreground: 222 47% 11%;
-
-    --secondary: 330 60% 55%;
-    --secondary-foreground: 210 20% 98%;
-
-    --muted: 222 25% 15%;
-    --muted-foreground: 210 20% 80%;
-
-    --accent: 280 50% 50%;
-    --accent-foreground: 210 20% 98%;
-
-    --destructive: 0 62% 45%;
-    --destructive-foreground: 210 20% 98%;
-
-    --border: 222 25% 20%;
-    --input: 222 25% 20%;
-    --ring: 45 70% 60%;
-
-    --sidebar-background: 222 30% 6%;
-    --sidebar-foreground: 210 20% 98%;
-    --sidebar-primary: 45 70% 60%;
-    --sidebar-primary-foreground: 222 47% 11%;
-    --sidebar-accent: 330 60% 55%;
-    --sidebar-accent-foreground: 210 20% 98%;
-    --sidebar-border: 222 28% 15%;
-    --sidebar-ring: 45 70% 60%;
+    --sidebar-foreground: 0 0% 25%;
+    --sidebar-primary: 0 0% 0%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 45 70% 64%;
+    --sidebar-accent-foreground: 0 0% 0%;
+    --sidebar-border: 0 0% 92%;
+    --sidebar-ring: 45 70% 64%;
   }
 }
 
@@ -96,26 +56,27 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+    font-family: 'Gilroy', sans-serif;
   }
 
   html {
-    @apply dark; /* Apply dark mode to html element */
+    @apply scroll-smooth;
   }
 
   h1, h2, h3 {
-    @apply font-heading;
+    @apply font-heading font-medium;
   }
 
   h1 {
-    @apply text-3xl md:text-4xl lg:text-5xl font-medium leading-tight tracking-tight;
+    @apply text-3xl md:text-4xl lg:text-5xl leading-tight tracking-tight;
   }
 
   h2 {
-    @apply text-2xl md:text-3xl font-medium leading-tight;
+    @apply text-2xl md:text-3xl leading-tight;
   }
 
   h3 {
-    @apply text-xl md:text-2xl font-medium leading-snug;
+    @apply text-xl md:text-2xl leading-snug;
   }
   
   /* Scrollbars */
@@ -128,7 +89,7 @@
   }
   
   ::-webkit-scrollbar-thumb {
-    @apply bg-premium-gold/30 rounded-full hover:bg-premium-gold/40 transition-colors;
+    @apply bg-gold/30 rounded-full hover:bg-gold/40 transition-colors;
   }
 }
 
@@ -143,30 +104,30 @@
     @apply shadow-hover;
   }
 
-  /* Premium UI Elements - Cred-inspired with improved visibility */
+  /* Premium UI Elements - Two-tone design */
   .bg-gradient-premium {
-    @apply bg-gradient-to-br from-premium-dark-900 via-premium-dark-800 to-premium-dark-900;
+    @apply bg-white;
   }
   
   .bg-gradient-gold {
-    @apply bg-gradient-to-r from-premium-gold via-premium-gold/90 to-premium-gold/80;
+    @apply bg-gradient-to-r from-gold via-gold/90 to-gold/80;
   }
   
   .premium-card {
-    @apply bg-premium-dark-800/90 backdrop-blur-md border border-premium-gold/20 rounded-xl shadow-premium hover:shadow-premium-hover transition-all duration-300;
+    @apply bg-white border border-gold/20 rounded-xl shadow-premium hover:shadow-premium-hover transition-all duration-300;
   }
   
   .premium-button {
-    @apply bg-gradient-to-r from-primary to-primary/90 text-premium-dark-900 font-medium rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300;
+    @apply bg-black text-white font-medium rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300;
   }
 
-  /* Glass effect with improved visibility */
+  /* Glass effect */
   .glass {
-    @apply bg-premium-dark-700/60 backdrop-blur-lg border border-premium-dark-600/40 shadow-smooth;
+    @apply bg-white/90 backdrop-blur-lg border border-black/5 shadow-smooth;
   }
 
   .glass-accent {
-    @apply bg-premium-dark-700/70 backdrop-blur-lg border border-premium-gold/20 shadow-premium;
+    @apply bg-white/90 backdrop-blur-lg border border-gold/20 shadow-premium;
   }
   
   /* Premium Text Styles */
@@ -184,21 +145,21 @@
 
   /* Gold accent elements */
   .gold-text {
-    @apply text-premium-gold;
+    @apply text-gold;
   }
 
   .gold-border {
-    @apply border-premium-gold;
+    @apply border-gold;
   }
 
-  /* Premium card effect with improved visibility */
+  /* Premium card effect */
   .card-premium {
     @apply relative overflow-hidden rounded-xl;
   }
 
   .card-premium::before {
     content: '';
-    @apply absolute inset-0 border border-premium-gold/30 rounded-xl opacity-0 transition-opacity duration-300;
+    @apply absolute inset-0 border border-gold/30 rounded-xl opacity-0 transition-opacity duration-300;
   }
 
   .card-premium:hover::before {
@@ -207,35 +168,35 @@
   
   /* Button styles */
   .btn-premium {
-    @apply bg-gradient-to-r from-premium-gold to-premium-gold/80 text-premium-dark-900 font-medium py-2.5 px-5 rounded-lg 
+    @apply bg-black text-white font-medium py-2.5 px-5 rounded-lg 
     shadow-md hover:shadow-premium transition-all duration-300 flex items-center justify-center gap-2;
   }
   
   .btn-outline {
-    @apply border border-premium-gold/40 bg-transparent text-premium-gold hover:bg-premium-gold/10 
+    @apply border border-gold/40 bg-transparent text-black hover:bg-gold/10 
     font-medium py-2.5 px-5 rounded-lg transition-all duration-300 flex items-center justify-center gap-2;
   }
   
   .btn-ghost {
-    @apply bg-transparent text-foreground/80 hover:text-foreground font-medium py-2 px-4 
+    @apply bg-transparent text-black/80 hover:text-black font-medium py-2 px-4 
     rounded-lg transition-all duration-300 flex items-center justify-center gap-2;
   }
   
-  /* Input styles with improved visibility */
+  /* Input styles */
   .input-premium {
-    @apply bg-premium-dark-700/70 border border-premium-dark-600/60 focus:border-premium-gold/60 text-foreground 
-    rounded-lg px-4 py-2.5 outline-none focus:ring-1 focus:ring-premium-gold/40 transition-all;
+    @apply bg-white border border-black/10 focus:border-gold/60 text-black 
+    rounded-lg px-4 py-2.5 outline-none focus:ring-1 focus:ring-gold/40 transition-all;
   }
   
-  /* Card styles with improved visibility */
+  /* Card styles */
   .card-luxe {
-    @apply bg-premium-dark-700/90 backdrop-blur-lg border border-premium-dark-600/40 rounded-xl p-6 
+    @apply bg-white border border-black/10 rounded-xl p-6 
     shadow-smooth hover:shadow-premium transition-all duration-300;
   }
   
-  /* Badge styles with improved visibility */
+  /* Badge styles */
   .badge-premium {
-    @apply bg-premium-gold/30 text-premium-gold text-xs font-medium px-2.5 py-0.5 rounded-full;
+    @apply bg-gold/30 text-black text-xs font-medium px-2.5 py-0.5 rounded-full;
   }
 }
 

@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 import { fontFamily } from "tailwindcss/defaultTheme";
 import animatePlugin from "tailwindcss-animate";
@@ -20,9 +19,9 @@ const config = {
     },
     extend: {
       fontFamily: {
-        sans: ["Montserrat", ...fontFamily.sans],
-        heading: ["Playfair Display", ...fontFamily.serif],
-        serif: ["Cormorant Garamond", ...fontFamily.serif],
+        sans: ["Gilroy", ...fontFamily.sans],
+        heading: ["Gilroy", ...fontFamily.sans],
+        serif: ["Georgia", ...fontFamily.serif],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -31,33 +30,11 @@ const config = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
 
-        // IP brand colors
-        "ip-blue": "#1A3A6C",
-        "ip-blue-600": "#14305A",
-        "ip-blue-700": "#102648",
-        "ip-blue-800": "#0C1C36", 
-        "ip-blue-900": "#081424",
-        "ip-blue-50": "#E5EAF2",
-        "ip-blue-100": "#B3C3DC",
+        // Primary brand colors
+        gold: "#DFBD69",
+        "gold-light": "#F1D689",
+        "gold-dark": "#C0A65C",
         
-        "ip-teal": "#27B0AC",
-        "ip-teal-600": "#1E8C89",
-        "ip-teal-700": "#186865",
-        "ip-teal-800": "#114443",
-        "ip-teal-900": "#0B2C2B",
-        "ip-teal-50": "#E6F5F5",
-        "ip-teal-100": "#B0E3E1",
-
-        // Premium colors - enhanced for better visibility
-        "premium-gold": "#DFBD69",
-        "premium-gold-light": "#F1D689",
-        "premium-gold-dark": "#C0A65C",
-        "premium-dark-900": "#0A0B10", 
-        "premium-dark-800": "#121420",
-        "premium-dark-700": "#1A1E2E",
-        "premium-dark-600": "#252A40",
-        "premium-dark-500": "#303650",
-
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -88,10 +65,10 @@ const config = {
         },
       },
       boxShadow: {
-        premium: "0 10px 30px -10px rgba(10, 11, 16, 0.8), 0 2px 8px -2px rgba(10, 11, 16, 0.5), 0 0 0 1px rgba(223, 189, 105, 0.05)",
-        "premium-hover": "0 20px 40px -12px rgba(10, 11, 16, 0.8), 0 4px 12px -4px rgba(10, 11, 16, 0.5), 0 0 0 1px rgba(223, 189, 105, 0.1)",
-        smooth: "0 4px 20px -2px rgba(10, 11, 16, 0.3), 0 2px 6px -1px rgba(10, 11, 16, 0.2)",
-        hover: "0 10px 30px -5px rgba(10, 11, 16, 0.3), 0 5px 15px -3px rgba(10, 11, 16, 0.2)",
+        premium: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(223, 189, 105, 0.1)",
+        "premium-hover": "0 20px 40px -12px rgba(0, 0, 0, 0.15), 0 10px 20px -8px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(223, 189, 105, 0.2)",
+        smooth: "0 4px 20px -2px rgba(0, 0, 0, 0.1), 0 2px 6px -1px rgba(0, 0, 0, 0.05)",
+        hover: "0 10px 30px -5px rgba(0, 0, 0, 0.1), 0 5px 15px -3px rgba(0, 0, 0, 0.05)",
         glow: "0 0 15px rgba(223, 189, 105, 0.4), 0 0 30px rgba(223, 189, 105, 0.2)",
       },
       borderRadius: {

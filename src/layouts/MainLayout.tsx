@@ -7,7 +7,7 @@ import { MainSidebar } from '@/components/main-sidebar';
 const MainLayout = () => {
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gradient-premium">
+      <div className="min-h-screen flex w-full bg-white">
         <MainSidebar />
         <div className="flex flex-col flex-1">
           <MainNav />

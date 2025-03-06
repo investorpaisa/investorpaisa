@@ -29,13 +29,13 @@ const HeroSection = () => {
   }, []);
   
   return (
-    <section className="py-10 px-6 bg-premium-dark-800/60 backdrop-blur-sm border border-premium-dark-700/30 rounded-lg mb-6 overflow-hidden relative">
+    <section className="py-10 px-6 bg-white border border-black/5 rounded-lg mb-6 overflow-hidden relative">
       {/* Decorative elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-10 w-20 h-20 rounded-full bg-premium-gold/10 blur-xl"></div>
-        <div className="absolute bottom-10 right-10 w-32 h-32 rounded-full bg-premium-gold/5 blur-xl"></div>
-        <div className="absolute w-full h-px bg-gradient-to-r from-transparent via-premium-gold/20 to-transparent top-10"></div>
-        <div className="absolute w-full h-px bg-gradient-to-r from-transparent via-premium-gold/10 to-transparent bottom-10"></div>
+        <div className="absolute top-0 left-10 w-20 h-20 rounded-full bg-gold/10 blur-xl"></div>
+        <div className="absolute bottom-10 right-10 w-32 h-32 rounded-full bg-gold/5 blur-xl"></div>
+        <div className="absolute w-full h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent top-10"></div>
+        <div className="absolute w-full h-px bg-gradient-to-r from-transparent via-gold/10 to-transparent bottom-10"></div>
       </div>
       
       <div className="flex flex-col md:flex-row items-center gap-10 relative z-10">
@@ -48,11 +48,11 @@ const HeroSection = () => {
             <br className="hidden md:block" />
             <span className="relative">
               Community
-              <span className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-premium-gold to-transparent"></span>
+              <span className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-gold to-transparent"></span>
             </span>
           </h1>
           
-          <p className="text-sm md:text-base text-muted-foreground mb-6 max-w-md">
+          <p className="text-sm md:text-base text-black/60 mb-6 max-w-md">
             Get reliable financial insights, connect with experts, and join a thriving community of financial enthusiasts.
           </p>
           
@@ -73,24 +73,24 @@ const HeroSection = () => {
           <div className="mt-10 grid grid-cols-3 gap-2">
             <div className="flex flex-col items-center md:items-start p-2">
               <div className="flex items-center gap-2 mb-1">
-                <TrendingUp className="h-4 w-4 text-premium-gold" />
+                <TrendingUp className="h-4 w-4 text-gold" />
                 <span className="text-sm font-medium">Market Data</span>
               </div>
-              <p className="text-xs text-muted-foreground hidden md:block">Real-time insights</p>
+              <p className="text-xs text-black/60 hidden md:block">Real-time insights</p>
             </div>
             <div className="flex flex-col items-center md:items-start p-2">
               <div className="flex items-center gap-2 mb-1">
-                <Users className="h-4 w-4 text-premium-gold" />
+                <Users className="h-4 w-4 text-gold" />
                 <span className="text-sm font-medium">Expert Community</span>
               </div>
-              <p className="text-xs text-muted-foreground hidden md:block">Connect with pros</p>
+              <p className="text-xs text-black/60 hidden md:block">Connect with pros</p>
             </div>
             <div className="flex flex-col items-center md:items-start p-2">
               <div className="flex items-center gap-2 mb-1">
-                <Shield className="h-4 w-4 text-premium-gold" />
+                <Shield className="h-4 w-4 text-gold" />
                 <span className="text-sm font-medium">Trusted Advice</span>
               </div>
-              <p className="text-xs text-muted-foreground hidden md:block">Verified information</p>
+              <p className="text-xs text-black/60 hidden md:block">Verified information</p>
             </div>
           </div>
         </div>
@@ -100,19 +100,19 @@ const HeroSection = () => {
           className="flex-1 relative max-w-[250px] md:max-w-sm opacity-0 translate-y-8 transition-all duration-1000 ease-out"
         >
           <div className="relative">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-premium-gold to-premium-gold/20 rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000"></div>
-            <div className="relative aspect-square rounded-lg overflow-hidden border border-premium-dark-700/50 bg-premium-dark-800/90">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-gold to-gold/20 rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000"></div>
+            <div className="relative aspect-square rounded-lg overflow-hidden border border-black/10 bg-white/90">
               <img 
                 src="/placeholder.svg"
                 alt="Financial Community" 
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-premium-dark-800 border border-premium-gold/20 flex items-center justify-center">
+            <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-white border border-gold/20 flex items-center justify-center">
               <div className="text-center">
-                <div className="text-xs text-muted-foreground">Join</div>
-                <div className="text-xl font-bold text-premium-gold">20K+</div>
-                <div className="text-xs text-muted-foreground">Members</div>
+                <div className="text-xs text-black/60">Join</div>
+                <div className="text-xl font-bold text-gold">20K+</div>
+                <div className="text-xs text-black/60">Members</div>
               </div>
             </div>
           </div>

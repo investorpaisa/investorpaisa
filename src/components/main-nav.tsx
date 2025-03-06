@@ -18,7 +18,7 @@ export function MainNav() {
   const { user, logout } = useAuth();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-premium-dark-700/20 bg-premium-dark-800/80 backdrop-blur-md">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-black/5 bg-white/90 backdrop-blur-md">
       <div className="flex h-16 items-center px-4 md:px-6">
         <SidebarTrigger className="lg:hidden mr-2">
           <Menu className="h-6 w-6" />
@@ -32,15 +32,15 @@ export function MainNav() {
         </div>
         
         <nav className="mx-6 hidden md:flex items-center space-x-4 lg:space-x-6">
-          <Link to="/feed" className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-premium-gold">
+          <Link to="/feed" className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-gold">
             <Home className="h-4 w-4" />
             <span>Feed</span>
           </Link>
-          <Link to="/discover" className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-premium-gold">
+          <Link to="/discover" className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-gold">
             <Globe className="h-4 w-4" />
             <span>Discover</span>
           </Link>
-          <Link to="/market" className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-premium-gold">
+          <Link to="/market" className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-gold">
             <BarChart2 className="h-4 w-4" />
             <span>Market</span>
           </Link>
@@ -50,13 +50,13 @@ export function MainNav() {
           <PremiumButton size="sm" className="hidden lg:flex">
             Go Premium
           </PremiumButton>
-          <button className="text-muted-foreground hover:text-foreground h-8 w-8 rounded-md grid place-items-center transition-colors">
+          <button className="text-black/50 hover:text-black h-8 w-8 rounded-md grid place-items-center transition-colors">
             <Bell className="h-4 w-4" />
             <span className="sr-only">Notifications</span>
           </button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 rounded-md p-0 data-[state=open]:bg-muted">
+              <Button variant="ghost" className="h-8 w-8 rounded-md p-0 data-[state=open]:bg-black/5">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={user?.avatar} />
                   <AvatarFallback>{user?.name?.slice(0, 2).toUpperCase()}</AvatarFallback>

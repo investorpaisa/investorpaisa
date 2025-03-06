@@ -36,7 +36,7 @@
 
 .card {
   padding: 2em;
-  background-color: rgba(26, 31, 44, 0.5);
+  background-color: white;
   border: 1px solid rgba(230, 180, 94, 0.1);
   border-radius: 1rem;
   backdrop-filter: blur(10px);
@@ -45,7 +45,7 @@
 
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   border-color: rgba(230, 180, 94, 0.3);
 }
 
