@@ -17,11 +17,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { LegalDisclaimer } from '@/components/LegalDisclaimer';
-import { Loader2, Lock, Mail, Sparkles, AlertCircle } from 'lucide-react';
+import { Loader2, Lock, Mail, Sparkles } from 'lucide-react';
 import { authService } from '@/services/authService';
 import { toast } from '@/hooks/use-toast';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { supabase } from '@/integrations/supabase/client';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
@@ -33,9 +31,6 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 const Login = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [isResendingEmail, setIsResendingEmail] = useState(false);
-  const [emailNotConfirmed, setEmailNotConfirmed] = useState(false);
-  const [userEmail, setUserEmail] = useState('');
   
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -47,62 +42,27 @@ const Login = () => {
 
   async function onSubmit(data: LoginFormValues) {
     setIsLoading(true);
-    setEmailNotConfirmed(false);
-    setUserEmail(data.email);
     
     try {
       const user = await authService.login(data.email, data.password);
       if (user) {
         // Successful login
-        toast({
-          title: "Login successful",
-          description: "Welcome back to Investor Paisa!"
-        });
         setTimeout(() => {
           navigate('/feed');
         }, 500);
+      } else {
+        // Login failed but no error was thrown
+        toast({
+          title: "Login failed",
+          description: "Please check your credentials and try again.",
+          variant: "destructive"
+        });
       }
     } catch (error) {
       console.error('Login error:', error);
-      // Check if it's an email confirmation error
-      if (error instanceof Error && 
-          (error.message.includes('Email not confirmed') || 
-           (typeof error === 'object' && error !== null && 
-            'code' in error && error.code === 'email_not_confirmed'))) {
-        setEmailNotConfirmed(true);
-      }
+      // Error is already handled in authService
     } finally {
       setIsLoading(false);
-    }
-  }
-
-  async function handleResendConfirmation() {
-    if (!userEmail) return;
-    
-    setIsResendingEmail(true);
-    try {
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email: userEmail,
-      });
-      
-      if (error) {
-        throw error;
-      }
-      
-      toast({
-        title: "Confirmation email sent",
-        description: "Please check your inbox and confirm your email address"
-      });
-    } catch (error) {
-      console.error('Error resending confirmation email:', error);
-      toast({
-        title: "Failed to resend confirmation email",
-        description: error instanceof Error ? error.message : "Something went wrong",
-        variant: "destructive"
-      });
-    } finally {
-      setIsResendingEmail(false);
     }
   }
 
@@ -122,24 +82,6 @@ const Login = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {emailNotConfirmed && (
-            <Alert variant="destructive" className="mb-4">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Email not confirmed</AlertTitle>
-              <AlertDescription>
-                Please check your inbox and confirm your email address to sign in.
-                <Button 
-                  variant="link" 
-                  onClick={handleResendConfirmation}
-                  disabled={isResendingEmail}
-                  className="p-0 h-auto mt-1 text-destructive underline"
-                >
-                  {isResendingEmail ? 'Sending...' : 'Resend confirmation email'}
-                </Button>
-              </AlertDescription>
-            </Alert>
-          )}
-
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField

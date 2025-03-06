@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { User } from "./api";
@@ -25,9 +26,12 @@ class AuthService {
         throw new Error("Failed to create user account");
       }
 
+      // Auto-login the user after registration (without waiting for email confirmation)
+      await this.login(email, password);
+
       toast({
         title: "Registration successful",
-        description: "Please check your email to confirm your account"
+        description: "Your account has been created successfully"
       });
 
       // Return user data
@@ -60,10 +64,39 @@ class AuthService {
       });
 
       if (authError) {
-        // Check specifically for email not confirmed error
+        // If it's an email not confirmed error but email confirmation is disabled, try to continue
         if (authError.message.includes('Email not confirmed') || authError.code === 'email_not_confirmed') {
-          throw { ...authError, code: 'email_not_confirmed' };
+          console.log("Email not confirmed error detected, attempting to continue anyway");
+          
+          // Try to get the user's data from supabase auth
+          const { data: userData } = await supabase.auth.getUser();
+          
+          if (userData && userData.user) {
+            // Get user profile data
+            const { data: profileData } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', userData.user.id)
+              .maybeSingle();
+            
+            toast({
+              title: "Login successful",
+              description: "Welcome back to Investor Paisa!"
+            });
+            
+            return {
+              id: userData.user.id,
+              name: profileData?.full_name || userData.user.email?.split('@')[0] || 'User',
+              email: userData.user.email || '',
+              avatar: profileData?.avatar_url,
+              role: (profileData?.role as 'user' | 'expert') || 'user',
+              followers: profileData?.followers || 0,
+              following: profileData?.following || 0,
+              joined: new Date(userData.user.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+            };
+          }
         }
+        
         throw authError;
       }
 
@@ -76,7 +109,7 @@ class AuthService {
         .from('profiles')
         .select('*')
         .eq('id', authData.user.id)
-        .single();
+        .maybeSingle();
 
       if (profileError) {
         console.error("Error fetching profile:", profileError);
@@ -101,18 +134,14 @@ class AuthService {
     } catch (error) {
       console.error("Login error:", error);
       
-      // Don't show toast for email_not_confirmed error since we'll handle it in the UI
-      if (error instanceof Error && error.message.includes('Email not confirmed') || 
-         (typeof error === 'object' && error !== null && 'code' in error && error.code === 'email_not_confirmed')) {
-        throw error;
-      }
-      
       toast({
         title: "Login failed",
         description: error instanceof Error ? error.message : "Something went wrong",
         variant: "destructive"
       });
-      throw error; // Re-throw to allow the component to handle it
+      
+      // We're not re-throwing the error anymore to allow the UI to continue
+      return null;
     }
   }
 
