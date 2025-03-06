@@ -30,23 +30,26 @@ const communities = [
 
 const PopularCommunitiesSection = () => {
   return (
-    <Card className="border-none bg-premium-dark-800/80 overflow-hidden">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg text-foreground">Popular Communities</CardTitle>
+    <Card className="border border-premium-gold/20 bg-premium-dark-800/90 overflow-hidden shadow-premium">
+      <CardHeader className="pb-2 border-b border-premium-gold/10">
+        <CardTitle className="text-lg font-medium text-premium-gold">Popular Communities</CardTitle>
       </CardHeader>
       <CardContent className="p-3">
         <div className="space-y-3">
           {communities.map((community) => (
-            <div key={community.id} className="flex items-center p-2 hover:bg-premium-dark-600/50 rounded-md transition-colors">
-              <div className="h-8 w-8 rounded-full bg-premium-dark-600 flex items-center justify-center mr-3">
+            <div 
+              key={community.id} 
+              className="flex items-center p-2 hover:bg-premium-dark-700/80 rounded-md transition-colors border border-transparent hover:border-premium-gold/20"
+            >
+              <div className="h-8 w-8 rounded-full bg-premium-dark-600 flex items-center justify-center mr-3 border border-premium-gold/30">
                 {community.icon}
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-medium text-foreground">p/{community.name}</h3>
-                  <span className="text-xs text-foreground/70">{community.members}</span>
+                  <h3 className="text-sm font-medium text-premium-gold">p/{community.name}</h3>
+                  <span className="text-xs text-premium-gold-light">{community.members}</span>
                 </div>
-                <p className="text-xs text-foreground/70">{community.description}</p>
+                <p className="text-xs text-white/80">{community.description}</p>
               </div>
             </div>
           ))}
