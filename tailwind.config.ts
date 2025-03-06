@@ -48,7 +48,7 @@ const config = {
         "ip-teal-50": "#E6F5F5",
         "ip-teal-100": "#B0E3E1",
 
-        // Premium colors
+        // Premium colors - enhanced for better visibility
         "premium-gold": "#DFBD69",
         "premium-gold-light": "#F1D689",
         "premium-gold-dark": "#C0A65C",

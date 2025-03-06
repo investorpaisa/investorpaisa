@@ -40,42 +40,42 @@ const posts = [
 
 const PostCard = ({ post }: { post: typeof posts[0] }) => {
   return (
-    <Card className="mb-4 border-none bg-premium-dark-800/60 hover:bg-premium-dark-800/80 transition-colors backdrop-blur-md shadow-smooth hover:shadow-premium animate-fade-in">
+    <Card className="mb-4 border-none bg-premium-dark-800/80 hover:bg-premium-dark-800/90 transition-colors backdrop-blur-md shadow-smooth hover:shadow-premium animate-fade-in">
       <div className="flex">
-        {/* Voting sidebar */}
-        <div className="flex flex-col items-center p-2 bg-premium-dark-800/80 backdrop-blur-sm rounded-l-lg border-r border-premium-dark-700/30">
-          <button className="text-muted-foreground hover:text-premium-gold transition-colors">
+        {/* Voting sidebar - improved contrast */}
+        <div className="flex flex-col items-center p-2 bg-premium-dark-700/90 backdrop-blur-sm rounded-l-lg border-r border-premium-dark-600/50">
+          <button className="text-foreground/80 hover:text-premium-gold transition-colors">
             <ArrowUp className="h-5 w-5" />
           </button>
-          <span className="text-sm font-medium my-1 gold-text">{post.upvotes}</span>
-          <button className="text-muted-foreground hover:text-foreground transition-colors">
+          <span className="text-sm font-medium my-1 text-premium-gold">{post.upvotes}</span>
+          <button className="text-foreground/80 hover:text-foreground transition-colors">
             <ArrowDown className="h-5 w-5" />
           </button>
         </div>
         
-        {/* Post content */}
+        {/* Post content - improved text visibility */}
         <CardContent className="p-3 w-full">
-          <div className="flex items-center text-xs text-muted-foreground mb-2">
+          <div className="flex items-center text-xs text-foreground/70 mb-2">
             <span className="font-medium text-premium-gold">p/{post.community}</span>
-            <span className="mx-1">•</span>
+            <span className="mx-1 text-foreground/70">•</span>
             <span className="hover:text-foreground transition-colors cursor-pointer">Posted by u/{post.author}</span>
-            <span className="mx-1">•</span>
+            <span className="mx-1 text-foreground/70">•</span>
             <span>{post.timePosted}</span>
           </div>
           
-          <h3 className="text-base font-medium mb-2 tracking-tight hover:text-premium-gold transition-colors cursor-pointer">{post.title}</h3>
-          <p className="text-sm text-muted-foreground mb-3 leading-relaxed">{post.content}</p>
+          <h3 className="text-base font-medium mb-2 tracking-tight text-foreground hover:text-premium-gold transition-colors cursor-pointer">{post.title}</h3>
+          <p className="text-sm text-foreground/70 mb-3 leading-relaxed">{post.content}</p>
           
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <button className="flex items-center gap-1 hover:bg-premium-dark-700/50 px-2 py-1 rounded transition-colors">
+          <div className="flex items-center gap-4 text-xs text-foreground/60">
+            <button className="flex items-center gap-1 hover:bg-premium-dark-600/50 px-2 py-1 rounded transition-colors">
               <MessageCircle className="h-4 w-4" />
               <span>{post.comments} Comments</span>
             </button>
-            <button className="flex items-center gap-1 hover:bg-premium-dark-700/50 px-2 py-1 rounded transition-colors">
+            <button className="flex items-center gap-1 hover:bg-premium-dark-600/50 px-2 py-1 rounded transition-colors">
               <Share className="h-4 w-4" />
               <span>Share</span>
             </button>
-            <button className="flex items-center gap-1 hover:bg-premium-dark-700/50 px-2 py-1 rounded transition-colors">
+            <button className="flex items-center gap-1 hover:bg-premium-dark-600/50 px-2 py-1 rounded transition-colors">
               <Bookmark className="h-4 w-4" />
               <span>Save</span>
             </button>
@@ -89,16 +89,17 @@ const PostCard = ({ post }: { post: typeof posts[0] }) => {
 const PostsSection = () => {
   return (
     <section className="space-y-4">
-      <div className="flex items-center bg-premium-dark-800/60 backdrop-blur-sm rounded-lg p-3 mb-4 border border-premium-dark-700/20 shadow-smooth">
-        <div className="flex items-center gap-2 text-sm font-medium border-b-2 border-premium-gold px-2 py-1">
+      {/* Improved tab bar visibility */}
+      <div className="flex items-center bg-premium-dark-700/80 backdrop-blur-sm rounded-lg p-3 mb-4 border border-premium-dark-600/40 shadow-smooth">
+        <div className="flex items-center gap-2 text-sm font-medium border-b-2 border-premium-gold px-2 py-1 text-foreground">
           <Flame className="h-4 w-4 text-premium-gold" />
           <span>Popular Posts</span>
         </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground px-2 py-1 ml-4 transition-colors">
+        <div className="flex items-center gap-2 text-sm text-foreground/70 hover:text-foreground px-2 py-1 ml-4 transition-colors">
           <Clock className="h-4 w-4" />
           <span>New</span>
         </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground px-2 py-1 ml-4 transition-colors">
+        <div className="flex items-center gap-2 text-sm text-foreground/70 hover:text-foreground px-2 py-1 ml-4 transition-colors">
           <TrendingUp className="h-4 w-4" />
           <span>Top</span>
         </div>

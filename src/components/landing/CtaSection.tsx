@@ -6,31 +6,31 @@ import { PremiumButton } from '../ui/premium/button';
 
 const CtaSection = () => {
   return (
-    <Card className="border-none bg-premium-dark-800/60 overflow-hidden">
+    <Card className="border-none bg-premium-dark-800/80 overflow-hidden">
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg">Join Investor Paisa</CardTitle>
-        <CardDescription>Community-driven financial wisdom</CardDescription>
+        <CardTitle className="text-lg text-foreground">Join Investor Paisa</CardTitle>
+        <CardDescription className="text-foreground/70">Community-driven financial wisdom</CardDescription>
       </CardHeader>
       <CardContent className="p-3">
         <div className="space-y-3">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground/80">
             Connect with thousands of users and experts on the same financial journey.
           </p>
-          <ul className="text-sm space-y-2">
+          <ul className="text-sm space-y-2 text-foreground">
             <li className="flex items-start">
-              <div className="h-5 w-5 rounded-full bg-premium-dark-700 flex items-center justify-center mr-2 mt-0.5">
+              <div className="h-5 w-5 rounded-full bg-premium-dark-600 flex items-center justify-center mr-2 mt-0.5">
                 <span className="text-xs text-premium-gold">1</span>
               </div>
               <span>Get personalized financial advice</span>
             </li>
             <li className="flex items-start">
-              <div className="h-5 w-5 rounded-full bg-premium-dark-700 flex items-center justify-center mr-2 mt-0.5">
+              <div className="h-5 w-5 rounded-full bg-premium-dark-600 flex items-center justify-center mr-2 mt-0.5">
                 <span className="text-xs text-premium-gold">2</span>
               </div>
               <span>Connect with certified experts</span>
             </li>
             <li className="flex items-start">
-              <div className="h-5 w-5 rounded-full bg-premium-dark-700 flex items-center justify-center mr-2 mt-0.5">
+              <div className="h-5 w-5 rounded-full bg-premium-dark-600 flex items-center justify-center mr-2 mt-0.5">
                 <span className="text-xs text-premium-gold">3</span>
               </div>
               <span>Learn from community experiences</span>
@@ -44,7 +44,7 @@ const CtaSection = () => {
                 <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
             </PremiumButton>
-            <p className="text-xs text-center text-muted-foreground">
+            <p className="text-xs text-center text-foreground/70">
               Already a member? <Link to="/auth/login" className="text-premium-gold hover:underline">Sign In</Link>
             </p>
           </div>
