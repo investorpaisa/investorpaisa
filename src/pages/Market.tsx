@@ -15,7 +15,7 @@ const MarketPage = () => {
         </div>
         
         <div className="space-y-6">
-          <Card className="p-4 bg-dark-300/60 backdrop-blur-md">
+          <Card className="p-4 bg-premium-dark-800/60 backdrop-blur-md">
             <h2 className="text-xl font-semibold tracking-tight mb-4">Stock Search</h2>
             <StockSearch />
           </Card>
