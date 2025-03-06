@@ -5,15 +5,15 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const premiumButtonVariants = cva(
-  "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-premium-gold/60 disabled:opacity-50 disabled:pointer-events-none",
+  "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#DFBD69]/60 disabled:opacity-50 disabled:pointer-events-none",
   {
     variants: {
       variant: {
-        default: "bg-gradient-to-r from-premium-gold to-premium-gold/80 text-premium-dark-900 shadow-md hover:shadow-premium",
-        outline: "border border-premium-gold/40 bg-transparent text-premium-gold hover:bg-premium-gold/10",
-        ghost: "bg-transparent text-foreground/80 hover:text-foreground",
-        link: "bg-transparent text-premium-gold underline-offset-4 hover:underline p-0 h-auto",
-        glass: "bg-premium-dark-700/70 backdrop-blur-md border border-premium-dark-600/50 text-foreground hover:border-premium-gold/30",
+        default: "bg-black text-white shadow-md hover:bg-black/90",
+        outline: "border border-[#DFBD69]/40 bg-transparent text-black hover:bg-[#DFBD69]/10",
+        ghost: "bg-transparent text-black hover:text-black/80",
+        link: "bg-transparent text-[#DFBD69] underline-offset-4 hover:underline p-0 h-auto",
+        glass: "bg-white backdrop-blur-md border border-[#DFBD69]/20 text-black hover:border-[#DFBD69]/30",
       },
       size: {
         default: "h-10 px-4 py-2",
