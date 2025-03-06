@@ -1,9 +1,9 @@
 
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
-import { Message, User } from "./api";
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/components/ui/use-toast';
+import { Message, User } from '@/services/api';
 
-class MessageService {
+export const messageService = {
   async getConversations(): Promise<{user: User, lastMessage: string, unreadCount: number}[]> {
     try {
       const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -12,59 +12,49 @@ class MessageService {
         throw new Error("You must be logged in to view conversations");
       }
       
-      // Get all unique users the current user has exchanged messages with
-      const { data: sentToUsers, error: sentError } = await supabase
-        .from('messages')
-        .select('receiver_id')
-        .eq('sender_id', userData.user.id)
-        .order('created_at', { ascending: false });
+      // Get list of users the current user has exchanged messages with
+      const { data, error } = await supabase
+        .rpc('get_conversations', { user_id: userData.user.id });
         
-      const { data: receivedFromUsers, error: receivedError } = await supabase
-        .from('messages')
-        .select('sender_id')
-        .eq('receiver_id', userData.user.id)
-        .order('created_at', { ascending: false });
-        
-      if (sentError || receivedError) {
-        throw sentError || receivedError;
+      if (error) {
+        throw error;
       }
       
-      // Combine unique user IDs from both sent and received messages
-      const userIds = new Set([
-        ...sentToUsers.map(m => m.receiver_id),
-        ...receivedFromUsers.map(m => m.sender_id)
-      ]);
+      if (!data || data.length === 0) {
+        return [];
+      }
       
-      // Get conversations with last message and unread count
-      const conversations = await Promise.all(Array.from(userIds).map(async (userId) => {
-        // Get user profile
-        const { data: profile, error: profileError } = await supabase
+      // For each conversation, get the latest message and unread count
+      const conversations = await Promise.all(data.map(async (conversation) => {
+        const userId = conversation.other_user_id;
+        
+        // Get user profile details
+        const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', userId)
           .single();
           
         if (profileError) {
-          console.error(`Error fetching profile for user ${userId}:`, profileError);
+          console.error("Error fetching profile:", profileError);
           return null;
         }
         
-        // Get last message
-        const { data: lastMessageData, error: lastMessageError } = await supabase
+        // Get latest message
+        const { data: messageData, error: messageError } = await supabase
           .from('messages')
-          .select('*')
+          .select('content, is_read')
           .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
-          .or(`sender_id.eq.${userData.user.id},receiver_id.eq.${userData.user.id}`)
           .order('created_at', { ascending: false })
           .limit(1)
           .single();
           
-        if (lastMessageError) {
-          console.error(`Error fetching last message with user ${userId}:`, lastMessageError);
+        if (messageError) {
+          console.error("Error fetching latest message:", messageError);
           return null;
         }
         
-        // Count unread messages
+        // Get unread count
         const { count, error: countError } = await supabase
           .from('messages')
           .select('*', { count: 'exact', head: true })
@@ -73,45 +63,39 @@ class MessageService {
           .eq('is_read', false);
           
         if (countError) {
-          console.error(`Error counting unread messages from user ${userId}:`, countError);
+          console.error("Error counting unread messages:", countError);
           return null;
         }
         
         return {
           user: {
-            id: profile.id,
-            name: profile.full_name || profile.username || 'User',
-            email: '', // Not exposing email
-            avatar: profile.avatar_url,
-            role: (profile.role as 'user' | 'expert') || 'user',
-            followers: profile.followers || 0,
-            following: profile.following || 0,
+            id: profileData.id,
+            name: profileData.full_name || profileData.username || 'User',
+            email: '',
+            avatar: profileData.avatar_url,
+            role: (profileData.role as 'user' | 'expert') || 'user',
+            followers: profileData.followers || 0,
+            following: profileData.following || 0,
             joined: ''
           },
-          lastMessage: lastMessageData.content,
+          lastMessage: messageData?.content || 'No messages yet',
           unreadCount: count || 0
         };
       }));
       
-      // Filter out null values and sort by unread messages first, then by last message time
-      return conversations.filter(Boolean).sort((a, b) => {
-        if (a.unreadCount !== b.unreadCount) {
-          return b.unreadCount - a.unreadCount; // Most unread first
-        }
-        return 0; // Keep original order (which is already sorted by timestamp)
-      });
+      return conversations.filter(Boolean) as {user: User, lastMessage: string, unreadCount: number}[];
     } catch (error) {
       console.error("Error fetching conversations:", error);
       toast({
-        title: "Failed to fetch conversations",
+        title: "Failed to load conversations",
         description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive"
       });
       return [];
     }
-  }
-
-  async getMessages(otherUserId: string): Promise<Message[]> {
+  },
+  
+  async getMessages(userId: string): Promise<Message[]> {
     try {
       const { data: userData, error: userError } = await supabase.auth.getUser();
       
@@ -119,20 +103,15 @@ class MessageService {
         throw new Error("You must be logged in to view messages");
       }
       
-      // Get messages between users, using specific column naming to avoid ambiguity
+      // Get all messages between the current user and the specified user
       const { data, error } = await supabase
         .from('messages')
         .select(`
-          id,
-          content,
-          created_at,
-          is_read,
-          sender_id,
-          receiver_id,
+          *,
           sender:sender_id(id, full_name, username, avatar_url, role, followers, following),
           receiver:receiver_id(id, full_name, username, avatar_url, role, followers, following)
         `)
-        .or(`and(sender_id.eq.${userData.user.id},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${userData.user.id})`)
+        .or(`and(sender_id.eq.${userData.user.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${userData.user.id})`)
         .order('created_at', { ascending: true });
         
       if (error) {
@@ -140,59 +119,54 @@ class MessageService {
       }
       
       // Mark received messages as read
-      await supabase
+      const { error: updateError } = await supabase
         .from('messages')
         .update({ is_read: true })
-        .eq('sender_id', otherUserId)
+        .eq('sender_id', userId)
         .eq('receiver_id', userData.user.id)
         .eq('is_read', false);
+        
+      if (updateError) {
+        console.error("Error marking messages as read:", updateError);
+      }
       
-      return data.map(message => {
-        const senderProfile = message.sender;
-        const receiverProfile = message.receiver;
-        
-        const sender: User = {
-          id: senderProfile.id,
-          name: senderProfile.full_name || senderProfile.username || 'User',
-          email: '', // Not exposing email
-          avatar: senderProfile.avatar_url,
-          role: (senderProfile.role as 'user' | 'expert') || 'user',
-          followers: senderProfile.followers || 0,
-          following: senderProfile.following || 0,
+      return data.map(message => ({
+        id: message.id,
+        content: message.content,
+        sender: {
+          id: message.sender.id,
+          name: message.sender.full_name || message.sender.username || 'User',
+          email: '',
+          avatar: message.sender.avatar_url,
+          role: (message.sender.role as 'user' | 'expert') || 'user',
+          followers: message.sender.followers || 0,
+          following: message.sender.following || 0,
           joined: ''
-        };
-        
-        const receiver: User = {
-          id: receiverProfile.id,
-          name: receiverProfile.full_name || receiverProfile.username || 'User',
-          email: '', // Not exposing email
-          avatar: receiverProfile.avatar_url,
-          role: (receiverProfile.role as 'user' | 'expert') || 'user',
-          followers: receiverProfile.followers || 0,
-          following: receiverProfile.following || 0,
+        },
+        receiver: {
+          id: message.receiver.id,
+          name: message.receiver.full_name || message.receiver.username || 'User',
+          email: '',
+          avatar: message.receiver.avatar_url,
+          role: (message.receiver.role as 'user' | 'expert') || 'user',
+          followers: message.receiver.followers || 0,
+          following: message.receiver.following || 0,
           joined: ''
-        };
-        
-        return {
-          id: message.id,
-          content: message.content,
-          sender,
-          receiver,
-          createdAt: new Date(message.created_at).toISOString(),
-          isRead: message.is_read
-        };
-      });
+        },
+        isRead: message.is_read,
+        createdAt: message.created_at
+      }));
     } catch (error) {
-      console.error(`Error fetching messages with user ${otherUserId}:`, error);
+      console.error(`Error fetching messages with user ${userId}:`, error);
       toast({
-        title: "Failed to fetch messages",
+        title: "Failed to load messages",
         description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive"
       });
       return [];
     }
-  }
-
+  },
+  
   async sendMessage(receiverId: string, content: string): Promise<Message | null> {
     try {
       const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -201,22 +175,17 @@ class MessageService {
         throw new Error("You must be logged in to send messages");
       }
       
-      // Insert message, using specific column naming for relationships
+      // Create new message
       const { data, error } = await supabase
         .from('messages')
         .insert({
-          content,
           sender_id: userData.user.id,
           receiver_id: receiverId,
+          content,
           is_read: false
         })
         .select(`
-          id,
-          content,
-          created_at,
-          is_read,
-          sender_id,
-          receiver_id,
+          *,
           sender:sender_id(id, full_name, username, avatar_url, role, followers, following),
           receiver:receiver_id(id, full_name, username, avatar_url, role, followers, following)
         `)
@@ -226,38 +195,31 @@ class MessageService {
         throw error;
       }
       
-      const senderProfile = data.sender;
-      const receiverProfile = data.receiver;
-      
-      const sender: User = {
-        id: senderProfile.id,
-        name: senderProfile.full_name || senderProfile.username || 'User',
-        email: '', // Not exposing email
-        avatar: senderProfile.avatar_url,
-        role: (senderProfile.role as 'user' | 'expert') || 'user',
-        followers: senderProfile.followers || 0,
-        following: senderProfile.following || 0,
-        joined: ''
-      };
-      
-      const receiver: User = {
-        id: receiverProfile.id,
-        name: receiverProfile.full_name || receiverProfile.username || 'User',
-        email: '', // Not exposing email
-        avatar: receiverProfile.avatar_url,
-        role: (receiverProfile.role as 'user' | 'expert') || 'user',
-        followers: receiverProfile.followers || 0,
-        following: receiverProfile.following || 0,
-        joined: ''
-      };
-      
       return {
         id: data.id,
         content: data.content,
-        sender,
-        receiver,
-        createdAt: new Date(data.created_at).toISOString(),
-        isRead: data.is_read
+        sender: {
+          id: data.sender.id,
+          name: data.sender.full_name || data.sender.username || 'User',
+          email: '',
+          avatar: data.sender.avatar_url,
+          role: (data.sender.role as 'user' | 'expert') || 'user',
+          followers: data.sender.followers || 0,
+          following: data.sender.following || 0,
+          joined: ''
+        },
+        receiver: {
+          id: data.receiver.id,
+          name: data.receiver.full_name || data.receiver.username || 'User',
+          email: '',
+          avatar: data.receiver.avatar_url,
+          role: (data.receiver.role as 'user' | 'expert') || 'user',
+          followers: data.receiver.followers || 0,
+          following: data.receiver.following || 0,
+          joined: ''
+        },
+        isRead: data.is_read,
+        createdAt: data.created_at
       };
     } catch (error) {
       console.error(`Error sending message to user ${receiverId}:`, error);
@@ -269,6 +231,4 @@ class MessageService {
       return null;
     }
   }
-}
-
-export const messageService = new MessageService();
+};
