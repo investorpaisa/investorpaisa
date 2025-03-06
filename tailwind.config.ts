@@ -31,6 +31,40 @@ const config = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
 
+        // New dark mode colors
+        "dark-100": "#1E1E1E", // Lightest dark background
+        "dark-200": "#181818", 
+        "dark-300": "#141414", 
+        "dark-400": "#121212", // Main dark background
+        "dark-500": "#0F0F0F",
+        "dark-600": "#0A0A0A",
+        "dark-700": "#070707", // Darkest dark background
+        "dark-800": "#050505",
+        "dark-900": "#000000",
+        
+        // Gray scale
+        "gray-50":  "#F9F9F9",
+        "gray-100": "#EBEBEB",
+        "gray-200": "#DEDEDE",
+        "gray-300": "#C8C8C8",
+        "gray-400": "#B0B0B0",
+        "gray-500": "#8E9196", // Neutral Gray
+        "gray-600": "#666666",
+        "gray-700": "#474747",
+        "gray-800": "#2E2E2E",
+        "gray-900": "#1A1A1A",
+        
+        // Purple accent colors
+        "purple-100": "#E5DEFF", // Soft Purple
+        "purple-200": "#D6BCFA", // Light Purple
+        "purple-300": "#B39DDB",
+        "purple-400": "#9B87F5", // Primary Purple
+        "purple-500": "#8B5CF6", // Vivid Purple
+        "purple-600": "#7E69AB", // Secondary Purple
+        "purple-700": "#6E59A5", // Tertiary Purple
+        "purple-800": "#5E4A9D",
+        "purple-900": "#1A1F2C", // Dark Purple
+        
         // IP brand colors
         "ip-blue": "#1A3A6C",
         "ip-blue-600": "#14305A",
@@ -47,16 +81,16 @@ const config = {
         "ip-teal-900": "#0B2C2B",
         "ip-teal-50": "#E6F5F5",
         "ip-teal-100": "#B0E3E1",
-
-        // Premium colors
+        
+        // Premium colors - updated for better dark mode
         "premium-gold": "#DFBD69",
         "premium-gold-light": "#F1D689",
         "premium-gold-dark": "#C0A65C",
-        "premium-dark-900": "#0A0B10", 
-        "premium-dark-800": "#121420",
-        "premium-dark-700": "#1A1E2E",
-        "premium-dark-600": "#252A40",
-        "premium-dark-500": "#303650",
+        "premium-dark-900": "#0A0A0A", 
+        "premium-dark-800": "#121212",
+        "premium-dark-700": "#1A1A1A",
+        "premium-dark-600": "#222222",
+        "premium-dark-500": "#2A2A2A",
 
         primary: {
           DEFAULT: "hsl(var(--primary))",
@@ -88,10 +122,10 @@ const config = {
         },
       },
       boxShadow: {
-        premium: "0 10px 30px -10px rgba(10, 11, 16, 0.8), 0 2px 8px -2px rgba(10, 11, 16, 0.5), 0 0 0 1px rgba(223, 189, 105, 0.05)",
-        "premium-hover": "0 20px 40px -12px rgba(10, 11, 16, 0.8), 0 4px 12px -4px rgba(10, 11, 16, 0.5), 0 0 0 1px rgba(223, 189, 105, 0.1)",
-        smooth: "0 4px 20px -2px rgba(10, 11, 16, 0.3), 0 2px 6px -1px rgba(10, 11, 16, 0.2)",
-        hover: "0 10px 30px -5px rgba(10, 11, 16, 0.3), 0 5px 15px -3px rgba(10, 11, 16, 0.2)",
+        premium: "0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 2px 8px -2px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(223, 189, 105, 0.05)",
+        "premium-hover": "0 20px 40px -12px rgba(0, 0, 0, 0.6), 0 4px 12px -4px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(223, 189, 105, 0.1)",
+        smooth: "0 4px 20px -2px rgba(0, 0, 0, 0.2), 0 2px 6px -1px rgba(0, 0, 0, 0.15)",
+        hover: "0 10px 30px -5px rgba(0, 0, 0, 0.25), 0 5px 15px -3px rgba(0, 0, 0, 0.15)",
       },
       borderRadius: {
         lg: "var(--radius)",
