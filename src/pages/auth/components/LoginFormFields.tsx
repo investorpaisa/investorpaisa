@@ -7,8 +7,8 @@ import { Mail, Lock } from 'lucide-react';
 
 interface LoginFormFieldsProps {
   control: Control<{
-    email: string;
-    password: string;
+    email?: string;
+    password?: string;
   }>;
 }
 

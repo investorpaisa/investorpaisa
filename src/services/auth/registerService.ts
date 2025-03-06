@@ -34,12 +34,12 @@ export const register = async (name: string, email: string, password: string) =>
       "Your account has been created successfully"
     );
 
-    // Return user data
+    // Return user data with the correct role type
     return {
       id: authData.user.id,
       name: name,
       email: email,
-      role: 'user',
+      role: 'user' as 'user' | 'expert', // Ensure role is correctly typed
       followers: 0,
       following: 0,
       joined: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
