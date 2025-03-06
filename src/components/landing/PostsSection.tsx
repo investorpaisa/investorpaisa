@@ -11,7 +11,7 @@ const posts = [
     community: 'StockMarket',
     author: 'investor123',
     timePosted: '3 hours ago',
-    title: 'Understanding P/E Ratios: A Beginner's Guide',
+    title: "Understanding P/E Ratios: A Beginner's Guide",
     content: 'Price-to-earnings ratio (P/E) is one of the most widely used metrics for investors...',
     upvotes: 245,
     comments: 32
