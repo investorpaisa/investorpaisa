@@ -31,32 +31,12 @@ const config = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
 
-        // IP brand colors
-        "ip-blue": "#1A3A6C",
-        "ip-blue-600": "#14305A",
-        "ip-blue-700": "#102648",
-        "ip-blue-800": "#0C1C36", 
-        "ip-blue-900": "#081424",
-        "ip-blue-50": "#E5EAF2",
-        "ip-blue-100": "#B3C3DC",
-        
-        "ip-teal": "#27B0AC",
-        "ip-teal-600": "#1E8C89",
-        "ip-teal-700": "#186865",
-        "ip-teal-800": "#114443",
-        "ip-teal-900": "#0B2C2B",
-        "ip-teal-50": "#E6F5F5",
-        "ip-teal-100": "#B0E3E1",
-
         // Premium colors
-        "premium-gold": "#DFBD69",
-        "premium-gold-light": "#F1D689",
-        "premium-gold-dark": "#C0A65C",
-        "premium-dark-900": "#0A0B10", 
-        "premium-dark-800": "#121420",
-        "premium-dark-700": "#1A1E2E",
-        "premium-dark-600": "#252A40",
-        "premium-dark-500": "#303650",
+        "premium-100": "#F87C00", // P-100
+        "premium-200": "#5D3C00", // P-200
+        "premium-300": "#322115", // P-300
+        "premium-400": "#261A11",
+        "premium-500": "#1A120C",
 
         primary: {
           DEFAULT: "hsl(var(--primary))",
@@ -88,10 +68,10 @@ const config = {
         },
       },
       boxShadow: {
-        premium: "0 10px 30px -10px rgba(10, 11, 16, 0.8), 0 2px 8px -2px rgba(10, 11, 16, 0.5), 0 0 0 1px rgba(223, 189, 105, 0.05)",
-        "premium-hover": "0 20px 40px -12px rgba(10, 11, 16, 0.8), 0 4px 12px -4px rgba(10, 11, 16, 0.5), 0 0 0 1px rgba(223, 189, 105, 0.1)",
-        smooth: "0 4px 20px -2px rgba(10, 11, 16, 0.3), 0 2px 6px -1px rgba(10, 11, 16, 0.2)",
-        hover: "0 10px 30px -5px rgba(10, 11, 16, 0.3), 0 5px 15px -3px rgba(10, 11, 16, 0.2)",
+        premium: "0 10px 30px -10px rgba(50, 33, 21, 0.8), 0 2px 8px -2px rgba(50, 33, 21, 0.5), 0 0 0 1px rgba(248, 124, 0, 0.05)",
+        "premium-hover": "0 20px 40px -12px rgba(50, 33, 21, 0.8), 0 4px 12px -4px rgba(50, 33, 21, 0.5), 0 0 0 1px rgba(248, 124, 0, 0.1)",
+        smooth: "0 4px 20px -2px rgba(50, 33, 21, 0.3), 0 2px 6px -1px rgba(50, 33, 21, 0.2)",
+        hover: "0 10px 30px -5px rgba(50, 33, 21, 0.3), 0 5px 15px -3px rgba(50, 33, 21, 0.2)",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -117,7 +97,7 @@ const config = {
             transform: "translateY(0)",
           },
         },
-        "pulse-gold": {
+        "pulse-orange": {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.5" },
         },
@@ -126,7 +106,7 @@ const config = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.5s ease-out forwards",
-        "pulse-gold": "pulse-gold 2s ease-in-out infinite",
+        "pulse-orange": "pulse-orange 2s ease-in-out infinite",
       },
     },
   },

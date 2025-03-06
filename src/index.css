@@ -8,84 +8,84 @@
 @layer base {
   :root {
     /* Light mode variables */
-    --background: 210 33% 99%;
-    --foreground: 210 33% 10%;
+    --background: 25 60% 98%;
+    --foreground: 22 53% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 210 33% 10%;
+    --card-foreground: 22 53% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 210 33% 10%;
+    --popover-foreground: 22 53% 15%;
 
-    --primary: 210 77% 14%;
-    --primary-foreground: 210 0% 98%;
+    --primary: 28 100% 48%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 180 53% 46%;
-    --secondary-foreground: 210 0% 98%;
+    --secondary: 33 100% 18%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 20% 96%;
-    --muted-foreground: 210 20% 60%;
+    --muted: 22 20% 96%;
+    --muted-foreground: 22 20% 60%;
 
-    --accent: 168 52% 46%;
-    --accent-foreground: 210 0% 98%;
+    --accent: 28 100% 48%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 0% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 210 20% 92%;
-    --input: 210 20% 92%;
-    --ring: 210 77% 14%;
+    --border: 22 20% 92%;
+    --input: 22 20% 92%;
+    --ring: 28 100% 48%;
 
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 210 33% 25%;
-    --sidebar-primary: 210 77% 14%;
+    --sidebar-foreground: 22 53% 25%;
+    --sidebar-primary: 28 100% 48%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 168 52% 46%;
+    --sidebar-accent: 28 100% 48%;
     --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 210 20% 92%;
-    --sidebar-ring: 168 52% 46%;
+    --sidebar-border: 22 20% 92%;
+    --sidebar-ring: 28 100% 48%;
   }
 
   .dark {
-    /* Cred-inspired premium dark theme */
-    --background: 222 25% 8%;
-    --foreground: 210 20% 98%;
+    /* Premium dark theme */
+    --background: 22 53% 5%;
+    --foreground: 0 0% 98%;
 
-    --card: 222 24% 10%;
-    --card-foreground: 210 20% 98%;
+    --card: 22 53% 8%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 222 25% 10%;
-    --popover-foreground: 210 20% 98%;
+    --popover: 22 53% 8%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 45 70% 60%;
-    --primary-foreground: 222 47% 11%;
+    --primary: 28 100% 48%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 330 60% 55%;
-    --secondary-foreground: 210 20% 98%;
+    --secondary: 33 100% 18%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 222 25% 15%;
-    --muted-foreground: 210 20% 70%;
+    --muted: 22 53% 15%;
+    --muted-foreground: 0 0% 70%;
 
-    --accent: 280 50% 50%;
-    --accent-foreground: 210 20% 98%;
+    --accent: 28 100% 48%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62% 45%;
-    --destructive-foreground: 210 20% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 222 25% 15%;
-    --input: 222 25% 15%;
-    --ring: 45 70% 60%;
+    --border: 22 53% 15%;
+    --input: 22 53% 15%;
+    --ring: 28 100% 48%;
 
-    --sidebar-background: 222 30% 6%;
-    --sidebar-foreground: 210 20% 98%;
-    --sidebar-primary: 45 70% 60%;
-    --sidebar-primary-foreground: 222 47% 11%;
-    --sidebar-accent: 330 60% 55%;
-    --sidebar-accent-foreground: 210 20% 98%;
-    --sidebar-border: 222 28% 12%;
-    --sidebar-ring: 45 70% 60%;
+    --sidebar-background: 22 53% 6%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 28 100% 48%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 28 100% 48%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 22 53% 12%;
+    --sidebar-ring: 28 100% 48%;
   }
 }
 
@@ -128,30 +128,30 @@
     @apply shadow-hover;
   }
 
-  /* Premium UI Elements - Cred-inspired */
+  /* Premium UI Elements */
   .bg-gradient-premium {
-    @apply bg-gradient-to-br from-premium-dark-900 via-premium-dark-800 to-premium-dark-900;
+    @apply bg-gradient-to-br from-[#322115] via-[#5D3C00] to-[#322115];
   }
   
   .bg-gradient-gold {
-    @apply bg-gradient-to-r from-premium-gold via-premium-gold/90 to-premium-gold/80;
+    @apply bg-gradient-to-r from-[#F87C00] via-[#F87C00]/90 to-[#F87C00]/80;
   }
   
   .premium-card {
-    @apply bg-premium-dark-800/90 backdrop-blur-md border border-premium-gold/10 rounded-xl shadow-premium hover:shadow-premium-hover transition-all duration-300;
+    @apply bg-[#322115]/90 backdrop-blur-md border border-[#F87C00]/10 rounded-xl shadow-md hover:shadow-lg transition-all duration-300;
   }
   
   .premium-button {
-    @apply bg-gradient-to-r from-primary to-primary/90 text-premium-dark-900 font-medium rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300;
+    @apply bg-gradient-to-r from-[#F87C00] to-[#F87C00]/90 text-white font-medium rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300;
   }
 
   /* Glass effect */
   .glass {
-    @apply bg-premium-dark-800/40 backdrop-blur-lg border border-premium-dark-700/20 shadow-smooth;
+    @apply bg-[#322115]/40 backdrop-blur-lg border border-[#5D3C00]/20 shadow-md;
   }
 
   .glass-accent {
-    @apply bg-premium-dark-800/60 backdrop-blur-lg border border-premium-gold/10 shadow-premium;
+    @apply bg-[#322115]/60 backdrop-blur-lg border border-[#F87C00]/10 shadow-md;
   }
   
   /* Premium Text Styles */
@@ -169,11 +169,11 @@
 
   /* Gold accent elements */
   .gold-text {
-    @apply text-premium-gold;
+    @apply text-[#F87C00];
   }
 
   .gold-border {
-    @apply border-premium-gold;
+    @apply border-[#F87C00];
   }
 
   /* Premium card effect */
@@ -183,7 +183,7 @@
 
   .card-premium::before {
     content: '';
-    @apply absolute inset-0 border border-premium-gold/20 rounded-xl opacity-0 transition-opacity duration-300;
+    @apply absolute inset-0 border border-[#F87C00]/20 rounded-xl opacity-0 transition-opacity duration-300;
   }
 
   .card-premium:hover::before {
@@ -200,17 +200,17 @@
   }
   
   ::-webkit-scrollbar-thumb {
-    @apply bg-premium-gold/20 rounded-full hover:bg-premium-gold/30 transition-colors;
+    @apply bg-[#F87C00]/20 rounded-full hover:bg-[#F87C00]/30 transition-colors;
   }
   
   /* Button styles */
   .btn-premium {
-    @apply bg-gradient-to-r from-premium-gold to-premium-gold/80 text-premium-dark-900 font-medium py-2.5 px-5 rounded-lg 
-    shadow-md hover:shadow-premium transition-all duration-300 flex items-center justify-center gap-2;
+    @apply bg-gradient-to-r from-[#F87C00] to-[#F87C00]/80 text-white font-medium py-2.5 px-5 rounded-lg 
+    shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2;
   }
   
   .btn-outline {
-    @apply border border-premium-gold/30 bg-transparent text-premium-gold hover:bg-premium-gold/10 
+    @apply border border-[#F87C00]/30 bg-transparent text-[#F87C00] hover:bg-[#F87C00]/10 
     font-medium py-2.5 px-5 rounded-lg transition-all duration-300 flex items-center justify-center gap-2;
   }
   
@@ -221,19 +221,19 @@
   
   /* Input styles */
   .input-premium {
-    @apply bg-premium-dark-800/60 border border-premium-dark-700/50 focus:border-premium-gold/50 text-foreground 
-    rounded-lg px-4 py-2.5 outline-none focus:ring-1 focus:ring-premium-gold/30 transition-all;
+    @apply bg-[#322115]/60 border border-[#5D3C00]/50 focus:border-[#F87C00]/50 text-foreground 
+    rounded-lg px-4 py-2.5 outline-none focus:ring-1 focus:ring-[#F87C00]/30 transition-all;
   }
   
   /* Card styles */
   .card-luxe {
-    @apply bg-premium-dark-800/80 backdrop-blur-lg border border-premium-dark-700/30 rounded-xl p-6 
-    shadow-smooth hover:shadow-premium transition-all duration-300;
+    @apply bg-[#322115]/80 backdrop-blur-lg border border-[#5D3C00]/30 rounded-xl p-6 
+    shadow-md hover:shadow-lg transition-all duration-300;
   }
   
   /* Badge styles */
   .badge-premium {
-    @apply bg-premium-gold/20 text-premium-gold text-xs font-medium px-2.5 py-0.5 rounded-full;
+    @apply bg-[#F87C00]/20 text-[#F87C00] text-xs font-medium px-2.5 py-0.5 rounded-full;
   }
   
   /* Shimmer animation for premium elements */
