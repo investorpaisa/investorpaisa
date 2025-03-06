@@ -64,11 +64,11 @@ export async function unfollowUser(userId: string): Promise<boolean> {
 
 export async function getFollowers(userId: string): Promise<User[]> {
   try {
-    // Fix the query to properly specify the relationship
+    // Fix the query to properly specify the relationship and include all required fields
     const { data, error } = await supabase
       .from('follows')
       .select(`
-        profiles!follows_follower_id_fkey(id, full_name, username, avatar_url, role, followers, following)
+        profiles!follows_follower_id_fkey(id, full_name, username, avatar_url, role, followers, following, created_at, bio)
       `)
       .eq('following_id', userId);
       
@@ -89,11 +89,11 @@ export async function getFollowers(userId: string): Promise<User[]> {
 
 export async function getFollowing(userId: string): Promise<User[]> {
   try {
-    // Fix the query to properly specify the relationship
+    // Fix the query to properly specify the relationship and include all required fields
     const { data, error } = await supabase
       .from('follows')
       .select(`
-        profiles!follows_following_id_fkey(id, full_name, username, avatar_url, role, followers, following)
+        profiles!follows_following_id_fkey(id, full_name, username, avatar_url, role, followers, following, created_at, bio)
       `)
       .eq('follower_id', userId);
       
