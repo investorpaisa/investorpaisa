@@ -1,6 +1,6 @@
 
 @layer components {
-  /* Premium UI Elements - Based on design files */
+  /* Premium UI Elements */
   .bg-gradient-premium {
     @apply bg-dark-400;
   }
@@ -17,7 +17,6 @@
     @apply bg-purple-400 text-dark-400 font-medium rounded-lg shadow-md hover:bg-purple-500 transition-all duration-300;
   }
 
-  /* Glass effect */
   .glass {
     @apply bg-dark-300/80 backdrop-blur-lg border border-gray-800 shadow-smooth;
   }
