@@ -1,84 +1,69 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
-import { User } from '@/services/api';
+import { User, Profile } from '@/services/api';
 
 export const profileService = {
-  async getCurrentUser(): Promise<User | null> {
+  async getProfile(userId: string): Promise<Profile | null> {
     try {
-      const { data: authData, error: authError } = await supabase.auth.getUser();
-      
-      if (authError || !authData.user) {
-        return null;
-      }
-      
-      const { data: profileData, error: profileError } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', authData.user.id)
+        .eq('id', userId)
         .single();
         
-      if (profileError) {
-        console.error("Error fetching profile:", profileError);
+      if (error) {
+        toast({
+          title: "Failed to load profile",
+          description: error.message,
+          variant: "destructive"
+        });
         return null;
       }
       
       return {
-        id: profileData.id,
-        name: profileData.full_name || profileData.username || authData.user.email?.split('@')[0] || 'User',
-        email: authData.user.email || '',
-        avatar: profileData.avatar_url,
-        role: (profileData.role as 'user' | 'expert') || 'user',
-        followers: profileData.followers || 0,
-        following: profileData.following || 0,
-        joined: new Date(authData.user.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+        id: data.id,
+        name: data.full_name || data.username || 'User',
+        bio: data.bio || '',
+        avatar: data.avatar_url,
+        role: data.role as 'user' | 'expert',
+        followers: data.followers || 0,
+        following: data.following || 0,
+        joined: new Date(data.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
       };
     } catch (error) {
-      console.error("Error getting current user:", error);
+      console.error("Error fetching profile:", error);
       return null;
     }
   },
-
-  async updateProfile(bio: string, fullName: string, avatarUrl: string): Promise<User | null> {
+  
+  async updateProfile(userId: string, profileData: { name: string, bio: string, avatar?: string }): Promise<boolean> {
     try {
-      const { data: userData, error: userError } = await supabase.auth.getUser();
-      
-      if (userError || !userData.user) {
-        throw new Error("You must be logged in to update your profile");
-      }
-      
-      // Update the profile
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('profiles')
-        .update({
-          updated_at: new Date().toISOString(), // Convert Date to string
-          bio,
-          avatar_url: avatarUrl,
-          full_name: fullName
+        .update({ 
+          full_name: profileData.name,
+          bio: profileData.bio,
+          avatar_url: profileData.avatar,
+          updated_at: new Date().toISOString()
         })
-        .eq('id', userData.user.id)
-        .select()
-        .single();
+        .eq('id', userId);
         
       if (error) {
-        throw error;
+        toast({
+          title: "Failed to update profile",
+          description: error.message,
+          variant: "destructive"
+        });
+        return false;
       }
       
       toast({
         title: "Profile updated",
-        description: "Your profile has been successfully updated"
+        description: "Your profile has been successfully updated."
       });
       
-      return {
-        id: data.id,
-        name: data.full_name || data.username || userData.user.email?.split('@')[0] || 'User',
-        email: userData.user.email || '',
-        avatar: data.avatar_url,
-        role: (data.role as 'user' | 'expert') || 'user',
-        followers: data.followers || 0,
-        following: data.following || 0,
-        joined: new Date(userData.user.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-      };
+      return true;
     } catch (error) {
       console.error("Error updating profile:", error);
       toast({
@@ -86,140 +71,88 @@ export const profileService = {
         description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive"
       });
-      return null;
+      return false;
     }
   },
-
+  
   async unfollowUser(userId: string): Promise<boolean> {
     try {
       const { data: userData, error: userError } = await supabase.auth.getUser();
       
       if (userError || !userData.user) {
-        throw new Error("You must be logged in to unfollow a user");
+        throw new Error("You must be logged in to unfollow users");
       }
       
-      if (userData.user.id === userId) {
-        throw new Error("You cannot unfollow yourself");
-      }
-      
-      // Check if already following
-      const { data: existingFollow, error: checkError } = await supabase
-        .from('follows')
-        .select('*')
-        .eq('follower_id', userData.user.id)
-        .eq('following_id', userId)
-        .maybeSingle();
-        
-      if (checkError) {
-        throw checkError;
-      }
-      
-      if (!existingFollow) {
-        // Not following this user
-        return false;
-      }
-      
-      // Remove the follow
-      const { error: deleteError } = await supabase
+      // Delete the follow record
+      const { error } = await supabase
         .from('follows')
         .delete()
         .eq('follower_id', userData.user.id)
         .eq('following_id', userId);
         
-      if (deleteError) {
-        throw deleteError;
+      if (error) {
+        throw error;
       }
       
-      // Update follower/following counts
+      // Update follower and following counts
       await supabase.rpc('decrement_followers', { user_id: userId });
       await supabase.rpc('decrement_following', { user_id: userData.user.id });
-      
-      toast({
-        title: "Unfollowed",
-        description: "You have unfollowed this user"
-      });
       
       return true;
     } catch (error) {
       console.error(`Error unfollowing user ${userId}:`, error);
       toast({
-        title: "Failed to unfollow",
+        title: "Failed to unfollow user",
         description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive"
       });
       return false;
     }
   },
-
+  
   async followUser(userId: string): Promise<boolean> {
     try {
       const { data: userData, error: userError } = await supabase.auth.getUser();
       
       if (userError || !userData.user) {
-        throw new Error("You must be logged in to follow a user");
+        throw new Error("You must be logged in to follow users");
       }
       
-      if (userData.user.id === userId) {
-        throw new Error("You cannot follow yourself");
-      }
-      
-      // Check if already following
-      const { data: existingFollow, error: checkError } = await supabase
-        .from('follows')
-        .select('*')
-        .eq('follower_id', userData.user.id)
-        .eq('following_id', userId)
-        .maybeSingle();
-        
-      if (checkError) {
-        throw checkError;
-      }
-      
-      if (existingFollow) {
-        // Already following this user
-        return false;
-      }
-      
-      // Add the follow
-      const { error: insertError } = await supabase
+      // Create the follow record
+      const { error } = await supabase
         .from('follows')
         .insert({
           follower_id: userData.user.id,
           following_id: userId
         });
         
-      if (insertError) {
-        throw insertError;
+      if (error) {
+        throw error;
       }
       
-      // Update follower/following counts
+      // Update follower and following counts
       await supabase.rpc('increment_followers', { user_id: userId });
       await supabase.rpc('increment_following', { user_id: userData.user.id });
-      
-      toast({
-        title: "Followed",
-        description: "You are now following this user"
-      });
       
       return true;
     } catch (error) {
       console.error(`Error following user ${userId}:`, error);
       toast({
-        title: "Failed to follow",
+        title: "Failed to follow user",
         description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive"
       });
       return false;
     }
   },
-
+  
   async getFollowers(userId: string): Promise<User[]> {
     try {
-      // Get followers with proper column hints
       const { data, error } = await supabase
         .from('follows')
         .select(`
-          follower:follower_id(id, full_name, username, avatar_url, role, followers, following)
+          follower_id,
+          followers:profiles!follower_id(*)
         `)
         .eq('following_id', userId);
         
@@ -227,37 +160,34 @@ export const profileService = {
         throw error;
       }
       
-      return data.map(item => {
-        const follower = item.follower;
-        return {
-          id: follower.id,
-          name: follower.full_name || follower.username || 'User',
-          email: '', // Not exposing email
-          avatar: follower.avatar_url,
-          role: (follower.role as 'user' | 'expert') || 'user',
-          followers: follower.followers || 0,
-          following: follower.following || 0,
-          joined: ''
-        };
-      });
+      return data.map(item => ({
+        id: item.followers.id,
+        name: item.followers.full_name || item.followers.username || 'User',
+        email: '',
+        avatar: item.followers.avatar_url,
+        role: (item.followers.role as 'user' | 'expert') || 'user',
+        followers: item.followers.followers || 0,
+        following: item.followers.following || 0,
+        joined: ''
+      }));
     } catch (error) {
       console.error(`Error fetching followers for user ${userId}:`, error);
       toast({
-        title: "Failed to fetch followers",
+        title: "Failed to load followers",
         description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive"
       });
       return [];
     }
   },
-
+  
   async getFollowing(userId: string): Promise<User[]> {
     try {
-      // Get following with proper column hints
       const { data, error } = await supabase
         .from('follows')
         .select(`
-          following:following_id(id, full_name, username, avatar_url, role, followers, following)
+          following_id,
+          following:profiles!following_id(*)
         `)
         .eq('follower_id', userId);
         
@@ -265,23 +195,20 @@ export const profileService = {
         throw error;
       }
       
-      return data.map(item => {
-        const following = item.following;
-        return {
-          id: following.id,
-          name: following.full_name || following.username || 'User',
-          email: '', // Not exposing email
-          avatar: following.avatar_url,
-          role: (following.role as 'user' | 'expert') || 'user',
-          followers: following.followers || 0,
-          following: following.following || 0,
-          joined: ''
-        };
-      });
+      return data.map(item => ({
+        id: item.following.id,
+        name: item.following.full_name || item.following.username || 'User',
+        email: '',
+        avatar: item.following.avatar_url,
+        role: (item.following.role as 'user' | 'expert') || 'user',
+        followers: item.following.followers || 0,
+        following: item.following.following || 0,
+        joined: ''
+      }));
     } catch (error) {
       console.error(`Error fetching following for user ${userId}:`, error);
       toast({
-        title: "Failed to fetch following",
+        title: "Failed to load following",
         description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive"
       });

@@ -1,52 +1,236 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
-import { Comment, Post } from '@/services/api';
+import { Post, Comment } from '@/services/api';
 
 export const postService = {
-  async unlikePost(postId: string): Promise<boolean> {
+  async getPosts(categoryId?: string): Promise<Post[]> {
+    try {
+      // Build the query
+      let query = supabase
+        .from('posts')
+        .select(`
+          *,
+          user:profiles(*),
+          category:categories(*)
+        `)
+        .order('created_at', { ascending: false });
+        
+      // Add filter if category is specified
+      if (categoryId) {
+        query = query.eq('category_id', categoryId);
+      }
+      
+      const { data, error } = await query;
+      
+      if (error) {
+        throw error;
+      }
+      
+      return data.map(post => ({
+        id: post.id,
+        title: post.title,
+        content: post.content,
+        likes: post.likes || 0,
+        comments: post.comment_count || 0,
+        createdAt: post.created_at,
+        user: {
+          id: post.user.id,
+          name: post.user.full_name || post.user.username || 'User',
+          email: '',
+          avatar: post.user.avatar_url,
+          role: (post.user.role as 'user' | 'expert') || 'user',
+          followers: post.user.followers || 0,
+          following: post.user.following || 0,
+          joined: ''
+        },
+        category: post.category ? {
+          id: post.category.id,
+          name: post.category.name,
+          description: post.category.description || '',
+          icon: post.category.icon || '',
+          posts: post.category.post_count || 0
+        } : null
+      }));
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      toast({
+        title: "Failed to load posts",
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
+        variant: "destructive"
+      });
+      return [];
+    }
+  },
+  
+  async getPostsByUser(userId: string): Promise<Post[]> {
+    try {
+      const { data, error } = await supabase
+        .from('posts')
+        .select(`
+          *,
+          user:profiles(*),
+          category:categories(*)
+        `)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+        
+      if (error) {
+        throw error;
+      }
+      
+      return data.map(post => ({
+        id: post.id,
+        title: post.title,
+        content: post.content,
+        likes: post.likes || 0,
+        comments: post.comment_count || 0,
+        createdAt: post.created_at,
+        user: {
+          id: post.user.id,
+          name: post.user.full_name || post.user.username || 'User',
+          email: '',
+          avatar: post.user.avatar_url,
+          role: (post.user.role as 'user' | 'expert') || 'user',
+          followers: post.user.followers || 0,
+          following: post.user.following || 0,
+          joined: ''
+        },
+        category: post.category ? {
+          id: post.category.id,
+          name: post.category.name,
+          description: post.category.description || '',
+          icon: post.category.icon || '',
+          posts: post.category.post_count || 0
+        } : null
+      }));
+    } catch (error) {
+      console.error(`Error fetching posts for user ${userId}:`, error);
+      toast({
+        title: "Failed to load posts",
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
+        variant: "destructive"
+      });
+      return [];
+    }
+  },
+  
+  async getPostById(postId: string): Promise<Post | null> {
+    try {
+      const { data, error } = await supabase
+        .from('posts')
+        .select(`
+          *,
+          user:profiles(*),
+          category:categories(*)
+        `)
+        .eq('id', postId)
+        .single();
+        
+      if (error) {
+        throw error;
+      }
+      
+      return {
+        id: data.id,
+        title: data.title,
+        content: data.content,
+        likes: data.likes || 0,
+        comments: data.comment_count || 0,
+        createdAt: data.created_at,
+        user: {
+          id: data.user.id,
+          name: data.user.full_name || data.user.username || 'User',
+          email: '',
+          avatar: data.user.avatar_url,
+          role: (data.user.role as 'user' | 'expert') || 'user',
+          followers: data.user.followers || 0,
+          following: data.user.following || 0,
+          joined: ''
+        },
+        category: data.category ? {
+          id: data.category.id,
+          name: data.category.name,
+          description: data.category.description || '',
+          icon: data.category.icon || '',
+          posts: data.category.post_count || 0
+        } : null
+      };
+    } catch (error) {
+      console.error(`Error fetching post with ID ${postId}:`, error);
+      toast({
+        title: "Failed to load post",
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
+        variant: "destructive"
+      });
+      return null;
+    }
+  },
+  
+  async getComments(postId: string): Promise<Comment[]> {
+    try {
+      const { data, error } = await supabase
+        .from('comments')
+        .select(`
+          *,
+          user:profiles(*)
+        `)
+        .eq('post_id', postId)
+        .order('created_at', { ascending: true });
+        
+      if (error) {
+        throw error;
+      }
+      
+      return data.map(comment => ({
+        id: comment.id,
+        content: comment.content,
+        createdAt: comment.created_at,
+        updatedAt: comment.updated_at,
+        userId: comment.user.id,
+        postId: comment.post_id,
+        user: {
+          id: comment.user.id,
+          name: comment.user.full_name || comment.user.username || 'User',
+          avatar: comment.user.avatar_url,
+          role: (comment.user.role as 'user' | 'expert') || 'user'
+        }
+      }));
+    } catch (error) {
+      console.error(`Error fetching comments for post ${postId}:`, error);
+      toast({
+        title: "Failed to load comments",
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
+        variant: "destructive"
+      });
+      return [];
+    }
+  },
+  
+  async unlike(postId: string): Promise<boolean> {
     try {
       const { data: userData, error: userError } = await supabase.auth.getUser();
       
       if (userError || !userData.user) {
-        throw new Error("You must be logged in to unlike a post");
+        throw new Error("You must be logged in to unlike posts");
       }
       
-      // Check if user already liked the post
-      const { data: existingLike, error: checkError } = await supabase
-        .from('likes')
-        .select('*')
-        .eq('post_id', postId)
-        .eq('user_id', userData.user.id)
-        .maybeSingle();
-        
-      if (checkError) {
-        throw checkError;
-      }
-      
-      if (!existingLike) {
-        // User hasn't liked this post, nothing to unlike
-        return false;
-      }
-      
-      // Remove the like
-      const { error: deleteError } = await supabase
+      // Delete the like record
+      const { error } = await supabase
         .from('likes')
         .delete()
-        .eq('post_id', postId)
-        .eq('user_id', userData.user.id);
+        .eq('user_id', userData.user.id)
+        .eq('post_id', postId);
         
-      if (deleteError) {
-        throw deleteError;
+      if (error) {
+        throw error;
       }
       
-      // Decrement the likes count in the post
-      const { error: updateError } = await supabase
-        .rpc('decrement_likes', { post_id: postId });
-        
-      if (updateError) {
-        console.error("Error decrementing likes count:", updateError);
-        // We already removed the like, so we consider this a success
+      // Call the RPC function to decrement likes count
+      const { error: rpcError } = await supabase.rpc('decrement_likes', { post_id: postId });
+      
+      if (rpcError) {
+        console.error("Error decrementing likes:", rpcError);
       }
       
       return true;
@@ -60,51 +244,32 @@ export const postService = {
       return false;
     }
   },
-
-  async likePost(postId: string): Promise<boolean> {
+  
+  async like(postId: string): Promise<boolean> {
     try {
       const { data: userData, error: userError } = await supabase.auth.getUser();
       
       if (userError || !userData.user) {
-        throw new Error("You must be logged in to like a post");
+        throw new Error("You must be logged in to like posts");
       }
       
-      // Check if user already liked the post
-      const { data: existingLike, error: checkError } = await supabase
-        .from('likes')
-        .select('*')
-        .eq('post_id', postId)
-        .eq('user_id', userData.user.id)
-        .maybeSingle();
-        
-      if (checkError) {
-        throw checkError;
-      }
-      
-      if (existingLike) {
-        // User already liked this post
-        return false;
-      }
-      
-      // Add the like
-      const { error: insertError } = await supabase
+      // Create the like record
+      const { error } = await supabase
         .from('likes')
         .insert({
-          post_id: postId,
-          user_id: userData.user.id
+          user_id: userData.user.id,
+          post_id: postId
         });
         
-      if (insertError) {
-        throw insertError;
+      if (error) {
+        throw error;
       }
       
-      // Increment the likes count in the post
-      const { error: updateError } = await supabase
-        .rpc('increment_likes', { post_id: postId });
-        
-      if (updateError) {
-        console.error("Error incrementing likes count:", updateError);
-        // We already added the like, so we consider this a success
+      // Call the RPC function to increment likes count
+      const { error: rpcError } = await supabase.rpc('increment_likes', { post_id: postId });
+      
+      if (rpcError) {
+        console.error("Error incrementing likes:", rpcError);
       }
       
       return true;
@@ -118,26 +283,26 @@ export const postService = {
       return false;
     }
   },
-
-  async createComment(postId: string, content: string): Promise<Comment | null> {
+  
+  async addComment(postId: string, content: string): Promise<Comment | null> {
     try {
       const { data: userData, error: userError } = await supabase.auth.getUser();
       
       if (userError || !userData.user) {
-        throw new Error("You must be logged in to comment on a post");
+        throw new Error("You must be logged in to comment on posts");
       }
       
       // Create the comment
       const { data, error } = await supabase
         .from('comments')
         .insert({
-          post_id: postId,
           user_id: userData.user.id,
+          post_id: postId,
           content
         })
         .select(`
           *,
-          user:user_id(*)
+          user:profiles(*)
         `)
         .single();
         
@@ -145,34 +310,31 @@ export const postService = {
         throw error;
       }
       
-      // Increment the comment count in the post
-      const { error: updateError } = await supabase
-        .rpc('increment_comments', { post_id: postId });
-        
-      if (updateError) {
-        console.error("Error incrementing comment count:", updateError);
-        // We already added the comment, so we consider this a success
+      // Call the RPC function to increment comment count
+      const { error: rpcError } = await supabase.rpc('increment_comments', { post_id: postId });
+      
+      if (rpcError) {
+        console.error("Error incrementing comment count:", rpcError);
       }
       
       return {
         id: data.id,
         content: data.content,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+        userId: data.user.id,
+        postId: data.post_id,
         user: {
           id: data.user.id,
           name: data.user.full_name || data.user.username || 'User',
-          email: '',
           avatar: data.user.avatar_url,
-          role: (data.user.role as 'user' | 'expert') || 'user',
-          followers: data.user.followers || 0,
-          following: data.user.following || 0,
-          joined: new Date(data.user.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-        },
-        createdAt: new Date(data.created_at).toISOString()
+          role: (data.user.role as 'user' | 'expert') || 'user'
+        }
       };
     } catch (error) {
-      console.error(`Error creating comment on post ${postId}:`, error);
+      console.error(`Error adding comment to post ${postId}:`, error);
       toast({
-        title: "Failed to post comment",
+        title: "Failed to add comment",
         description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive"
       });

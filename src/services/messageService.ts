@@ -12,9 +12,12 @@ export const messageService = {
         throw new Error("You must be logged in to view conversations");
       }
       
-      // Get list of users the current user has exchanged messages with
+      // Get conversations using a direct query instead of an RPC function
       const { data, error } = await supabase
-        .rpc('get_conversations', { user_id: userData.user.id });
+        .from('messages')
+        .select('sender_id, receiver_id')
+        .or(`sender_id.eq.${userData.user.id},receiver_id.eq.${userData.user.id}`)
+        .order('created_at', { ascending: false });
         
       if (error) {
         throw error;
@@ -24,10 +27,19 @@ export const messageService = {
         return [];
       }
       
-      // For each conversation, get the latest message and unread count
-      const conversations = await Promise.all(data.map(async (conversation) => {
-        const userId = conversation.other_user_id;
-        
+      // Get unique user IDs from conversations
+      const userIds = new Set<string>();
+      data.forEach(message => {
+        if (message.sender_id !== userData.user.id) {
+          userIds.add(message.sender_id);
+        }
+        if (message.receiver_id !== userData.user.id) {
+          userIds.add(message.receiver_id);
+        }
+      });
+      
+      // For each conversation partner, get their profile details and conversation info
+      const conversationPromises = Array.from(userIds).map(async (userId) => {
         // Get user profile details
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
@@ -43,8 +55,8 @@ export const messageService = {
         // Get latest message
         const { data: messageData, error: messageError } = await supabase
           .from('messages')
-          .select('content, is_read')
-          .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
+          .select('content, is_read, created_at')
+          .or(`and(sender_id.eq.${userData.user.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${userData.user.id})`)
           .order('created_at', { ascending: false })
           .limit(1)
           .single();
@@ -81,8 +93,9 @@ export const messageService = {
           lastMessage: messageData?.content || 'No messages yet',
           unreadCount: count || 0
         };
-      }));
+      });
       
+      const conversations = await Promise.all(conversationPromises);
       return conversations.filter(Boolean) as {user: User, lastMessage: string, unreadCount: number}[];
     } catch (error) {
       console.error("Error fetching conversations:", error);
@@ -107,9 +120,9 @@ export const messageService = {
       const { data, error } = await supabase
         .from('messages')
         .select(`
-          *,
-          sender:sender_id(id, full_name, username, avatar_url, role, followers, following),
-          receiver:receiver_id(id, full_name, username, avatar_url, role, followers, following)
+          id, content, is_read, created_at,
+          sender:profiles!sender_id(*),
+          receiver:profiles!receiver_id(*)
         `)
         .or(`and(sender_id.eq.${userData.user.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${userData.user.id})`)
         .order('created_at', { ascending: true });
@@ -185,9 +198,9 @@ export const messageService = {
           is_read: false
         })
         .select(`
-          *,
-          sender:sender_id(id, full_name, username, avatar_url, role, followers, following),
-          receiver:receiver_id(id, full_name, username, avatar_url, role, followers, following)
+          id, content, is_read, created_at,
+          sender:profiles!sender_id(*),
+          receiver:profiles!receiver_id(*)
         `)
         .single();
         
