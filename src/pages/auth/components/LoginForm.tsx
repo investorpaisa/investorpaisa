@@ -68,17 +68,17 @@ export const LoginForm: React.FC = () => {
   }
 
   return (
-    <Card className="card-premium overflow-hidden">
-      <div className="h-1 bg-gradient-to-r from-purple-400 to-purple-500 w-full"></div>
+    <Card className="premium-card overflow-hidden">
+      <div className="h-2 bg-gradient-gold w-full"></div>
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-white">Sign in</CardTitle>
-        <CardDescription className="text-gray-400">
+        <CardTitle className="text-2xl font-bold text-premium-gold">Sign in</CardTitle>
+        <CardDescription className="text-muted-foreground">
           Enter your email and password to access your account
         </CardDescription>
       </CardHeader>
       <CardContent>
         {emailError && (
-          <Alert variant="destructive" className="mb-4 bg-destructive/10 border-destructive/30">
+          <Alert variant="destructive" className="mb-4">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
               Email not verified. Please check your inbox and verify your email before logging in.
@@ -91,7 +91,7 @@ export const LoginForm: React.FC = () => {
             <LoginFormFields control={form.control} />
             <Button 
               type="submit" 
-              className="w-full bg-purple-400 hover:bg-purple-500 text-dark-900 transition-colors"
+              className="btn-premium w-full"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -108,13 +108,13 @@ export const LoginForm: React.FC = () => {
 
         <div className="mt-4">
           <div className="flex items-center mt-2">
-            <Separator className="flex-1 bg-gray-800" />
-            <span className="px-3 text-xs text-gray-500">OR</span>
-            <Separator className="flex-1 bg-gray-800" />
+            <Separator className="flex-1 bg-premium-dark-700/50" />
+            <span className="px-3 text-xs text-muted-foreground">OR</span>
+            <Separator className="flex-1 bg-premium-dark-700/50" />
           </div>
 
           <div className="grid gap-2 mt-4">
-            <Button variant="outline" className="w-full border-gray-700 text-gray-300 hover:bg-gray-800">
+            <Button variant="outline" className="w-full btn-outline">
               Continue with Google
             </Button>
           </div>

@@ -20,18 +20,18 @@ export const LoginFormFields: React.FC<LoginFormFieldsProps> = ({ control }) => 
         name="email"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-gray-400">Email</FormLabel>
+            <FormLabel className="text-foreground/80">Email</FormLabel>
             <FormControl>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input 
                   placeholder="your.email@example.com" 
                   {...field} 
-                  className="bg-dark-300 border-gray-700 focus-visible:border-purple-400/50 focus-visible:ring-purple-400/30 pl-10" 
+                  className="input-premium pl-10" 
                 />
               </div>
             </FormControl>
-            <FormMessage className="text-destructive" />
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -40,19 +40,19 @@ export const LoginFormFields: React.FC<LoginFormFieldsProps> = ({ control }) => 
         name="password"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-gray-400">Password</FormLabel>
+            <FormLabel className="text-foreground/80">Password</FormLabel>
             <FormControl>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input 
                   type="password" 
                   placeholder="••••••••" 
                   {...field} 
-                  className="bg-dark-300 border-gray-700 focus-visible:border-purple-400/50 focus-visible:ring-purple-400/30 pl-10" 
+                  className="input-premium pl-10" 
                 />
               </div>
             </FormControl>
-            <FormMessage className="text-destructive" />
+            <FormMessage />
           </FormItem>
         )}
       />
