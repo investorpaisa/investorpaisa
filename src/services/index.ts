@@ -8,8 +8,8 @@ export * from './auth';
 export * from './profiles';
 
 // Export from posts module using import/export to avoid conflicts
-import { postService } from './posts';
-export { postService };
+import { postService as postsModuleService } from './posts';
+export { postsModuleService };
 
 // Circle services
 export * from './circles';
@@ -18,8 +18,8 @@ export * from './circles';
 export * from './engagement';
 
 // Message services - avoid type conflicts
-import { messageService } from './messages';
-export { messageService };
+import { messageService as messagesModuleService } from './messages';
+export { messagesModuleService };
 
 // Market services
 export * from './market';
@@ -27,9 +27,24 @@ export * from './market';
 // News services
 export * from './news';
 
-// API services - avoid conflicts 
-// (Corrected this since there is no 'api' export in the module)
-export * from './api';
+// API services - avoid conflicts with types
+import { 
+  apiService,
+  authService as apiAuthService,
+  userService,
+  postService as apiPostService,
+  categoryService as apiCategoryService,
+  messageService as apiMessageService
+} from './api';
+
+export {
+  apiService,
+  apiAuthService,
+  userService,
+  apiPostService,
+  apiCategoryService,
+  apiMessageService
+};
 
 // Analytics services
 export * from './analytics/metricsService';
@@ -51,10 +66,10 @@ import { newsService } from './news';
 export const services = {
   auth: authService,
   profile: profileService,
-  post: postService,
+  post: postsModuleService,
   circle: circleService,
   engagement,
-  message: messageService,
+  message: messagesModuleService,
   market: marketService,
   news: newsService
 };
