@@ -1,4 +1,3 @@
-
 import { Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
@@ -15,6 +14,8 @@ import Inbox from '@/pages/Inbox';
 import Profile from '@/pages/Profile';
 import Landing from '@/pages/Landing';
 import NotFound from '@/pages/NotFound';
+import Circle from '@/pages/Circle';
+import Dashboard from '@/pages/Dashboard';
 import { AuthProvider } from '@/contexts/AuthContext';
 
 const queryClient = new QueryClient();
@@ -45,6 +46,8 @@ function App() {
           <Route path="inbox" element={<Inbox />} />
           <Route path="profile" element={<Profile />} />
           <Route path="market" element={<Market />} />
+          <Route path="app/circles/:id" element={<ProtectedRoute><MainLayout><Circle /></MainLayout></ProtectedRoute>} />
+          <Route path="app/dashboard" element={<ProtectedRoute><MainLayout><Dashboard /></MainLayout></ProtectedRoute>} />
         </Route>
 
         <Route path="*" element={<NotFound />} />

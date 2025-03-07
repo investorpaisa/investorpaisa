@@ -1,58 +1,95 @@
+import { Database } from './supabase';
 
-import { Database } from '@/integrations/supabase/types';
-
-// Post Types
+export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type Post = Database['public']['Tables']['posts']['Row'];
-export type PostInsert = Database['public']['Tables']['posts']['Insert'];
-export type PostUpdate = Database['public']['Tables']['posts']['Update'];
-
-// Comment Types
+export type Category = Database['public']['Tables']['categories']['Row'];
 export type Comment = Database['public']['Tables']['comments']['Row'] & {
+  edited?: boolean;
+  parent_id?: string;
   author?: Profile;
   replies?: Comment[];
 };
-export type CommentInsert = Database['public']['Tables']['comments']['Insert'];
-export type CommentUpdate = Database['public']['Tables']['comments']['Update'];
 
-// Like Types
-export type Like = Database['public']['Tables']['likes']['Row'];
-export type LikeInsert = Database['public']['Tables']['likes']['Insert'];
-
-// Bookmark Types
-export type Bookmark = Database['public']['Tables']['bookmarks']['Row'];
-export type BookmarkInsert = Database['public']['Tables']['bookmarks']['Insert'];
-
-// Profile Types
-export type Profile = Database['public']['Tables']['profiles']['Row'];
-
-// Circle Types
-export type Circle = Database['public']['Tables']['circles']['Row'] & {
-  memberCount?: number;
-  creator?: Profile;
+export type Bookmark = {
+  id: string;
+  user_id: string;
+  post_id: string;
+  created_at: string;
+  post?: Post;
 };
-export type CircleInsert = Database['public']['Tables']['circles']['Insert'];
-export type CircleUpdate = Database['public']['Tables']['circles']['Update'];
 
-export type CircleMember = Database['public']['Tables']['circle_members']['Row'] & {
+export type Circle = {
+  id: string;
+  name: string;
+  type: 'public' | 'private';
+  description?: string;
+  created_at: string;
+  created_by: string;
+  member_count?: number;
+  post_count?: number;
+};
+
+export type CircleMember = {
+  id: string;
+  circle_id: string;
+  user_id: string;
+  role: 'admin' | 'co-admin' | 'member';
+  created_at: string;
   profile?: Profile;
 };
-export type CircleMemberInsert = Database['public']['Tables']['circle_members']['Insert'];
-export type CircleMemberUpdate = Database['public']['Tables']['circle_members']['Update'];
 
-export type CirclePost = Database['public']['Tables']['circle_posts']['Row'];
-export type CirclePostInsert = Database['public']['Tables']['circle_posts']['Insert'];
-export type CirclePostUpdate = Database['public']['Tables']['circle_posts']['Update'];
+export type CirclePost = {
+  id: string;
+  circle_id: string;
+  post_id: string;
+  created_at: string;
+  is_pinned: boolean;
+  post?: Post;
+};
 
-// News Article Types
-export type NewsArticle = Database['public']['Tables']['news_articles']['Row'];
+export type NewsArticle = {
+  id: string;
+  title: string;
+  summary?: string;
+  url: string;
+  source: string;
+  category: string;
+  published_at?: string;
+  thumbnail_url?: string;
+  relevance_score?: number;
+  created_at: string;
+};
 
-// Analytics Types
-export type AnalyticsMetric = Database['public']['Tables']['analytics_metrics']['Row'];
+export type AnalyticsMetric = {
+  id: string;
+  metric_type: string;
+  metric_name: string;
+  metric_value: number;
+  entity_id?: string;
+  entity_type?: string;
+  date_recorded: string;
+  created_at: string;
+};
 
-// Role type
-export type UserRole = 'admin' | 'co-admin' | 'member' | 'user' | 'expert';
+export type PostShare = {
+  id: string;
+  user_id: string;
+  post_id: string;
+  share_type: 'user' | 'circle' | 'public';
+  target_id?: string;
+  commentary?: string;
+  created_at: string;
+};
 
-// Share Types
-export type PostShare = Database['public']['Tables']['post_shares']['Row'];
-export type PostShareInsert = Database['public']['Tables']['post_shares']['Insert'];
-export type ShareType = 'user' | 'circle' | 'public';
+export enum CircleRole {
+  ADMIN = 'admin',
+  CO_ADMIN = 'co-admin',
+  MEMBER = 'member'
+}
+
+export interface EnhancedPost extends Post {
+  author?: Profile;
+  category?: Category;
+  isBookmarked?: boolean;
+  isLiked?: boolean;
+}
