@@ -12,7 +12,7 @@ import PostCard from '@/components/posts/PostCard';
 import { Circle as CircleType, CircleRole, CircleMember, EnhancedPost } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { getCircleById, getCircleMembers, getCirclePosts, joinCircle, leaveCircle } from '@/services/circles/circleService';
+import { circleService } from '@/services/circles/circleService';
 
 const Circle = () => {
   const { id } = useParams<{ id: string }>();
@@ -34,11 +34,11 @@ const Circle = () => {
       setLoading(true);
       try {
         // Get circle details
-        const circleData = await getCircleById(id);
+        const circleData = await circleService.getCircleById(id);
         setCircle(circleData);
         
         // Get members
-        const membersData = await getCircleMembers(id);
+        const membersData = await circleService.getCircleMembers(id);
         setMembers(membersData);
         
         // Check user's role in the circle
@@ -48,7 +48,7 @@ const Circle = () => {
         }
         
         // Get posts
-        const postsData = await getCirclePosts(id);
+        const postsData = await circleService.getCirclePosts(id);
         const pinned = postsData.filter(post => post.is_pinned);
         const regular = postsData.filter(post => !post.is_pinned);
         
@@ -74,8 +74,8 @@ const Circle = () => {
     if (!circle || !id) return;
     
     try {
-      const result = await joinCircle(id);
-      if (result.success) {
+      const result = await circleService.joinCircle(id);
+      if (result) {
         setUserRole(CircleRole.MEMBER);
         toast({
           title: "Success",
@@ -96,8 +96,8 @@ const Circle = () => {
     if (!circle || !id) return;
     
     try {
-      const result = await leaveCircle(id);
-      if (result.success) {
+      const result = await circleService.leaveCircle(id);
+      if (result) {
         setUserRole(null);
         toast({
           title: "Success",

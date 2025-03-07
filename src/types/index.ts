@@ -1,7 +1,11 @@
 
+
 import { Database } from '../integrations/supabase/types';
 
-export type Profile = Database['public']['Tables']['profiles']['Row'];
+export type Profile = Database['public']['Tables']['profiles']['Row'] & {
+  is_verified?: boolean;
+};
+
 export type Post = Database['public']['Tables']['posts']['Row'];
 export type Category = Database['public']['Tables']['categories']['Row'];
 export type Comment = Database['public']['Tables']['comments']['Row'] & {
@@ -9,6 +13,7 @@ export type Comment = Database['public']['Tables']['comments']['Row'] & {
   parent_id?: string;
   author?: Profile;
   replies?: Comment[];
+  updated_at: string; // Make sure this is required to match the DB type
 };
 
 export type Bookmark = {
@@ -88,7 +93,7 @@ export enum CircleRole {
   MEMBER = 'member'
 }
 
-export interface EnhancedPost extends Post {
+export interface EnhancedPost extends Omit<Post, 'comment_count'> {
   author?: Profile;
   category?: Category;
   isBookmarked?: boolean;
@@ -121,3 +126,4 @@ export type CommentInsert = Omit<Comment, 'id' | 'created_at' | 'updated_at' | '
 export type CommentUpdate = Partial<Omit<Comment, 'id' | 'created_at' | 'post_id' | 'user_id' | 'author' | 'replies'>>;
 
 export type UserRole = 'user' | 'expert' | 'admin';
+

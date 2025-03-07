@@ -1,7 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
-import { Circle, CircleInsert, CircleUpdate, CircleMember, Post, UserRole } from '@/types';
+import { toast } from 'sonner';
+import { Circle, CircleInsert, CircleUpdate, CircleMember, Post, UserRole, EnhancedPost } from '@/types';
 
 export const circleService = {
   /**
@@ -11,11 +11,7 @@ export const circleService = {
     try {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to create a circle",
-          variant: "destructive"
-        });
+        toast.error("Authentication required", "Please sign in to create a circle");
         return null;
       }
 
@@ -27,11 +23,7 @@ export const circleService = {
         .single();
 
       if (existingCircle) {
-        toast({
-          title: "Circle already exists",
-          description: "Please choose a different name for your circle",
-          variant: "destructive"
-        });
+        toast.error("Circle already exists", "Please choose a different name for your circle");
         return null;
       }
 
@@ -45,24 +37,28 @@ export const circleService = {
       const { data, error } = await supabase
         .from('circles')
         .insert(newCircle)
-        .select('*')
+        .select()
         .single();
 
       if (error) throw error;
       
-      toast({
-        title: "Circle created",
-        description: `Your circle '${name}' has been created successfully`
-      });
+      // Create the first member (creator as admin)
+      const { error: memberError } = await supabase
+        .from('circle_members')
+        .insert({
+          circle_id: data.id,
+          user_id: user.user.id,
+          role: 'admin'
+        });
+
+      if (memberError) throw memberError;
+      
+      toast.success("Circle created", `Your circle '${name}' has been created successfully`);
       
       return data;
     } catch (error) {
       console.error('Error creating circle:', error);
-      toast({
-        title: "Error",
-        description: "Failed to create circle. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Error", "Failed to create circle. Please try again.");
       return null;
     }
   },
@@ -74,11 +70,7 @@ export const circleService = {
     try {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to update circles",
-          variant: "destructive"
-        });
+        toast.error("Authentication required", "Please sign in to update circles");
         return null;
       }
 
@@ -91,11 +83,7 @@ export const circleService = {
         .single();
 
       if (!membership || membership.role !== 'admin') {
-        toast({
-          title: "Permission denied",
-          description: "Only circle admins can update circle details",
-          variant: "destructive"
-        });
+        toast.error("Permission denied", "Only circle admins can update circle details");
         return null;
       }
 
@@ -103,24 +91,17 @@ export const circleService = {
         .from('circles')
         .update(updates)
         .eq('id', circleId)
-        .select('*')
+        .select()
         .single();
 
       if (error) throw error;
       
-      toast({
-        title: "Circle updated",
-        description: "Circle details have been updated successfully"
-      });
+      toast.success("Circle updated", "Circle details have been updated successfully");
       
       return data;
     } catch (error) {
       console.error('Error updating circle:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update circle. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Error", "Failed to update circle. Please try again.");
       return null;
     }
   },
@@ -132,11 +113,7 @@ export const circleService = {
     try {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to delete circles",
-          variant: "destructive"
-        });
+        toast.error("Authentication required", "Please sign in to delete circles");
         return false;
       }
 
@@ -149,11 +126,7 @@ export const circleService = {
         .single();
 
       if (!membership || membership.role !== 'admin') {
-        toast({
-          title: "Permission denied",
-          description: "Only circle admins can delete circles",
-          variant: "destructive"
-        });
+        toast.error("Permission denied", "Only circle admins can delete circles");
         return false;
       }
 
@@ -164,19 +137,12 @@ export const circleService = {
 
       if (error) throw error;
       
-      toast({
-        title: "Circle deleted",
-        description: "The circle has been deleted successfully"
-      });
+      toast.success("Circle deleted", "The circle has been deleted successfully");
       
       return true;
     } catch (error) {
       console.error('Error deleting circle:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete circle. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Error", "Failed to delete circle. Please try again.");
       return false;
     }
   },
@@ -190,7 +156,7 @@ export const circleService = {
         .from('circles')
         .select(`
           *,
-          creator:created_by(
+          creator:profiles!circles_created_by_fkey(
             id,
             full_name,
             username,
@@ -210,7 +176,7 @@ export const circleService = {
           
         return {
           ...circle,
-          memberCount: count
+          member_count: count || 0
         };
       }));
       
@@ -230,7 +196,7 @@ export const circleService = {
         .from('circles')
         .select(`
           *,
-          creator:created_by(
+          creator:profiles!circles_created_by_fkey(
             id,
             full_name,
             username,
@@ -251,7 +217,7 @@ export const circleService = {
           
         return {
           ...circle,
-          memberCount: count
+          member_count: count || 0
         };
       }));
       
@@ -271,7 +237,7 @@ export const circleService = {
         .from('circles')
         .select(`
           *,
-          creator:created_by(
+          creator:profiles!circles_created_by_fkey(
             id,
             full_name,
             username,
@@ -291,7 +257,7 @@ export const circleService = {
         
       return {
         ...data,
-        memberCount: count
+        member_count: count || 0
       };
     } catch (error) {
       console.error('Error getting circle by ID:', error);
@@ -308,7 +274,7 @@ export const circleService = {
         .from('circles')
         .select(`
           *,
-          creator:created_by(
+          creator:profiles!circles_created_by_fkey(
             id,
             full_name,
             username,
@@ -328,7 +294,7 @@ export const circleService = {
         
       return {
         ...data,
-        memberCount: count
+        member_count: count || 0
       };
     } catch (error) {
       console.error('Error getting circle by name:', error);
@@ -347,9 +313,9 @@ export const circleService = {
       const { data, error } = await supabase
         .from('circle_members')
         .select(`
-          circle:circle_id(
+          circle:circles!circle_members_circle_id_fkey(
             *,
-            creator:created_by(
+            creator:profiles!circles_created_by_fkey(
               id,
               full_name,
               username,
@@ -371,7 +337,7 @@ export const circleService = {
           
         return {
           ...circle,
-          memberCount: count
+          member_count: count || 0
         };
       }));
       
@@ -389,11 +355,7 @@ export const circleService = {
     try {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to join circles",
-          variant: "destructive"
-        });
+        toast.error("Authentication required", "Please sign in to join circles");
         return false;
       }
 
@@ -405,20 +367,12 @@ export const circleService = {
         .single();
 
       if (!circle) {
-        toast({
-          title: "Circle not found",
-          description: "The circle you're trying to join doesn't exist",
-          variant: "destructive"
-        });
+        toast.error("Circle not found", "The circle you're trying to join doesn't exist");
         return false;
       }
 
       if (circle.type === 'private') {
-        toast({
-          title: "Private circle",
-          description: "This is a private circle. You need an invitation to join.",
-          variant: "destructive"
-        });
+        toast.error("Private circle", "This is a private circle. You need an invitation to join.");
         return false;
       }
 
@@ -431,11 +385,7 @@ export const circleService = {
         .single();
 
       if (existingMembership) {
-        toast({
-          title: "Already a member",
-          description: "You are already a member of this circle",
-          variant: "destructive"
-        });
+        toast.error("Already a member", "You are already a member of this circle");
         return false;
       }
 
@@ -450,19 +400,12 @@ export const circleService = {
 
       if (error) throw error;
       
-      toast({
-        title: "Joined circle",
-        description: "You have successfully joined the circle"
-      });
+      toast.success("Joined circle", "You have successfully joined the circle");
       
       return true;
     } catch (error) {
       console.error('Error joining circle:', error);
-      toast({
-        title: "Error",
-        description: "Failed to join circle. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Error", "Failed to join circle. Please try again.");
       return false;
     }
   },
@@ -474,11 +417,7 @@ export const circleService = {
     try {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to leave circles",
-          variant: "destructive"
-        });
+        toast.error("Authentication required", "Please sign in to leave circles");
         return false;
       }
 
@@ -491,11 +430,7 @@ export const circleService = {
         .single();
 
       if (!membership) {
-        toast({
-          title: "Not a member",
-          description: "You are not a member of this circle",
-          variant: "destructive"
-        });
+        toast.error("Not a member", "You are not a member of this circle");
         return false;
       }
 
@@ -509,11 +444,7 @@ export const circleService = {
           .neq('user_id', user.user.id);
 
         if (count === 0) {
-          toast({
-            title: "Cannot leave",
-            description: "You are the only admin. Please transfer ownership before leaving.",
-            variant: "destructive"
-          });
+          toast.error("Cannot leave", "You are the only admin. Please transfer ownership before leaving.");
           return false;
         }
       }
@@ -527,19 +458,12 @@ export const circleService = {
 
       if (error) throw error;
       
-      toast({
-        title: "Left circle",
-        description: "You have successfully left the circle"
-      });
+      toast.success("Left circle", "You have successfully left the circle");
       
       return true;
     } catch (error) {
       console.error('Error leaving circle:', error);
-      toast({
-        title: "Error",
-        description: "Failed to leave circle. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Error", "Failed to leave circle. Please try again.");
       return false;
     }
   },
@@ -551,11 +475,7 @@ export const circleService = {
     try {
       const { data: currentUser } = await supabase.auth.getUser();
       if (!currentUser.user) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to invite users",
-          variant: "destructive"
-        });
+        toast.error("Authentication required", "Please sign in to invite users");
         return false;
       }
 
@@ -568,11 +488,7 @@ export const circleService = {
         .single();
 
       if (!membership || (membership.role !== 'admin' && membership.role !== 'co-admin')) {
-        toast({
-          title: "Permission denied",
-          description: "You need to be an admin or co-admin to invite members",
-          variant: "destructive"
-        });
+        toast.error("Permission denied", "You need to be an admin or co-admin to invite members");
         return false;
       }
 
@@ -585,11 +501,7 @@ export const circleService = {
         .single();
 
       if (existingMembership) {
-        toast({
-          title: "Already a member",
-          description: "This user is already a member of the circle",
-          variant: "destructive"
-        });
+        toast.error("Already a member", "This user is already a member of the circle");
         return false;
       }
 
@@ -604,19 +516,12 @@ export const circleService = {
 
       if (error) throw error;
       
-      toast({
-        title: "Invitation sent",
-        description: "User has been added to the circle"
-      });
+      toast.success("Invitation sent", "User has been added to the circle");
       
       return true;
     } catch (error) {
       console.error('Error inviting to circle:', error);
-      toast({
-        title: "Error",
-        description: "Failed to invite user. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Error", "Failed to invite user. Please try again.");
       return false;
     }
   },
@@ -628,11 +533,7 @@ export const circleService = {
     try {
       const { data: currentUser } = await supabase.auth.getUser();
       if (!currentUser.user) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to change member roles",
-          variant: "destructive"
-        });
+        toast.error("Authentication required", "Please sign in to change member roles");
         return false;
       }
 
@@ -645,11 +546,7 @@ export const circleService = {
         .single();
 
       if (!membership || membership.role !== 'admin') {
-        toast({
-          title: "Permission denied",
-          description: "Only circle admins can change member roles",
-          variant: "destructive"
-        });
+        toast.error("Permission denied", "Only circle admins can change member roles");
         return false;
       }
 
@@ -662,19 +559,12 @@ export const circleService = {
 
       if (error) throw error;
       
-      toast({
-        title: "Role updated",
-        description: "Member's role has been updated successfully"
-      });
+      toast.success("Role updated", "Member's role has been updated successfully");
       
       return true;
     } catch (error) {
       console.error('Error changing member role:', error);
-      toast({
-        title: "Error",
-        description: "Failed to change member role. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Error", "Failed to change member role. Please try again.");
       return false;
     }
   },
@@ -686,11 +576,7 @@ export const circleService = {
     try {
       const { data: currentUser } = await supabase.auth.getUser();
       if (!currentUser.user) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to remove members",
-          variant: "destructive"
-        });
+        toast.error("Authentication required", "Please sign in to remove members");
         return false;
       }
 
@@ -703,21 +589,13 @@ export const circleService = {
         .single();
 
       if (!membership || membership.role !== 'admin') {
-        toast({
-          title: "Permission denied",
-          description: "Only circle admins can remove members",
-          variant: "destructive"
-        });
+        toast.error("Permission denied", "Only circle admins can remove members");
         return false;
       }
 
       // Cannot remove yourself (use leaveCircle instead)
       if (userId === currentUser.user.id) {
-        toast({
-          title: "Cannot remove yourself",
-          description: "Use the 'Leave Circle' option to leave the circle",
-          variant: "destructive"
-        });
+        toast.error("Cannot remove yourself", "Use the 'Leave Circle' option to leave the circle");
         return false;
       }
 
@@ -730,19 +608,12 @@ export const circleService = {
 
       if (error) throw error;
       
-      toast({
-        title: "Member removed",
-        description: "Member has been removed from the circle"
-      });
+      toast.success("Member removed", "Member has been removed from the circle");
       
       return true;
     } catch (error) {
       console.error('Error removing member:', error);
-      toast({
-        title: "Error",
-        description: "Failed to remove member. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Error", "Failed to remove member. Please try again.");
       return false;
     }
   },
@@ -756,12 +627,13 @@ export const circleService = {
         .from('circle_members')
         .select(`
           *,
-          profile:user_id(
+          profile:profiles!circle_members_user_id_fkey(
             id,
             full_name,
             username,
             avatar_url,
-            role
+            role,
+            is_verified
           )
         `)
         .eq('circle_id', circleId)
@@ -778,22 +650,23 @@ export const circleService = {
   /**
    * Get posts from a circle
    */
-  async getCirclePosts(circleId: string): Promise<Post[]> {
+  async getCirclePosts(circleId: string): Promise<EnhancedPost[]> {
     try {
       const { data, error } = await supabase
         .from('circle_posts')
         .select(`
           is_pinned,
-          post:post_id(
+          post:posts!circle_posts_post_id_fkey(
             *,
-            author:user_id(
+            author:profiles!posts_user_id_fkey(
               id,
               full_name,
               username,
               avatar_url,
-              role
+              role,
+              is_verified
             ),
-            category:category_id(
+            category:categories!posts_category_id_fkey(
               id,
               name,
               icon
@@ -810,8 +683,13 @@ export const circleService = {
       const posts = data.map(item => {
         return {
           ...item.post,
-          is_pinned: item.is_pinned
-        };
+          is_pinned: item.is_pinned,
+          isLiked: false,
+          isBookmarked: false,
+          like_count: item.post.likes || 0,
+          comment_count: item.post.comment_count || 0,
+          share_count: 0
+        } as EnhancedPost;
       });
       
       return posts || [];
@@ -828,11 +706,7 @@ export const circleService = {
     try {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to add posts to circles",
-          variant: "destructive"
-        });
+        toast.error("Authentication required", "Please sign in to add posts to circles");
         return false;
       }
 
@@ -845,11 +719,7 @@ export const circleService = {
         .single();
 
       if (!membership) {
-        toast({
-          title: "Not a member",
-          description: "You need to be a member to post in this circle",
-          variant: "destructive"
-        });
+        toast.error("Not a member", "You need to be a member to post in this circle");
         return false;
       }
 
@@ -864,19 +734,12 @@ export const circleService = {
 
       if (error) throw error;
       
-      toast({
-        title: "Post added",
-        description: "Post has been added to the circle"
-      });
+      toast.success("Post added", "Post has been added to the circle");
       
       return true;
     } catch (error) {
       console.error('Error adding post to circle:', error);
-      toast({
-        title: "Error",
-        description: "Failed to add post to circle. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Error", "Failed to add post to circle. Please try again.");
       return false;
     }
   },
@@ -888,11 +751,7 @@ export const circleService = {
     try {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to manage posts",
-          variant: "destructive"
-        });
+        toast.error("Authentication required", "Please sign in to manage posts");
         return false;
       }
 
@@ -905,11 +764,7 @@ export const circleService = {
         .single();
 
       if (!membership || (membership.role !== 'admin' && membership.role !== 'co-admin')) {
-        toast({
-          title: "Permission denied",
-          description: "Only admins and co-admins can pin posts",
-          variant: "destructive"
-        });
+        toast.error("Permission denied", "Only admins and co-admins can pin posts");
         return false;
       }
 
@@ -922,11 +777,7 @@ export const circleService = {
         .single();
 
       if (!circlePost) {
-        toast({
-          title: "Post not found",
-          description: "This post is not in the circle",
-          variant: "destructive"
-        });
+        toast.error("Post not found", "This post is not in the circle");
         return false;
       }
 
@@ -940,21 +791,17 @@ export const circleService = {
 
       if (error) throw error;
       
-      toast({
-        title: newPinStatus ? "Post pinned" : "Post unpinned",
-        description: newPinStatus 
+      toast.success(
+        newPinStatus ? "Post pinned" : "Post unpinned",
+        newPinStatus 
           ? "Post has been pinned to the top of the circle" 
           : "Post has been unpinned"
-      });
+      );
       
       return true;
     } catch (error) {
       console.error('Error toggling pin status:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update pin status. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Error", "Failed to update pin status. Please try again.");
       return false;
     }
   },
@@ -966,11 +813,7 @@ export const circleService = {
     try {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to remove posts",
-          variant: "destructive"
-        });
+        toast.error("Authentication required", "Please sign in to remove posts");
         return false;
       }
 
@@ -993,11 +836,7 @@ export const circleService = {
           .single();
 
         if (!membership || (membership.role !== 'admin' && membership.role !== 'co-admin')) {
-          toast({
-            title: "Permission denied",
-            description: "You need to be the post author or a circle admin/co-admin",
-            variant: "destructive"
-          });
+          toast.error("Permission denied", "You need to be the post author or a circle admin/co-admin");
           return false;
         }
       }
@@ -1011,20 +850,16 @@ export const circleService = {
 
       if (error) throw error;
       
-      toast({
-        title: "Post removed",
-        description: "Post has been removed from the circle"
-      });
+      toast.success("Post removed", "Post has been removed from the circle");
       
       return true;
     } catch (error) {
       console.error('Error removing post from circle:', error);
-      toast({
-        title: "Error",
-        description: "Failed to remove post. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Error", "Failed to remove post. Please try again.");
       return false;
     }
   }
 };
+
+// Export the service with named export
+export { circleService };
