@@ -10,6 +10,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
 import { createCircle } from '@/services/circles';
 import { CircleType } from '@/services/circles/types';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface CreateCircleModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ interface CreateCircleModalProps {
 
 export function CreateCircleModal({ isOpen, onClose }: CreateCircleModalProps) {
   const navigate = useNavigate();
+  const { user } = useAuth(); // Get the current user from AuthContext
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [circleType, setCircleType] = useState<'public' | 'private'>('public');
@@ -29,14 +31,20 @@ export function CreateCircleModal({ isOpen, onClose }: CreateCircleModalProps) {
       return;
     }
 
+    if (!user) {
+      toast.error('You must be logged in to create a circle');
+      return;
+    }
+
     setLoading(true);
     
     try {
-      // Create the circle
+      // Create the circle with the current user's ID
       const newCircle = await createCircle({
         name,
         description,
-        type: circleType
+        type: circleType,
+        created_by: user.id // Add the required created_by property
       });
       
       toast.success('Circle created successfully');
