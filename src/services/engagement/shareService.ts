@@ -1,126 +1,101 @@
-
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
 import { PostShare, PostShareInsert, ShareType } from '@/types';
 
-export const shareService = {
-  /**
-   * Share a post
-   */
-  async sharePost(
-    postId: string, 
-    shareType: ShareType, 
-    targetId?: string, 
-    commentary?: string
-  ): Promise<PostShare | null> {
-    try {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to share posts",
-          variant: "destructive"
-        });
-        return null;
-      }
+/**
+ * Share a post
+ */
+export const sharePost = async (share: PostShareInsert): Promise<PostShare> => {
+  try {
+    const { data, error } = await supabase
+      .from('post_shares')
+      .insert(share)
+      .select('*')
+      .single();
 
-      const newShare: PostShareInsert = {
-        post_id: postId,
-        user_id: user.user.id,
-        share_type: shareType,
-        target_id: targetId || null,
-        commentary: commentary || null
-      };
-
-      const { data, error } = await supabase
-        .from('post_shares')
-        .insert(newShare)
-        .select('*')
-        .single();
-
-      if (error) throw error;
-      
-      let successMessage = "Post shared successfully";
-      if (shareType === 'user') {
-        successMessage = "Post shared with user";
-      } else if (shareType === 'circle') {
-        successMessage = "Post shared with circle";
-      }
-      
-      toast({
-        title: "Success",
-        description: successMessage
-      });
-      
-      return data;
-    } catch (error) {
+    if (error) {
       console.error('Error sharing post:', error);
-      toast({
-        title: "Error",
-        description: "Failed to share the post. Please try again.",
-        variant: "destructive"
-      });
-      return null;
+      throw new Error(`Failed to share post: ${error.message}`);
     }
-  },
 
-  /**
-   * Get shares for a post
-   */
-  async getPostShares(postId: string): Promise<PostShare[]> {
-    try {
-      const { data, error } = await supabase
-        .from('post_shares')
-        .select(`
-          *,
-          sharer:user_id(
-            id,
-            full_name,
-            username,
-            avatar_url
-          )
-        `)
-        .eq('post_id', postId);
+    return data as PostShare;
+  } catch (error) {
+    console.error('Error in sharePost:', error);
+    throw error;
+  }
+};
 
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error('Error getting post shares:', error);
-      return [];
+/**
+ * Get shares for a post
+ */
+export const getPostShares = async (postId: string): Promise<PostShare[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('post_shares')
+      .select('*')
+      .eq('post_id', postId);
+
+    if (error) {
+      console.error('Error fetching post shares:', error);
+      throw new Error(`Failed to fetch post shares: ${error.message}`);
     }
-  },
 
-  /**
-   * Delete a share
-   */
-  async deleteShare(shareId: string): Promise<boolean> {
-    try {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to delete shares",
-          variant: "destructive"
-        });
-        return false;
-      }
+    // Ensure share_type is of the correct type
+    const typedShares = data.map(share => ({
+      ...share,
+      share_type: share.share_type as 'user' | 'circle' | 'public'
+    }));
 
-      const { error } = await supabase
-        .from('post_shares')
-        .delete()
-        .eq('id', shareId)
-        .eq('user_id', user.user.id);
+    return typedShares as PostShare[];
+  } catch (error) {
+    console.error('Error in getPostShares:', error);
+    throw error;
+  }
+};
 
-      if (error) throw error;
-      return true;
-    } catch (error) {
+/**
+ * Get shares for a user
+ */
+export const getUserShares = async (userId: string): Promise<PostShare[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('post_shares')
+      .select('*, sharer:profiles(*)')
+      .eq('user_id', userId);
+
+    if (error) {
+      console.error('Error fetching user shares:', error);
+      throw new Error(`Failed to fetch user shares: ${error.message}`);
+    }
+
+    // Ensure share_type is of the correct type
+    const typedShares = data.map(share => ({
+      ...share,
+      share_type: share.share_type as 'user' | 'circle' | 'public'
+    }));
+
+    return typedShares as PostShare[];
+  } catch (error) {
+    console.error('Error in getUserShares:', error);
+    throw error;
+  }
+};
+
+/**
+ * Delete a share
+ */
+export const deleteShare = async (id: string): Promise<void> => {
+  try {
+    const { error } = await supabase
+      .from('post_shares')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
       console.error('Error deleting share:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete share. Please try again.",
-        variant: "destructive"
-      });
-      return false;
+      throw new Error(`Failed to delete share: ${error.message}`);
     }
+  } catch (error) {
+    console.error('Error in deleteShare:', error);
+    throw error;
   }
 };

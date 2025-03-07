@@ -48,6 +48,7 @@ function App() {
           <Route path="profile" element={<Profile />} />
           <Route path="market" element={<Market />} />
           <Route path="app/circles/:id" element={<Circle />} />
+          <Route path="communities/:id" element={<Circle />} /> {/* Added for backward compatibility */}
           <Route path="app/dashboard" element={<Dashboard />} />
         </Route>
 

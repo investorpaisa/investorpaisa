@@ -1,42 +1,30 @@
 
-import { useState, useEffect } from 'react';
-import { circleService } from '@/services/circles/circleService';
+import { useQuery } from '@tanstack/react-query';
 import { Circle } from '@/types';
+import { 
+  getUserCircles, 
+  getPublicCircles, 
+  getTrendingCircles 
+} from '@/services/circles/circleService';
 
-export const useCircles = (type?: 'public' | 'private' | 'user') => {
-  const [circles, setCircles] = useState<Circle[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export const useUserCircles = (userId: string | undefined) => {
+  return useQuery({
+    queryKey: ['userCircles', userId],
+    queryFn: () => userId ? getUserCircles(userId) : Promise.resolve([]),
+    enabled: !!userId,
+  });
+};
 
-  useEffect(() => {
-    const fetchCircles = async () => {
-      setLoading(true);
-      setError(null);
-      
-      try {
-        let fetchedCircles: Circle[] = [];
-        
-        if (type === 'public') {
-          fetchedCircles = await circleService.getCirclesByType('public');
-        } else if (type === 'private') {
-          fetchedCircles = await circleService.getCirclesByType('private');
-        } else if (type === 'user') {
-          fetchedCircles = await circleService.getUserCircles();
-        } else {
-          fetchedCircles = await circleService.getAllCircles();
-        }
-        
-        setCircles(fetchedCircles);
-      } catch (err) {
-        console.error('Error fetching circles:', err);
-        setError('Failed to fetch circles. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchCircles();
-  }, [type]);
+export const usePublicCircles = (page = 1, limit = 10) => {
+  return useQuery({
+    queryKey: ['publicCircles', page, limit],
+    queryFn: () => getPublicCircles(page, limit),
+  });
+};
 
-  return { circles, loading, error };
+export const useTrendingCircles = (limit = 5) => {
+  return useQuery({
+    queryKey: ['trendingCircles', limit],
+    queryFn: () => getTrendingCircles(limit),
+  });
 };

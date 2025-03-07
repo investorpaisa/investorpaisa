@@ -92,7 +92,7 @@ export enum CircleRole {
   MEMBER = 'member'
 }
 
-export interface EnhancedPost extends Omit<Post, 'comment_count'> {
+export interface EnhancedPost extends Post {
   author?: Profile;
   category?: Category;
   isBookmarked?: boolean;
@@ -100,9 +100,6 @@ export interface EnhancedPost extends Omit<Post, 'comment_count'> {
   like_count?: number;
   comment_count?: number;
   share_count?: number;
-  created_at: string; 
-  title: string;
-  content: string;
   is_pinned?: boolean;
 }
 
@@ -122,9 +119,7 @@ export type Like = {
 
 export type LikeInsert = Omit<Like, 'id' | 'created_at'>;
 export type BookmarkInsert = Omit<Bookmark, 'id' | 'created_at'>;
-export type CommentInsert = Omit<Comment, 'id' | 'created_at' | 'updated_at' | 'edited' | 'author' | 'replies'> & {
-  parent_id?: string;
-};
+export type CommentInsert = Partial<Omit<Comment, 'id' | 'created_at' | 'updated_at' | 'edited' | 'author' | 'replies'>>;
 export type CommentUpdate = Partial<Omit<Comment, 'id' | 'created_at' | 'post_id' | 'user_id' | 'author' | 'replies'>>;
 
 export type UserRole = 'user' | 'expert' | 'admin';

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { likeService, bookmarkService, shareService } from '@/services/engagement';
@@ -17,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { CircleIcon } from '../circles/CircleIcon';
 import { useNavigate } from 'react-router-dom';
-import { circleService } from '@/services/circles/circleService';
+import { circleService, addPostToCircle } from '@/services/circles/circleService';
 import { Circle } from '@/types';
 
 interface PostActionsProps {

@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Circle, CircleMember, CircleInsert, CircleUpdate, CircleRole, EnhancedPost, Profile } from '@/types';
 
@@ -220,7 +219,7 @@ export const getCircleMembers = async (circleId: string): Promise<CircleMember[]
     user_id: member.user_id,
     role: member.role as CircleRole,
     created_at: member.created_at,
-    profile: member.profile as Profile
+    profile: member.profile as unknown as Profile
   }));
 
   return members;
@@ -472,7 +471,7 @@ export const addPostToCircle = async (circleId: string, postId: string, isPinned
         throw new Error(`Failed to update post pin status: ${error.message}`);
       }
 
-      return data as CirclePost;
+      return data as unknown as CirclePost;
     }
     
     return existingPostData as CirclePost;
@@ -494,7 +493,7 @@ export const addPostToCircle = async (circleId: string, postId: string, isPinned
     throw new Error(`Failed to add post to circle: ${error.message}`);
   }
 
-  return data as CirclePost;
+  return data as unknown as CirclePost;
 };
 
 /**
@@ -571,7 +570,7 @@ export const togglePostPin = async (circleId: string, postId: string): Promise<C
     throw new Error(`Failed to toggle post pin status: ${error.message}`);
   }
 
-  return data as CirclePost;
+  return data as unknown as CirclePost;
 };
 
 /**
