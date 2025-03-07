@@ -86,7 +86,8 @@ export type PostShare = {
   created_at: string;
 };
 
-export type EnhancedPost extends Omit<Post, 'comment_count'> {
+// Fix: Changed 'type EnhancedPost extends...' to just 'type EnhancedPost ='
+export type EnhancedPost = Omit<Post, 'comment_count'> & {
   author?: Profile;
   category?: Category;
   isBookmarked?: boolean;
@@ -95,7 +96,7 @@ export type EnhancedPost extends Omit<Post, 'comment_count'> {
   comment_count?: number;
   share_count?: number;
   is_pinned?: boolean;
-}
+};
 
 export type ShareType = 'user' | 'circle' | 'public';
 
