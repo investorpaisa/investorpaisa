@@ -9,6 +9,35 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      bookmarks: {
+        Row: {
+          created_at: string | null
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookmarks_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           created_at: string | null
@@ -39,11 +68,116 @@ export type Database = {
         }
         Relationships: []
       }
+      circle_members: {
+        Row: {
+          circle_id: string
+          created_at: string | null
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          circle_id: string
+          created_at?: string | null
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          circle_id?: string
+          created_at?: string | null
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "circle_members_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "circles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      circle_posts: {
+        Row: {
+          circle_id: string
+          created_at: string | null
+          id: string
+          is_pinned: boolean | null
+          post_id: string
+        }
+        Insert: {
+          circle_id: string
+          created_at?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          post_id: string
+        }
+        Update: {
+          circle_id?: string
+          created_at?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "circle_posts_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "circles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "circle_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      circles: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          description: string | null
+          id: string
+          member_count: number | null
+          name: string
+          post_count: number | null
+          type: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          description?: string | null
+          id?: string
+          member_count?: number | null
+          name: string
+          post_count?: number | null
+          type: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          description?: string | null
+          id?: string
+          member_count?: number | null
+          name?: string
+          post_count?: number | null
+          type?: string
+        }
+        Relationships: []
+      }
       comments: {
         Row: {
           content: string
           created_at: string | null
           id: string
+          parent_id: string | null
           post_id: string
           updated_at: string | null
           user_id: string
@@ -52,6 +186,7 @@ export type Database = {
           content: string
           created_at?: string | null
           id?: string
+          parent_id?: string | null
           post_id: string
           updated_at?: string | null
           user_id: string
@@ -60,11 +195,19 @@ export type Database = {
           content?: string
           created_at?: string | null
           id?: string
+          parent_id?: string | null
           post_id?: string
           updated_at?: string | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "comments_post_id_fkey"
             columns: ["post_id"]
@@ -198,6 +341,44 @@ export type Database = {
           },
         ]
       }
+      post_shares: {
+        Row: {
+          commentary: string | null
+          created_at: string | null
+          id: string
+          post_id: string
+          share_type: string
+          target_id: string | null
+          user_id: string
+        }
+        Insert: {
+          commentary?: string | null
+          created_at?: string | null
+          id?: string
+          post_id: string
+          share_type: string
+          target_id?: string | null
+          user_id: string
+        }
+        Update: {
+          commentary?: string | null
+          created_at?: string | null
+          id?: string
+          post_id?: string
+          share_type?: string
+          target_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_shares_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       posts: {
         Row: {
           category_id: string | null
@@ -258,6 +439,7 @@ export type Database = {
           following: number | null
           full_name: string | null
           id: string
+          is_verified: boolean | null
           role: string
           updated_at: string | null
           username: string | null
@@ -270,6 +452,7 @@ export type Database = {
           following?: number | null
           full_name?: string | null
           id: string
+          is_verified?: boolean | null
           role?: string
           updated_at?: string | null
           username?: string | null
@@ -282,6 +465,7 @@ export type Database = {
           following?: number | null
           full_name?: string | null
           id?: string
+          is_verified?: boolean | null
           role?: string
           updated_at?: string | null
           username?: string | null

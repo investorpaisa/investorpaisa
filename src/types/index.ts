@@ -1,5 +1,4 @@
 
-
 import { Database } from '../integrations/supabase/types';
 
 export type Profile = Database['public']['Tables']['profiles']['Row'] & {
@@ -13,7 +12,7 @@ export type Comment = Database['public']['Tables']['comments']['Row'] & {
   parent_id?: string;
   author?: Profile;
   replies?: Comment[];
-  updated_at: string; // Make sure this is required to match the DB type
+  updated_at: string; // Required to match DB type
 };
 
 export type Bookmark = {
@@ -104,6 +103,7 @@ export interface EnhancedPost extends Omit<Post, 'comment_count'> {
   created_at: string; 
   title: string;
   content: string;
+  is_pinned?: boolean;
 }
 
 export type ShareType = 'user' | 'circle' | 'public';
@@ -126,4 +126,3 @@ export type CommentInsert = Omit<Comment, 'id' | 'created_at' | 'updated_at' | '
 export type CommentUpdate = Partial<Omit<Comment, 'id' | 'created_at' | 'post_id' | 'user_id' | 'author' | 'replies'>>;
 
 export type UserRole = 'user' | 'expert' | 'admin';
-

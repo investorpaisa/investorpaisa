@@ -1,65 +1,71 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Loader2, Users, PlusCircle, ChevronLeft, Flag, Pin, Share2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { Users, Settings, Plus, Lock, Unlock } from 'lucide-react';
-import PostCard from '@/components/posts/PostCard';
-import { Circle as CircleType, CircleRole, CircleMember, EnhancedPost } from '@/types';
-import { useToast } from '@/hooks/use-toast';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { circleService } from '@/services/circles/circleService';
 
-const Circle = () => {
+import PostCard from '@/components/posts/PostCard';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
+import { EnhancedPost, Circle as CircleType, CircleMember } from '@/types';
+
+import { getCircleById, getCircleMembers, getCirclePosts, joinCircle, leaveCircle } from '@/services/circles/circleService';
+
+export default function Circle() {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const isMobile = useIsMobile();
+  
   const [circle, setCircle] = useState<CircleType | null>(null);
   const [members, setMembers] = useState<CircleMember[]>([]);
   const [posts, setPosts] = useState<EnhancedPost[]>([]);
-  const [pinnedPosts, setPinnedPosts] = useState<EnhancedPost[]>([]);
-  const [userRole, setUserRole] = useState<CircleRole | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isMember, setIsMember] = useState(false);
+  const [memberRole, setMemberRole] = useState<'admin' | 'co-admin' | 'member' | null>(null);
+  const [activeTab, setActiveTab] = useState('posts');
   
-  // Fetch circle data
   useEffect(() => {
     const fetchCircleData = async () => {
       if (!id) return;
       
-      setLoading(true);
       try {
-        // Get circle details
-        const circleData = await circleService.getCircleById(id);
-        setCircle(circleData);
+        setLoading(true);
+        const circleData = await getCircleById(id);
+        const membersData = await getCircleMembers(id);
+        const postsData = await getCirclePosts(id);
         
-        // Get members
-        const membersData = await circleService.getCircleMembers(id);
+        setCircle(circleData);
         setMembers(membersData);
         
-        // Check user's role in the circle
-        const currentUser = membersData.find(member => member.profile?.id === 'current-user-id');
-        if (currentUser) {
-          setUserRole(currentUser.role as CircleRole);
+        // Sort posts - pinned first, then by date
+        const sortedPosts = [...postsData].sort((a, b) => {
+          // First sort by pin status
+          if (a.is_pinned && !b.is_pinned) return -1;
+          if (!a.is_pinned && b.is_pinned) return 1;
+          
+          // Then sort by date
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        });
+        
+        setPosts(sortedPosts);
+        
+        // Check if the current user is a member
+        if (user) {
+          const userMembership = membersData.find(m => m.user_id === user.id);
+          setIsMember(!!userMembership);
+          setMemberRole(userMembership ? userMembership.role as any : null);
         }
-        
-        // Get posts
-        const postsData = await circleService.getCirclePosts(id);
-        const pinned = postsData.filter(post => post.is_pinned);
-        const regular = postsData.filter(post => !post.is_pinned);
-        
-        setPinnedPosts(pinned);
-        setPosts(regular);
       } catch (error) {
-        console.error("Error fetching circle data:", error);
+        console.error('Error fetching circle data:', error);
         toast({
-          title: "Error",
-          description: "Failed to load circle information",
-          variant: "destructive"
+          title: 'Error',
+          description: 'Failed to load circle data. Please try again.',
+          variant: 'destructive'
         });
       } finally {
         setLoading(false);
@@ -67,288 +73,215 @@ const Circle = () => {
     };
     
     fetchCircleData();
-  }, [id, toast]);
+  }, [id, user, toast]);
   
-  // Handle joining circle
-  const handleJoin = async () => {
-    if (!circle || !id) return;
+  const handleJoinCircle = async () => {
+    if (!id || !user) return;
     
     try {
-      const result = await circleService.joinCircle(id);
-      if (result) {
-        setUserRole(CircleRole.MEMBER);
-        toast({
-          title: "Success",
-          description: `You have joined ${circle.name}`,
-        });
-      }
-    } catch (error) {
+      await joinCircle(id);
+      setIsMember(true);
+      setMemberRole('member');
       toast({
-        title: "Error",
-        description: "Failed to join circle",
-        variant: "destructive"
+        title: 'Success',
+        description: 'You have joined the circle.',
+      });
+      
+      // Refresh members list
+      const membersData = await getCircleMembers(id);
+      setMembers(membersData);
+    } catch (error) {
+      console.error('Error joining circle:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to join circle. Please try again.',
+        variant: 'destructive'
       });
     }
   };
   
-  // Handle leaving circle
-  const handleLeave = async () => {
-    if (!circle || !id) return;
+  const handleLeaveCircle = async () => {
+    if (!id || !user) return;
     
     try {
-      const result = await circleService.leaveCircle(id);
-      if (result) {
-        setUserRole(null);
-        toast({
-          title: "Success",
-          description: `You have left ${circle.name}`,
-        });
-      }
-    } catch (error) {
+      await leaveCircle(id);
+      setIsMember(false);
+      setMemberRole(null);
       toast({
-        title: "Error",
-        description: "Failed to leave circle",
-        variant: "destructive"
+        title: 'Success',
+        description: 'You have left the circle.',
+      });
+      
+      // Refresh members list
+      const membersData = await getCircleMembers(id);
+      setMembers(membersData);
+    } catch (error) {
+      console.error('Error leaving circle:', error);
+      toast({
+        title: 'Error', 
+        description: 'Failed to leave circle. Please try again.',
+        variant: 'destructive'
       });
     }
   };
   
-  // Navigate to settings page
-  const handleSettings = () => {
-    if (id) {
-      navigate(`/app/circles/${id}/settings`);
-    }
-  };
-  
-  // Create new post
   const handleCreatePost = () => {
-    if (id) {
-      navigate(`/app/create-post?circle=${id}`);
-    }
+    // Navigate to create post page
+    navigate('/create-post', { state: { circleId: id } });
   };
-
+  
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[70vh]">
-        <div className="animate-pulse text-ip-teal">Loading circle...</div>
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
-
+  
   if (!circle) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] space-y-4">
-        <h2 className="text-2xl font-semibold">Circle not found</h2>
-        <p className="text-muted-foreground">This circle doesn't exist or you don't have access to it.</p>
-        <Button onClick={() => navigate('/app/discover')}>Discover Circles</Button>
+        <h2 className="text-xl font-semibold">Circle not found</h2>
+        <Button variant="outline" onClick={() => navigate(-1)}>
+          <ChevronLeft className="mr-2 h-4 w-4" /> Go Back
+        </Button>
       </div>
     );
   }
-
+  
   return (
-    <div className="space-y-6">
-      {/* Circle Header */}
-      <Card className="border shadow-sm bg-card overflow-hidden">
-        <div className="h-32 bg-gradient-to-r from-ip-blue-400 to-ip-teal/80"></div>
-        <CardHeader className="pb-2">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-16 w-16 border-4 border-card mt-[-3rem] shadow-md">
-                <AvatarImage src={`https://avatar.vercel.sh/${circle.name}.png`} alt={circle.name} />
-                <AvatarFallback>{circle.name.charAt(0).toUpperCase()}</AvatarFallback>
-              </Avatar>
-              <div>
-                <div className="flex items-center gap-2">
-                  <CardTitle className="text-2xl">{circle.name}</CardTitle>
-                  {circle.type === 'private' ? (
-                    <Lock className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <Unlock className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </div>
-                <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                  <span>{members.length} members</span>
-                  <span>•</span>
-                  <span>{posts.length + pinnedPosts.length} posts</span>
-                </div>
-              </div>
+    <div className="container max-w-6xl py-6">
+      <Button variant="ghost" className="mb-4" onClick={() => navigate(-1)}>
+        <ChevronLeft className="mr-2 h-4 w-4" /> Back
+      </Button>
+      
+      <Card className="mb-6">
+        <CardHeader>
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+            <div className="flex flex-col">
+              <CardTitle className="text-2xl">{circle.name}</CardTitle>
+              <p className="text-muted-foreground mt-1">
+                {circle.type === 'public' ? 'Public Circle' : 'Private Circle'} • {circle.member_count || 0} members • {circle.post_count || 0} posts
+              </p>
             </div>
             
-            <div className="flex items-center gap-2">
-              {!userRole && (
-                <Button onClick={handleJoin} className="gap-1">
-                  <Users className="h-4 w-4" />
-                  <span>Join Circle</span>
-                </Button>
-              )}
-              
-              {userRole && (
+            <div className="flex space-x-2">
+              {!isMember ? (
+                <Button onClick={handleJoinCircle}>Join Circle</Button>
+              ) : (
                 <>
-                  {(userRole === CircleRole.ADMIN || userRole === CircleRole.CO_ADMIN) && (
-                    <Button variant="outline" onClick={handleSettings} className="gap-1">
-                      <Settings className="h-4 w-4" />
-                      <span>{!isMobile ? 'Manage Circle' : ''}</span>
-                    </Button>
-                  )}
-                  
-                  <Button variant={userRole ? 'default' : 'outline'} onClick={handleCreatePost} className="gap-1">
-                    <Plus className="h-4 w-4" />
-                    <span>{!isMobile ? 'Create Post' : ''}</span>
-                  </Button>
-                  
-                  <Button variant="outline" onClick={handleLeave} className="gap-1">
-                    {!isMobile ? 'Leave' : ''}
+                  <Button variant="outline" onClick={handleLeaveCircle}>Leave Circle</Button>
+                  <Button onClick={handleCreatePost}>
+                    <PlusCircle className="mr-2 h-4 w-4" /> Create Post
                   </Button>
                 </>
               )}
             </div>
           </div>
         </CardHeader>
+        
         <CardContent>
-          <CardDescription className="text-sm text-muted-foreground">
-            {circle.description || 'No description available for this circle.'}
-          </CardDescription>
+          <p className="text-muted-foreground">{circle.description || 'No description available'}</p>
         </CardContent>
       </Card>
       
-      {/* Circle Content */}
-      <Tabs defaultValue="posts" className="w-full">
-        <TabsList className="grid grid-cols-3 h-auto mb-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="mb-6">
           <TabsTrigger value="posts">Posts</TabsTrigger>
           <TabsTrigger value="members">Members</TabsTrigger>
           <TabsTrigger value="about">About</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="posts" className="mt-0 space-y-4">
-          {userRole && (
-            <Card className="border shadow-sm">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src="/placeholder.svg" alt="Profile" />
-                    <AvatarFallback>ME</AvatarFallback>
-                  </Avatar>
-                  <Button 
-                    variant="outline" 
-                    className="flex-1 justify-start font-normal text-muted-foreground h-10"
-                    onClick={handleCreatePost}
-                  >
-                    Share something with this circle...
-                  </Button>
+        <TabsContent value="posts">
+          {posts.length === 0 ? (
+            <div className="text-center py-10">
+              <h3 className="text-lg font-medium">No posts yet</h3>
+              <p className="text-muted-foreground mt-1">Be the first to post in this circle!</p>
+              {isMember && (
+                <Button className="mt-4" onClick={handleCreatePost}>
+                  <PlusCircle className="mr-2 h-4 w-4" /> Create Post
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {posts.map(post => (
+                <div key={post.id} className="relative">
+                  {post.is_pinned && (
+                    <div className="absolute top-2 right-2 z-10 bg-secondary text-xs px-2 py-1 rounded-full flex items-center">
+                      <Pin className="h-3 w-3 mr-1" /> Pinned
+                    </div>
+                  )}
+                  <PostCard 
+                    post={post}
+                    isClickable
+                    onClick={(post) => navigate(`/post/${post.id}`)}
+                  />
                 </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Pinned Posts */}
-          {pinnedPosts.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 px-1">
-                <Badge variant="outline" className="bg-ip-blue-50 text-ip-blue-700">Pinned</Badge>
-                <Separator className="flex-1" />
-              </div>
-              {pinnedPosts.map(post => (
-                <PostCard key={post.id} post={post} />
               ))}
             </div>
           )}
-          
-          {/* Regular Posts */}
+        </TabsContent>
+        
+        <TabsContent value="members">
           <div className="space-y-4">
-            {posts.length > 0 ? (
-              posts.map(post => (
-                <PostCard key={post.id} post={post} />
-              ))
-            ) : (
-              <Card className="border shadow-sm">
-                <CardContent className="p-8 text-center">
-                  <p className="text-muted-foreground mb-4">No posts yet in this circle.</p>
-                  {userRole && (
-                    <Button onClick={handleCreatePost}>Create the first post</Button>
-                  )}
-                </CardContent>
-              </Card>
-            )}
+            <h3 className="text-lg font-medium">Members ({members.length})</h3>
+            <Separator />
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {members.map(member => (
+                <Card key={member.id} className="flex items-center p-4">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={member.profile?.avatar_url || ""} alt={member.profile?.full_name || ""} />
+                    <AvatarFallback>
+                      {member.profile?.full_name?.charAt(0) || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="ml-4 flex-1">
+                    <p className="font-medium">{member.profile?.full_name || "Unknown User"}</p>
+                    <p className="text-xs text-muted-foreground">
+                      @{member.profile?.username || "username"} • {member.role}
+                    </p>
+                  </div>
+                </Card>
+              ))}
+            </div>
           </div>
         </TabsContent>
         
-        <TabsContent value="members" className="mt-0">
-          <Card className="border shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg">Members ({members.length})</CardTitle>
-              <CardDescription>People who are part of this circle</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {members.map(member => (
-                <div key={member.id} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Avatar>
-                      <AvatarImage src={member.profile?.avatar_url || '/placeholder.svg'} alt={member.profile?.username || 'Member'} />
-                      <AvatarFallback>{member.profile?.username?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium">{member.profile?.full_name || 'Unknown User'}</p>
-                      <p className="text-sm text-muted-foreground">@{member.profile?.username || 'username'}</p>
-                    </div>
-                  </div>
-                  <Badge variant="outline">
-                    {member.role === CircleRole.ADMIN 
-                      ? 'Admin'
-                      : member.role === CircleRole.CO_ADMIN
-                        ? 'Co-Admin'
-                        : 'Member'
-                    }
-                  </Badge>
+        <TabsContent value="about">
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="text-lg font-medium mb-4">About this Circle</h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium">Description</p>
+                  <p className="text-muted-foreground">{circle.description || "No description available"}</p>
                 </div>
-              ))}
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="about" className="mt-0">
-          <Card className="border shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg">About {circle.name}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h3 className="font-medium text-sm mb-1">Description</h3>
-                <p className="text-muted-foreground">
-                  {circle.description || 'No description available for this circle.'}
-                </p>
-              </div>
-              <Separator />
-              <div>
-                <h3 className="font-medium text-sm mb-1">Type</h3>
-                <div className="flex items-center gap-2">
-                  {circle.type === 'private' ? (
-                    <>
-                      <Lock className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">Private Circle</span>
-                    </>
-                  ) : (
-                    <>
-                      <Unlock className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">Public Circle</span>
-                    </>
-                  )}
+                <div>
+                  <p className="text-sm font-medium">Type</p>
+                  <p className="text-muted-foreground capitalize">{circle.type}</p>
                 </div>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {circle.type === 'private'
-                    ? 'This is a private circle. Only members can see the content.'
-                    : 'This is a public circle. Anyone can see the content and join.'}
-                </p>
+                <div>
+                  <p className="text-sm font-medium">Created</p>
+                  <p className="text-muted-foreground">{new Date(circle.created_at).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Members</p>
+                  <p className="text-muted-foreground">{circle.member_count || 0}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Posts</p>
+                  <p className="text-muted-foreground">{circle.post_count || 0}</p>
+                </div>
               </div>
-              <Separator />
-              <div>
-                <h3 className="font-medium text-sm mb-1">Created</h3>
-                <p className="text-muted-foreground">
-                  {new Date(circle.created_at).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </p>
+              
+              <Separator className="my-6" />
+              
+              <div className="flex justify-end">
+                <Button variant="outline" size="sm" className="text-destructive">
+                  <Flag className="h-4 w-4 mr-2" /> Report Circle
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -356,6 +289,4 @@ const Circle = () => {
       </Tabs>
     </div>
   );
-};
-
-export default Circle;
+}
