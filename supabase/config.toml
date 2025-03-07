@@ -1,1 +1,8 @@
+
 project_id = "yjyfhvaorpfbifkfejff"
+
+[functions.fetch-financial-news]
+verify_jwt = false
+
+[functions.update-metrics]
+verify_jwt = false
