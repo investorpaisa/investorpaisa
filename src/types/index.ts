@@ -1,3 +1,4 @@
+
 import { Database } from '../integrations/supabase/types';
 
 export type Profile = Database['public']['Tables']['profiles']['Row'] & {
@@ -85,13 +86,7 @@ export type PostShare = {
   created_at: string;
 };
 
-export enum CircleRole {
-  ADMIN = 'admin',
-  CO_ADMIN = 'co-admin',
-  MEMBER = 'member'
-}
-
-export interface EnhancedPost extends Omit<Post, 'comment_count'> {
+export type EnhancedPost extends Omit<Post, 'comment_count'> {
   author?: Profile;
   category?: Category;
   isBookmarked?: boolean;

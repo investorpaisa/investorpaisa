@@ -620,3 +620,25 @@ export const removePostFromCircle = async (circleId: string, postId: string): Pr
 
   return true;
 };
+
+// Export the service as an object
+export const circleService = {
+  createCircle,
+  updateCircle,
+  getCircleById,
+  getCircles,
+  getUserCircles,
+  getPublicCircles,
+  getTrendingCircles,
+  searchCircles,
+  getCircleMembers,
+  joinCircle,
+  leaveCircle,
+  getUserCircleRole,
+  updateMemberRole,
+  removeMember,
+  addPostToCircle,
+  getCirclePosts,
+  togglePostPin,
+  removePostFromCircle
+};

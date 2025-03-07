@@ -1,4 +1,3 @@
-
 import { Link, useLocation } from 'react-router-dom';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
@@ -46,7 +45,11 @@ export function MainSidebar() {
             </Avatar>
             <div className="flex flex-col">
               <span className="font-medium text-sm">{user.name || 'User'}</span>
-              <span className="text-xs text-muted-foreground">@{user.username || 'username'}</span>
+              {user && user.email && (
+                <p className="mb-2 text-sm text-muted-foreground">
+                  @{user.email.split('@')[0]}
+                </p>
+              )}
             </div>
           </div>
         )}
