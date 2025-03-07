@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -7,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Heart, MessageSquare, Share2, Bookmark, MoreHorizontal, TrendingUp, AlertCircle, Plus } from 'lucide-react';
+import { Heart, MessageSquare, Share2, Bookmark, MoreHorizontal, TrendingUp, AlertCircle, Plus, RefreshCw } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +14,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useIsMobile } from '@/hooks/use-mobile';
+import NewsSection from '@/components/news/NewsSection';
+import { triggerNewsFetch } from '@/services/news/newsService';
+import { useToast } from '@/hooks/use-toast';
 
 // Dummy data for posts
 const feedPosts = [
@@ -135,6 +137,39 @@ const Feed = () => {
   const [savedPosts, setSavedPosts] = useState<Record<number, boolean>>({
     2: true, // Initialize post 2 as saved
   });
+  const [isRefreshingNews, setIsRefreshingNews] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    // Refresh news when the feed loads
+    refreshNewsData();
+    
+    // Set up a refresh interval (every 30 minutes)
+    const intervalId = setInterval(() => {
+      refreshNewsData();
+    }, 30 * 60 * 1000);
+    
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const refreshNewsData = async () => {
+    setIsRefreshingNews(true);
+    try {
+      const result = await triggerNewsFetch();
+      if (result.success) {
+        toast({
+          title: "Financial News Updated",
+          description: "Latest financial articles have been fetched.",
+        });
+      } else {
+        console.error("Failed to refresh news:", result.message);
+      }
+    } catch (error) {
+      console.error("Error refreshing news:", error);
+    } finally {
+      setIsRefreshingNews(false);
+    }
+  };
 
   const handleLike = (postId: number) => {
     setLikedPosts(prev => ({
@@ -158,6 +193,24 @@ const Feed = () => {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Main Feed */}
       <div className="lg:col-span-2 space-y-6">
+        {/* Financial News Section */}
+        <div className="mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">Financial Insights</h2>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-1"
+              onClick={refreshNewsData}
+              disabled={isRefreshingNews}
+            >
+              <RefreshCw className={`h-4 w-4 ${isRefreshingNews ? 'animate-spin' : ''}`} />
+              <span>{isRefreshingNews ? 'Refreshing...' : 'Refresh'}</span>
+            </Button>
+          </div>
+          <NewsSection limit={3} />
+        </div>
+        
         {/* Content Categories */}
         <Tabs defaultValue="for-you" className="w-full">
           <TabsList className="grid grid-cols-4 h-auto mb-4">

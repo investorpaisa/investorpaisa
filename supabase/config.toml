@@ -4,5 +4,11 @@ project_id = "yjyfhvaorpfbifkfejff"
 [functions.fetch-financial-news]
 verify_jwt = false
 
+[functions.fetch-financial-news-cron]
+verify_jwt = false
+
+[functions.schedule-news-updates]
+verify_jwt = false
+
 [functions.update-metrics]
 verify_jwt = false

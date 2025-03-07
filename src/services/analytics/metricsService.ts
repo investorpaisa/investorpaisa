@@ -13,7 +13,8 @@ export const getMetrics = async (
   endDate: string
 ): Promise<AnalyticsMetric[]> => {
   try {
-    const { data, error } = await supabase
+    // Use the any type as a workaround for TS errors with tables not defined in types
+    const { data, error } = await (supabase as any)
       .from('analytics_metrics')
       .select()
       .gte('date_recorded', startDate)
@@ -40,7 +41,7 @@ export const getMetricsSummary = async (days = 30): Promise<Record<string, any>>
       .toISOString()
       .split('T')[0];
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('analytics_metrics')
       .select()
       .gte('date_recorded', startDate)
@@ -88,7 +89,7 @@ export const getEngagementMetrics = async (days = 7): Promise<any> => {
       .toISOString()
       .split('T')[0];
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('analytics_metrics')
       .select()
       .eq('metric_type', 'engagement')
@@ -128,7 +129,7 @@ export const getEngagementMetrics = async (days = 7): Promise<any> => {
  */
 export const getTopCircles = async (limit = 5): Promise<any[]> => {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('analytics_metrics')
       .select('*, circles(*)')
       .eq('metric_type', 'community')

@@ -1,4 +1,5 @@
-import { Database } from './supabase';
+
+import { Database } from '../integrations/supabase/types';
 
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type Post = Database['public']['Tables']['posts']['Row'];
@@ -92,4 +93,31 @@ export interface EnhancedPost extends Post {
   category?: Category;
   isBookmarked?: boolean;
   isLiked?: boolean;
+  like_count?: number;
+  comment_count?: number;
+  share_count?: number;
+  created_at: string; 
+  title: string;
+  content: string;
 }
+
+export type ShareType = 'user' | 'circle' | 'public';
+
+export type CircleInsert = Omit<Circle, 'id' | 'created_at' | 'member_count' | 'post_count'>;
+export type CircleUpdate = Partial<Omit<Circle, 'id' | 'created_at' | 'created_by'>>;
+
+export type PostShareInsert = Omit<PostShare, 'id' | 'created_at'>;
+
+export type Like = {
+  id: string;
+  user_id: string;
+  post_id: string;
+  created_at: string;
+};
+
+export type LikeInsert = Omit<Like, 'id' | 'created_at'>;
+export type BookmarkInsert = Omit<Bookmark, 'id' | 'created_at'>;
+export type CommentInsert = Omit<Comment, 'id' | 'created_at' | 'updated_at' | 'edited' | 'author' | 'replies'>;
+export type CommentUpdate = Partial<Omit<Comment, 'id' | 'created_at' | 'post_id' | 'user_id' | 'author' | 'replies'>>;
+
+export type UserRole = 'user' | 'expert' | 'admin';
