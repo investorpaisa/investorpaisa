@@ -1,14 +1,9 @@
 
-// Import all market-related functions from marketService
-import { 
-  getMarketStatus,
-  getStockQuote,
-  getIndexData,
-  getTopGainers,
-  getTopLosers,
-  searchStocks,
-  NSE_INDICES
-} from './marketService';
+// Re-export all market service functions
+import { getMarketStatus } from './status';
+import { getStockQuote, searchStocks } from './quotes';
+import { getIndexData, NSE_INDICES } from './indices';
+import { getTopGainers, getTopLosers } from './market-data';
 
 // Export individual functions
 export {

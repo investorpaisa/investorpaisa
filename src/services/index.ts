@@ -27,9 +27,9 @@ export * from './market';
 // News services
 export * from './news';
 
-// API services - avoid type conflicts
-import { api } from './api';
-export { api };
+// API services - avoid conflicts 
+// (Corrected this since there is no 'api' export in the module)
+export * from './api';
 
 // Analytics services
 export * from './analytics/metricsService';
@@ -47,14 +47,14 @@ import { engagement } from './engagement';
 import { marketService } from './market';
 import { newsService } from './news';
 
-// Consolidated service object
+// Legacy service object
 export const services = {
   auth: authService,
-  profiles: profileService,
-  posts: postService,
-  circles: circleService,
+  profile: profileService,
+  post: postService,
+  circle: circleService,
   engagement,
-  messages: messageService,
+  message: messageService,
   market: marketService,
   news: newsService
 };
