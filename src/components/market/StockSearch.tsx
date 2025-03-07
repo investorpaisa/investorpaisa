@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -49,7 +50,7 @@ const StockSearch: React.FC<StockSearchProps> = () => {
         date.setDate(date.getDate() - i);
         return {
           date: date.toLocaleDateString(),
-          price: data?.currentPrice ? data.currentPrice + (Math.random() - 0.5) * 20 : 0,
+          price: data?.lastPrice ? data.lastPrice + (Math.random() - 0.5) * 20 : 0,
         };
       }).reverse();
 
@@ -95,7 +96,7 @@ const StockSearch: React.FC<StockSearchProps> = () => {
             <ul className="mt-2">
               {searchResults.map((result: any) => (
                 <li key={result.symbol}>
-                  {result.name} ({result.symbol})
+                  {result.companyName} ({result.symbol})
                 </li>
               ))}
             </ul>
@@ -105,7 +106,7 @@ const StockSearch: React.FC<StockSearchProps> = () => {
         {stockData && (
           <div className="mt-4">
             <h3>{stockData.companyName} ({stockData.symbol})</h3>
-            <p>Current Price: ${stockData.currentPrice}</p>
+            <p>Current Price: ${stockData.lastPrice}</p>
             <p>High: ${stockData.high}</p>
             <p>Low: ${stockData.low}</p>
             <p>Open: ${stockData.open}</p>

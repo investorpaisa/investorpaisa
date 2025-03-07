@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,8 +39,8 @@ const MarketInsights = () => {
       const marketStatus = await getMarketStatus();
       setStatus(marketStatus);
 
-      const indexData = await getIndexData();
-      setIndices(indexData);
+      const indexData = await getIndexData('NIFTY 50');
+      setIndices([indexData]); // Wrap in array since we're expecting an array
 
       const topGainers = await getTopGainers();
       setGainers(topGainers);
@@ -75,9 +76,10 @@ const MarketInsights = () => {
               <div className="mb-4">
                 Market Status:{" "}
                 <Badge
-                  variant={status.isOpen ? "success" : "destructive"}
+                  variant={status.status.includes('open') ? "default" : "destructive"}
+                  className={status.status.includes('open') ? "bg-green-500" : ""}
                 >
-                  {status.isOpen ? "Open" : "Closed"}
+                  {status.status.includes('open') ? "Open" : "Closed"}
                 </Badge>
                 <p>
                   Last Updated: {new Date(status.timestamp).toLocaleTimeString()}
@@ -93,12 +95,12 @@ const MarketInsights = () => {
               <TabsContent value="indices" className="space-y-2">
                 <ScrollArea className="h-[200px] w-full rounded-md border">
                   {indices.map((index) => (
-                    <div key={index.index} className="flex items-center justify-between p-2">
-                      <span>{index.index}</span>
+                    <div key={index.name} className="flex items-center justify-between p-2">
+                      <span>{index.name}</span>
                       <div className="text-right">
-                        <div>{index.last}</div>
-                        <div className={index.variation >= 0 ? 'text-green-500' : 'text-red-500'}>
-                          {index.absoluteVariation} ({index.percentageVariation}%)
+                        <div>{index.lastPrice}</div>
+                        <div className={index.change >= 0 ? 'text-green-500' : 'text-red-500'}>
+                          {index.change.toFixed(2)} ({index.pChange.toFixed(2)}%)
                         </div>
                       </div>
                     </div>

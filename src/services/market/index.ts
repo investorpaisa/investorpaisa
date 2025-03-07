@@ -5,6 +5,9 @@ import { getStockQuote, searchStocks } from './quotes';
 import { getIndexData, NSE_INDICES } from './indices';
 import { getTopGainers, getTopLosers } from './market-data';
 
+// Import types from messages/types
+import type { MarketStatus, StockQuote, MarketIndex } from '../messages/types';
+
 // Export individual functions
 export {
   getMarketStatus,
@@ -17,9 +20,7 @@ export {
 };
 
 // Export types needed by components
-export type { MarketStatus } from './status';
-export type { StockQuote } from './quotes';
-export type { MarketIndex } from './indices';
+export type { MarketStatus, StockQuote, MarketIndex };
 
 // Export as a service object for backward compatibility
 export const marketService = {
