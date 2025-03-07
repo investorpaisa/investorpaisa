@@ -1,4 +1,3 @@
-
 import { Database } from '../integrations/supabase/types';
 
 export type Profile = Database['public']['Tables']['profiles']['Row'] & {
@@ -32,6 +31,7 @@ export type Circle = {
   created_by: string;
   member_count?: number;
   post_count?: number;
+  hasNewPost?: boolean;
 };
 
 export type CircleMember = {
@@ -100,7 +100,7 @@ export type EnhancedPost = Omit<Post, 'comment_count'> & {
 
 export type ShareType = 'user' | 'circle' | 'public';
 
-export type CircleInsert = Omit<Circle, 'id' | 'created_at' | 'member_count' | 'post_count'>;
+export type CircleInsert = Omit<Circle, 'id' | 'created_at' | 'member_count' | 'post_count' | 'hasNewPost'>;
 export type CircleUpdate = Partial<Omit<Circle, 'id' | 'created_at' | 'created_by'>>;
 
 export type PostShareInsert = Omit<PostShare, 'id' | 'created_at'>;

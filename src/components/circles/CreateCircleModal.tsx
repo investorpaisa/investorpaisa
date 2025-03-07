@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
 import { createCircle } from '@/services/circles';
+import { CircleType } from '@/services/circles/types';
 
 interface CreateCircleModalProps {
   isOpen: boolean;
@@ -19,7 +20,7 @@ export function CreateCircleModal({ isOpen, onClose }: CreateCircleModalProps) {
   const navigate = useNavigate();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [circleType, setCircleType] = useState('public');
+  const [circleType, setCircleType] = useState<'public' | 'private'>('public');
   const [loading, setLoading] = useState(false);
 
   const handleCreateCircle = async () => {
@@ -87,7 +88,7 @@ export function CreateCircleModal({ isOpen, onClose }: CreateCircleModalProps) {
           
           <div className="grid gap-2">
             <Label>Circle Type</Label>
-            <RadioGroup value={circleType} onValueChange={setCircleType}>
+            <RadioGroup value={circleType} onValueChange={setCircleType as (value: string) => void}>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="public" id="public" />
                 <Label htmlFor="public" className="cursor-pointer">Public (Anyone can join)</Label>

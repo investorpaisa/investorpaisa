@@ -6,6 +6,12 @@ export enum CircleRole {
   MEMBER = 'member'
 }
 
+// Circle types
+export enum CircleType {
+  PUBLIC = 'public',
+  PRIVATE = 'private'
+}
+
 // Re-export types from main types file
 export type { 
   Circle, 
