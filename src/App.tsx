@@ -9,13 +9,14 @@ import Market from '@/pages/Market';
 import Index from '@/pages/Index';
 import Login from '@/pages/auth/Login';
 import Register from '@/pages/auth/Register';
-import Feed from '@/pages/Feed';
-import Discover from '@/pages/Discover';
+import Home from '@/pages/Home';
 import Inbox from '@/pages/Inbox';
-import Profile from '@/pages/Profile';
+import ProfileNew from '@/pages/ProfileNew';
+import EditProfile from '@/pages/EditProfile';
 import Landing from '@/pages/Landing';
 import NotFound from '@/pages/NotFound';
 import Circle from '@/pages/Circle';
+import Circles from '@/pages/Circles';
 import Dashboard from '@/pages/Dashboard';
 import { AuthProvider } from '@/contexts/AuthContext';
 
@@ -42,11 +43,14 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route path="feed" element={<Feed />} />
-          <Route path="discover" element={<Discover />} />
-          <Route path="inbox" element={<Inbox />} />
-          <Route path="profile" element={<Profile />} />
+          <Route path="home" element={<Home />} />
+          <Route path="feed" element={<Home />} /> {/* Redirect from old path */}
+          <Route path="discover" element={<Home />} /> {/* Redirect from old path */}
           <Route path="market" element={<Market />} />
+          <Route path="mycircle" element={<Circles />} />
+          <Route path="inbox" element={<Inbox />} />
+          <Route path="profile" element={<ProfileNew />} />
+          <Route path="edit-profile" element={<EditProfile />} />
           <Route path="app/circles/:id" element={<Circle />} />
           <Route path="communities/:id" element={<Circle />} /> {/* Added for backward compatibility */}
           <Route path="app/dashboard" element={<Dashboard />} />
