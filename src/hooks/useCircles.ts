@@ -5,7 +5,7 @@ import {
   getUserCircles, 
   getPublicCircles, 
   getTrendingCircles 
-} from '@/services/circles/circleService';
+} from '@/services/circles';
 
 export const useUserCircles = (userId: string | undefined) => {
   return useQuery({

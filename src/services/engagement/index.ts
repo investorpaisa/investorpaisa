@@ -1,8 +1,8 @@
 
 import { bookmarkService } from './bookmarkService';
-import { commentService } from './commentService';
+import * as commentService from './commentService';
 import { likeService } from './likeService';
-import { shareService } from './shareService';
+import * as shareService from './shareService';
 
 export {
   bookmarkService,

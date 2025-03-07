@@ -1,241 +1,159 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { likeService, bookmarkService, shareService } from '@/services/engagement';
-import { toast } from '@/hooks/use-toast';
+// Update imports to use the new service structure
+import React, { useState } from 'react';
 import { 
-  Heart, ThumbsUp, MessageSquare, Share, Bookmark, 
-  ThumbsUpIcon, HeartIcon, BookmarkIcon
+  Heart, 
+  MessageCircle, 
+  Share2, 
+  Bookmark,
+  Link2
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { CircleIcon } from '../circles/CircleIcon';
-import { useNavigate } from 'react-router-dom';
-import { circleService, addPostToCircle } from '@/services/circles/circleService';
-import { Circle } from '@/types';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { Post } from '@/types';
+import { likeService } from '@/services/engagement';
+import { bookmarkService } from '@/services/engagement';
+import { getCircleById } from '@/services/circles';
 
 interface PostActionsProps {
-  postId: string;
-  likesCount: number;
-  commentsCount: number;
-  onLikeToggle?: (isLiked: boolean) => void;
-  onCommentClick?: () => void;
+  post: Post;
+  isLiked: boolean;
+  likeCount: number;
+  isBookmarked: boolean;
+  onLike: (postId: string, liked: boolean) => Promise<void>;
+  onBookmark: (postId: string, bookmarked: boolean) => Promise<void>;
 }
 
-export const PostActions: React.FC<PostActionsProps> = ({
-  postId,
-  likesCount,
-  commentsCount,
-  onLikeToggle,
-  onCommentClick
-}) => {
+export function PostActions({ 
+  post, 
+  isLiked, 
+  likeCount, 
+  isBookmarked,
+  onLike,
+  onBookmark
+}: PostActionsProps) {
   const { user } = useAuth();
-  const navigate = useNavigate();
-  const [isLiked, setIsLiked] = useState(false);
-  const [isBookmarked, setIsBookmarked] = useState(false);
-  const [userCircles, setUserCircles] = useState<Circle[]>([]);
-  const [loadingLike, setLoadingLike] = useState(false);
-  const [loadingBookmark, setLoadingBookmark] = useState(false);
-  const [loadingShare, setLoadingShare] = useState(false);
+  const { toast } = useToast();
+  const [isLikeLoading, setIsLikeLoading] = useState(false);
+  const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      // Check if post is already liked
-      const checkLikeStatus = async () => {
-        const liked = await likeService.isPostLiked(postId);
-        setIsLiked(liked);
-      };
-
-      // Check if post is already bookmarked
-      const checkBookmarkStatus = async () => {
-        const bookmarked = await bookmarkService.isPostBookmarked(postId);
-        setIsBookmarked(bookmarked);
-      };
-
-      // Get user's circles for sharing
-      const getUserCircles = async () => {
-        const circles = await circleService.getUserCircles();
-        setUserCircles(circles);
-      };
-
-      checkLikeStatus();
-      checkBookmarkStatus();
-      getUserCircles();
-    }
-  }, [postId, user]);
-
-  const handleLikeToggle = async () => {
+  const handleLike = async () => {
     if (!user) {
       toast({
-        title: "Authentication required",
-        description: "Please sign in to like posts",
-        variant: "destructive"
+        title: 'You must be logged in to like this post.',
       });
       return;
     }
 
-    setLoadingLike(true);
+    setIsLikeLoading(true);
     try {
-      const newLikeStatus = await likeService.toggleLike(postId);
-      setIsLiked(newLikeStatus);
-      if (onLikeToggle) {
-        onLikeToggle(newLikeStatus);
-      }
+      await onLike(post.id, !isLiked);
+    } catch (error) {
+      console.error('Error liking post:', error);
+      toast({
+        title: 'Something went wrong. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
-      setLoadingLike(false);
+      setIsLikeLoading(false);
     }
   };
 
-  const handleBookmarkToggle = async () => {
+  const handleBookmark = async () => {
     if (!user) {
       toast({
-        title: "Authentication required",
-        description: "Please sign in to bookmark posts",
-        variant: "destructive"
+        title: 'You must be logged in to bookmark this post.',
       });
       return;
     }
 
-    setLoadingBookmark(true);
+    setIsBookmarkLoading(true);
     try {
-      const newBookmarkStatus = await bookmarkService.toggleBookmark(postId);
-      setIsBookmarked(newBookmarkStatus);
-      
+      await onBookmark(post.id, !isBookmarked);
+    } catch (error) {
+      console.error('Error bookmarking post:', error);
       toast({
-        title: newBookmarkStatus ? "Post bookmarked" : "Bookmark removed",
-        description: newBookmarkStatus 
-          ? "Post has been added to your bookmarks" 
-          : "Post has been removed from your bookmarks"
+        title: 'Something went wrong. Please try again.',
+        variant: 'destructive',
       });
     } finally {
-      setLoadingBookmark(false);
+      setIsBookmarkLoading(false);
     }
   };
 
-  const handleShareToCircle = async (circleId: string) => {
+  const handleShare = async () => {
     if (!user) {
       toast({
-        title: "Authentication required",
-        description: "Please sign in to share posts",
-        variant: "destructive"
+        title: 'You must be logged in to share this post.',
       });
       return;
     }
 
-    setLoadingShare(true);
-    try {
-      await shareService.sharePost(postId, 'circle', circleId);
-    } finally {
-      setLoadingShare(false);
-    }
-  };
-
-  const handlePublicShare = async () => {
-    if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to share posts",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setLoadingShare(true);
-    try {
-      await shareService.sharePost(postId, 'public');
-    } finally {
-      setLoadingShare(false);
-    }
-  };
-
-  const handleCommentClick = () => {
-    if (onCommentClick) {
-      onCommentClick();
-    }
+    // Logic to share the post (e.g., open a share dialog)
+    toast({
+      title: 'Share feature is under development.',
+    });
   };
 
   return (
-    <div className="flex items-center justify-between pt-2 mt-2 border-t border-gray-100">
-      <Button 
-        variant="ghost" 
-        size="sm" 
-        className="flex items-center gap-1 text-sm font-normal"
-        onClick={handleLikeToggle}
-        disabled={loadingLike}
-      >
-        {isLiked ? (
-          <ThumbsUpIcon className="h-4 w-4 text-gold fill-gold" />
-        ) : (
-          <ThumbsUp className="h-4 w-4" />
-        )}
-        <span>{likesCount}</span>
-      </Button>
+    <div className="flex items-center gap-4">
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button 
+              variant="ghost" 
+              onClick={handleLike}
+              disabled={isLikeLoading}
+            >
+              <Heart className={cn("h-5 w-5", isLiked && "text-red-500")} />
+              <span className="ml-2">{likeCount}</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{isLiked ? 'Unlike' : 'Like'} this post</p>
+          </TooltipContent>
+        </Tooltip>
 
-      <Button 
-        variant="ghost" 
-        size="sm" 
-        className="flex items-center gap-1 text-sm font-normal"
-        onClick={handleCommentClick}
-      >
-        <MessageSquare className="h-4 w-4" />
-        <span>{commentsCount}</span>
-      </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost">
+              <MessageCircle className="h-5 w-5" />
+              <span className="ml-2">{post.comment_count || 0}</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Comment on this post</p>
+          </TooltipContent>
+        </Tooltip>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="flex items-center gap-1 text-sm font-normal"
-            disabled={loadingShare}
-          >
-            <Share className="h-4 w-4" />
-            <span>Share</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={handlePublicShare}>
-            Share to public feed
-          </DropdownMenuItem>
-          
-          {userCircles.length > 0 && (
-            <>
-              <Separator className="my-1" />
-              <div className="text-xs text-gray-500 px-2 my-1">Share to circle</div>
-              {userCircles.map(circle => (
-                <DropdownMenuItem 
-                  key={circle.id}
-                  onClick={() => handleShareToCircle(circle.id)}
-                  className="flex items-center gap-2"
-                >
-                  <CircleIcon name={circle.name} size="sm" />
-                  <span>{circle.name}</span>
-                </DropdownMenuItem>
-              ))}
-            </>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" onClick={handleShare}>
+              <Share2 className="h-5 w-5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Share this post</p>
+          </TooltipContent>
+        </Tooltip>
 
-      <Button 
-        variant="ghost" 
-        size="sm" 
-        className="flex items-center gap-1 text-sm font-normal"
-        onClick={handleBookmarkToggle}
-        disabled={loadingBookmark}
-      >
-        {isBookmarked ? (
-          <BookmarkIcon className="h-4 w-4 text-gold fill-gold" />
-        ) : (
-          <Bookmark className="h-4 w-4" />
-        )}
-        <span>Save</span>
-      </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button 
+              variant="ghost"
+              onClick={handleBookmark}
+              disabled={isBookmarkLoading}
+            >
+              <Bookmark className={cn("h-5 w-5", isBookmarked && "text-blue-500")} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{isBookmarked ? 'Remove Bookmark' : 'Bookmark'}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </div>
   );
-};
+}

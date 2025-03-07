@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Send, Trash2, Edit } from 'lucide-react';
-import { Comment as CommentType } from '@/types';
+import { Comment as CommentType, CommentInsert } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { createComment, updateComment, deleteComment, getPostComments } from '@/services/engagement/commentService';
 

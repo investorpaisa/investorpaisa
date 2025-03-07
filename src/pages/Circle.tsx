@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,7 @@ import { CircleHeader } from '@/components/circles/CircleHeader';
 import { CirclePosts } from '@/components/circles/CirclePosts';
 import { CircleMembers } from '@/components/circles/CircleMembers';
 import { CircleAbout } from '@/components/circles/CircleAbout';
-import { getCircleById, getCircleMembers, getCirclePosts, joinCircle, leaveCircle } from '@/services/circles/circleService';
+import { getCircleById, getCircleMembers, getCirclePosts, joinCircle, leaveCircle } from '@/services/circles';
 
 export default function Circle() {
   const { id } = useParams();

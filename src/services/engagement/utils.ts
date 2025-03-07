@@ -1,17 +1,39 @@
 
-export const formatMentions = (content: string): string => {
-  // Simple regex to identify @mentions
-  return content.replace(/@(\w+)/g, '<span class="mention">@$1</span>');
+import { Comment } from '@/types';
+
+/**
+ * Builds a comment tree from a flat array of comments
+ */
+export const buildCommentTree = (comments: Comment[]): Comment[] => {
+  const commentMap = new Map<string, Comment>();
+  const rootComments: Comment[] = [];
+
+  // First pass: create a map of comments by ID
+  comments.forEach(comment => {
+    commentMap.set(comment.id, { ...comment, replies: [] });
+  });
+
+  // Second pass: build the tree structure
+  comments.forEach(comment => {
+    const thisComment = commentMap.get(comment.id);
+    if (!thisComment) return;
+
+    if (comment.parent_id) {
+      const parentComment = commentMap.get(comment.parent_id);
+      if (parentComment) {
+        if (!parentComment.replies) {
+          parentComment.replies = [];
+        }
+        parentComment.replies.push(thisComment);
+      } else {
+        rootComments.push(thisComment);
+      }
+    } else {
+      rootComments.push(thisComment);
+    }
+  });
+
+  return rootComments;
 };
 
-export const extractMentions = (content: string): string[] => {
-  const mentionRegex = /@(\w+)/g;
-  const mentions: string[] = [];
-  let match;
-  
-  while ((match = mentionRegex.exec(content)) !== null) {
-    mentions.push(match[1]);
-  }
-  
-  return mentions;
-};
+// Add any additional utility functions here
