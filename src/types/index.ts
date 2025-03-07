@@ -122,7 +122,9 @@ export type Like = {
 
 export type LikeInsert = Omit<Like, 'id' | 'created_at'>;
 export type BookmarkInsert = Omit<Bookmark, 'id' | 'created_at'>;
-export type CommentInsert = Omit<Comment, 'id' | 'created_at' | 'updated_at' | 'edited' | 'author' | 'replies'>;
+export type CommentInsert = Omit<Comment, 'id' | 'created_at' | 'updated_at' | 'edited' | 'author' | 'replies'> & {
+  parent_id?: string;
+};
 export type CommentUpdate = Partial<Omit<Comment, 'id' | 'created_at' | 'post_id' | 'user_id' | 'author' | 'replies'>>;
 
 export type UserRole = 'user' | 'expert' | 'admin';

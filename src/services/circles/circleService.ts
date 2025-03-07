@@ -1,664 +1,623 @@
 
-import { supabase } from "@/integrations/supabase/client";
-import { Circle, CircleMember, CircleInsert, CircleUpdate, CirclePost, CircleRole, EnhancedPost, Profile } from "@/types";
-import { useToast } from "@/hooks/use-toast";
-import { toast } from "sonner";
+import { supabase } from '@/integrations/supabase/client';
+import { Circle, CircleMember, CircleInsert, CircleUpdate, CircleRole, EnhancedPost, Profile } from '@/types';
 
 /**
  * Create a new circle
- * @param circle - The circle data to insert
- * @returns The created circle
  */
-export const createCircle = async (circle: CircleInsert): Promise<Circle | null> => {
-  const user = supabase.auth.getUser();
-  
-  if (!(await user).data.user) {
-    toast("Please sign in to create a circle");
-    return null;
-  }
-  
-  // Check if a circle with this name already exists
-  const { data: existingCircle } = await supabase
+export const createCircle = async (circle: CircleInsert): Promise<Circle> => {
+  const { data, error } = await supabase
     .from('circles')
-    .select('id')
-    .eq('name', circle.name)
+    .insert({
+      name: circle.name,
+      type: circle.type,
+      description: circle.description,
+      created_by: circle.created_by,
+    })
+    .select('*')
     .single();
-    
-  if (existingCircle) {
-    toast("Please choose a different name for your circle");
-    return null;
+
+  if (error) {
+    console.error('Error creating circle:', error);
+    throw new Error(`Failed to create circle: ${error.message}`);
   }
-  
-  try {
-    const { data, error } = await supabase
-      .from('circles')
-      .insert({
-        ...circle,
-        created_by: (await user).data.user!.id
-      })
-      .select()
-      .single();
-    
-    if (error) throw error;
-    
-    // Add the creator as an admin member
-    await supabase
-      .from('circle_members')
-      .insert({
-        circle_id: data.id,
-        user_id: (await user).data.user!.id,
-        role: CircleRole.ADMIN
-      });
-    
-    toast(`Circle "${circle.name}" created successfully`);
-    return data;
-  } catch (error) {
-    console.error("Error creating circle:", error);
-    toast("Failed to create circle. Please try again.");
-    return null;
-  }
+
+  // Create admin membership for the creator
+  await supabase
+    .from('circle_members')
+    .insert({
+      circle_id: data.id,
+      user_id: circle.created_by,
+      role: CircleRole.ADMIN,
+    });
+
+  return data as Circle;
 };
 
 /**
- * Update a circle
- * @param id - The ID of the circle to update
- * @param updates - The circle data to update
- * @returns The updated circle
+ * Update an existing circle
  */
-export const updateCircle = async (id: string, updates: CircleUpdate): Promise<Circle | null> => {
-  const user = supabase.auth.getUser();
-  
-  if (!(await user).data.user) {
-    toast("Please sign in to update circles");
-    return null;
-  }
-  
-  try {
-    // Check if the user is an admin of the circle
-    const { data: membership } = await supabase
-      .from('circle_members')
-      .select('*')
-      .eq('circle_id', id)
-      .eq('user_id', (await user).data.user!.id)
-      .single();
-    
-    if (!membership || membership.role !== CircleRole.ADMIN) {
-      toast("Only circle admins can update circle details");
-      return null;
-    }
-    
-    const { data, error } = await supabase
-      .from('circles')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
-    
-    if (error) throw error;
-    
-    toast("Circle details have been updated successfully");
-    
-    return data;
-  } catch (error) {
-    console.error("Error updating circle:", error);
-    toast("Failed to update circle. Please try again.");
-    return null;
-  }
-};
+export const updateCircle = async (id: string, updates: CircleUpdate): Promise<Circle> => {
+  const { data, error } = await supabase
+    .from('circles')
+    .update(updates)
+    .eq('id', id)
+    .select('*')
+    .single();
 
-/**
- * Delete a circle
- * @param id - The ID of the circle to delete
- * @returns Whether the deletion was successful
- */
-export const deleteCircle = async (id: string): Promise<boolean> => {
-  const user = supabase.auth.getUser();
-  
-  if (!(await user).data.user) {
-    toast("Please sign in to delete circles");
-    return false;
+  if (error) {
+    console.error('Error updating circle:', error);
+    throw new Error(`Failed to update circle: ${error.message}`);
   }
-  
-  try {
-    // Check if the user is an admin of the circle
-    const { data: membership } = await supabase
-      .from('circle_members')
-      .select('*')
-      .eq('circle_id', id)
-      .eq('user_id', (await user).data.user!.id)
-      .single();
-    
-    if (!membership || membership.role !== CircleRole.ADMIN) {
-      toast("Only circle admins can delete circles");
-      return false;
-    }
-    
-    const { error } = await supabase
-      .from('circles')
-      .delete()
-      .eq('id', id);
-    
-    if (error) throw error;
-    
-    toast("The circle has been deleted successfully");
-    
-    return true;
-  } catch (error) {
-    console.error("Error deleting circle:", error);
-    toast("Failed to delete circle. Please try again.");
-    return false;
-  }
+
+  return data as Circle;
 };
 
 /**
  * Get a circle by ID
- * @param id - The ID of the circle to retrieve
- * @returns The circle data
  */
-export const getCircleById = async (id: string): Promise<Circle | null> => {
-  try {
-    const { data, error } = await supabase
-      .from('circles')
-      .select('*')
-      .eq('id', id)
-      .single();
-    
-    if (error) throw error;
-    
-    return data;
-  } catch (error) {
-    console.error("Error getting circle:", error);
-    return null;
+export const getCircleById = async (id: string): Promise<Circle> => {
+  const { data, error } = await supabase
+    .from('circles')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) {
+    console.error('Error fetching circle:', error);
+    throw new Error(`Failed to fetch circle: ${error.message}`);
   }
+
+  return data as Circle;
 };
 
 /**
- * Get circles with their creators
- * @param limit - The maximum number of circles to retrieve
- * @param offset - The number of circles to skip
- * @returns The circles with their creators
+ * Get all circles with pagination
  */
-export const getCircles = async (limit = 10, offset = 0): Promise<Circle[]> => {
-  try {
-    const { data, error } = await supabase
-      .from('circles')
-      .select(`
-        *,
-        members:circle_members(count)
-      `)
-      .range(offset, offset + limit - 1)
-      .order('created_at', { ascending: false });
-    
-    if (error) throw error;
-    
-    return data.map(circle => ({
+export const getCircles = async (page = 1, limit = 10): Promise<Circle[]> => {
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  const { data, error } = await supabase
+    .from('circles')
+    .select('*, members:circle_members(count)')
+    .range(from, to)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching circles:', error);
+    throw new Error(`Failed to fetch circles: ${error.message}`);
+  }
+
+  // Convert the count to a number and add as member_count
+  const circlesWithMemberCount = data.map(circle => {
+    const memberCount = circle.members?.[0]?.count || 0;
+    return {
       ...circle,
-      member_count: circle.members?.[0]?.count || 0
-    }));
-  } catch (error) {
-    console.error("Error getting circles:", error);
-    return [];
-  }
+      member_count: memberCount
+    } as Circle;
+  });
+
+  return circlesWithMemberCount;
 };
 
 /**
- * Get popular circles
- * @param limit - The maximum number of circles to retrieve
- * @returns The popular circles
- */
-export const getPopularCircles = async (limit = 5): Promise<Circle[]> => {
-  try {
-    const { data, error } = await supabase
-      .from('circles')
-      .select(`
-        *,
-        members:circle_members(count)
-      `)
-      .order('member_count', { ascending: false })
-      .limit(limit);
-    
-    if (error) throw error;
-    
-    return data.map(circle => ({
-      ...circle,
-      member_count: circle.members?.[0]?.count || 0
-    }));
-  } catch (error) {
-    console.error("Error getting popular circles:", error);
-    return [];
-  }
-};
-
-/**
- * Get circles by user ID
- * @param userId - The ID of the user to retrieve circles for
- * @returns The circles the user is a member of
+ * Get all circles for a specific user
  */
 export const getUserCircles = async (userId: string): Promise<Circle[]> => {
-  try {
-    const { data, error } = await supabase
-      .from('circles')
-      .select(`
-        *,
-        members:circle_members(*)
-      `)
-      .order('name', { ascending: true });
-    
-    if (error) throw error;
-    
-    // Filter circles where the user is a member
-    const userCircles = data.filter(circle => {
-      return circle.members?.some(member => member.user_id === userId);
-    });
-    
-    return userCircles.map(circle => ({
-      ...circle,
-      member_count: circle.members?.length || 0
-    }));
-  } catch (error) {
-    console.error("Error getting user circles:", error);
-    return [];
+  const { data, error } = await supabase
+    .from('circle_members')
+    .select('circle:circles(*), circle_id')
+    .eq('user_id', userId);
+
+  if (error) {
+    console.error('Error fetching user circles:', error);
+    throw new Error(`Failed to fetch user circles: ${error.message}`);
   }
+
+  // Extract circles from the join query
+  const circles = data.map(item => item.circle) as Circle[];
+  return circles;
 };
 
 /**
- * Get a user's membership in a circle
- * @param circleId - The ID of the circle
- * @param userId - The ID of the user
- * @returns The user's membership data
+ * Get public circles
  */
-export const getUserMembership = async (circleId: string, userId: string): Promise<CircleMember | null> => {
-  try {
-    const { data, error } = await supabase
-      .from('circle_members')
-      .select(`
-        *,
-        profile:profiles(*)
-      `)
-      .eq('circle_id', circleId)
-      .eq('user_id', userId)
-      .single();
-    
-    if (error) throw error;
-    
+export const getPublicCircles = async (page = 1, limit = 10): Promise<Circle[]> => {
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  const { data, error } = await supabase
+    .from('circles')
+    .select('*, members:circle_members(count)')
+    .eq('type', 'public')
+    .range(from, to)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching public circles:', error);
+    throw new Error(`Failed to fetch public circles: ${error.message}`);
+  }
+
+  // Convert the count to a number and add as member_count
+  const circlesWithMemberCount = data.map(circle => {
+    const memberCount = circle.members?.[0]?.count || 0;
     return {
-      ...data,
-      profile: data.profile?.[0] as Profile
-    };
-  } catch (error) {
-    console.error("Error getting user membership:", error);
-    return null;
-  }
+      ...circle,
+      member_count: memberCount
+    } as Circle;
+  });
+
+  return circlesWithMemberCount;
 };
 
 /**
- * Join a circle
- * @param circleId - The ID of the circle to join
- * @returns Whether joining was successful
+ * Get trending circles based on member count or activity
  */
-export const joinCircle = async (circleId: string): Promise<boolean> => {
-  const user = supabase.auth.getUser();
-  
-  if (!(await user).data.user) {
-    toast("Please sign in to join circles");
-    return false;
+export const getTrendingCircles = async (limit = 5): Promise<Circle[]> => {
+  const { data, error } = await supabase
+    .from('circles')
+    .select('*, members:circle_members(*)')
+    .limit(limit)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching trending circles:', error);
+    throw new Error(`Failed to fetch trending circles: ${error.message}`);
   }
-  
-  try {
-    // Check if the circle exists
-    const { data: circle, error: circleError } = await supabase
-      .from('circles')
-      .select('*')
-      .eq('id', circleId)
-      .single();
-    
-    if (circleError || !circle) {
-      toast("The circle you're trying to join doesn't exist");
-      return false;
-    }
-    
-    if (circle.type === 'private') {
-      toast("This is a private circle. You need an invitation to join.");
-      return false;
-    }
-    
-    // Check if the user is already a member
-    const { data: existingMembership } = await supabase
-      .from('circle_members')
-      .select('id')
-      .eq('circle_id', circleId)
-      .eq('user_id', (await user).data.user!.id)
-      .single();
-    
-    if (existingMembership) {
-      toast("You are already a member of this circle");
-      return false;
-    }
-    
-    // Add the user as a member
-    const { error } = await supabase
-      .from('circle_members')
-      .insert({
-        circle_id: circleId,
-        user_id: (await user).data.user!.id,
-        role: CircleRole.MEMBER
-      });
-    
-    if (error) throw error;
-    
-    toast("You have successfully joined the circle");
-    
-    return true;
-  } catch (error) {
-    console.error("Error joining circle:", error);
-    toast("Failed to join circle. Please try again.");
-    return false;
-  }
+
+  // Calculate member count for each circle
+  const circlesWithStats = data.map(circle => {
+    const memberCount = Array.isArray(circle.members) ? circle.members.length : 0;
+    return {
+      ...circle,
+      member_count: memberCount
+    } as Circle;
+  });
+
+  // Sort by member count (could also sort by recent activity)
+  return circlesWithStats.sort((a, b) => 
+    (b.member_count || 0) - (a.member_count || 0)
+  );
 };
 
 /**
- * Leave a circle
- * @param circleId - The ID of the circle to leave
- * @returns Whether leaving was successful
+ * Search circles by name
  */
-export const leaveCircle = async (circleId: string): Promise<boolean> => {
-  const user = supabase.auth.getUser();
-  
-  if (!(await user).data.user) {
-    toast("Please sign in to leave circles");
-    return false;
+export const searchCircles = async (query: string, limit = 10): Promise<Circle[]> => {
+  const { data, error } = await supabase
+    .from('circles')
+    .select('*')
+    .ilike('name', `%${query}%`)
+    .limit(limit);
+
+  if (error) {
+    console.error('Error searching circles:', error);
+    throw new Error(`Failed to search circles: ${error.message}`);
   }
-  
-  try {
-    // Check if the user is a member
-    const { data: membership } = await supabase
-      .from('circle_members')
-      .select('*')
-      .eq('circle_id', circleId)
-      .eq('user_id', (await user).data.user!.id)
-      .single();
-    
-    if (!membership) {
-      toast("You are not a member of this circle");
-      return false;
-    }
-    
-    if (membership.role === CircleRole.ADMIN) {
-      // Check if they're the only admin
-      const { data: adminCount, error: countError } = await supabase
-        .from('circle_members')
-        .select('*', { count: 'exact' })
-        .eq('circle_id', circleId)
-        .eq('role', CircleRole.ADMIN);
-      
-      if (!countError && adminCount && adminCount.length === 1) {
-        toast("You are the only admin. Please transfer ownership before leaving.");
-        return false;
-      }
-    }
-    
-    // Remove the membership
-    const { error } = await supabase
-      .from('circle_members')
-      .delete()
-      .eq('circle_id', circleId)
-      .eq('user_id', (await user).data.user!.id);
-    
-    if (error) throw error;
-    
-    toast("You have successfully left the circle");
-    
-    return true;
-  } catch (error) {
-    console.error("Error leaving circle:", error);
-    toast("Failed to leave circle. Please try again.");
-    return false;
-  }
+
+  return data as Circle[];
 };
 
 /**
  * Get members of a circle
- * @param circleId - The ID of the circle
- * @returns The members of the circle
  */
 export const getCircleMembers = async (circleId: string): Promise<CircleMember[]> => {
-  try {
-    const { data, error } = await supabase
-      .from('circle_members')
-      .select(`
-        *,
-        profiles(*)
-      `)
-      .eq('circle_id', circleId)
-      .order('role', { ascending: true });
-    
-    if (error) throw error;
-    
-    return data.map(member => ({
-      ...member,
-      profile: member.profiles as unknown as Profile
-    }));
-  } catch (error) {
-    console.error("Error getting circle members:", error);
-    return [];
+  const { data, error } = await supabase
+    .from('circle_members')
+    .select('*, profile:profiles(*)')
+    .eq('circle_id', circleId);
+
+  if (error) {
+    console.error('Error fetching circle members:', error);
+    throw new Error(`Failed to fetch circle members: ${error.message}`);
   }
+
+  // Map to CircleMember type with profile data
+  const members = data.map(member => ({
+    id: member.id,
+    circle_id: member.circle_id,
+    user_id: member.user_id,
+    role: member.role as CircleRole,
+    created_at: member.created_at,
+    profile: member.profile as Profile
+  }));
+
+  return members;
 };
 
 /**
- * Get posts in a circle
- * @param circleId - The ID of the circle
- * @returns The posts in the circle
+ * Join a circle
  */
-export const getCirclePosts = async (circleId: string): Promise<EnhancedPost[]> => {
-  try {
-    const { data, error } = await supabase
-      .from('circle_posts')
-      .select(`
-        *,
-        post:posts(*, author:profiles(*), category:categories(*))
-      `)
-      .eq('circle_id', circleId);
-    
-    if (error) throw error;
-    
-    return data.map(cp => ({
-      ...cp.post,
-      is_pinned: cp.is_pinned
-    })) as EnhancedPost[];
-  } catch (error) {
-    console.error("Error getting circle posts:", error);
-    return [];
+export const joinCircle = async (circleId: string): Promise<CircleMember> => {
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) {
+    throw new Error('User not authenticated');
   }
+
+  const userId = userData.user.id;
+
+  // Check if already a member
+  const { data: existingMember } = await supabase
+    .from('circle_members')
+    .select('*')
+    .eq('circle_id', circleId)
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (existingMember) {
+    return existingMember as CircleMember;
+  }
+
+  // Join the circle
+  const { data, error } = await supabase
+    .from('circle_members')
+    .insert({
+      circle_id: circleId,
+      user_id: userId,
+      role: CircleRole.MEMBER
+    })
+    .select('*')
+    .single();
+
+  if (error) {
+    console.error('Error joining circle:', error);
+    throw new Error(`Failed to join circle: ${error.message}`);
+  }
+
+  return data as CircleMember;
+};
+
+/**
+ * Leave a circle
+ */
+export const leaveCircle = async (circleId: string): Promise<boolean> => {
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) {
+    throw new Error('User not authenticated');
+  }
+
+  const userId = userData.user.id;
+
+  // Check if user is the only admin
+  const { data: memberData } = await supabase
+    .from('circle_members')
+    .select('*')
+    .eq('circle_id', circleId);
+
+  const admins = memberData?.filter(m => m.role === CircleRole.ADMIN || m.role === CircleRole.CO_ADMIN);
+  
+  // If user is the only admin, they can't leave
+  if (admins?.length === 1 && admins[0].user_id === userId && admins[0].role === CircleRole.ADMIN) {
+    throw new Error('You are the only admin. Please assign another admin before leaving the circle.');
+  }
+
+  const { error } = await supabase
+    .from('circle_members')
+    .delete()
+    .eq('circle_id', circleId)
+    .eq('user_id', userId);
+
+  if (error) {
+    console.error('Error leaving circle:', error);
+    throw new Error(`Failed to leave circle: ${error.message}`);
+  }
+
+  return true;
+};
+
+/**
+ * Get user's role in a circle
+ */
+export const getUserCircleRole = async (circleId: string, userId: string): Promise<CircleRole | null> => {
+  const { data, error } = await supabase
+    .from('circle_members')
+    .select('role')
+    .eq('circle_id', circleId)
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error fetching user role:', error);
+    throw new Error(`Failed to fetch user role: ${error.message}`);
+  }
+
+  return data ? data.role as CircleRole : null;
+};
+
+/**
+ * Update a member's role in a circle
+ */
+export const updateMemberRole = async (circleId: string, memberId: string, role: CircleRole): Promise<CircleMember> => {
+  // Check if the current user has admin rights
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) {
+    throw new Error('User not authenticated');
+  }
+
+  const currentUserId = userData.user.id;
+
+  const { data: currentUserRole } = await supabase
+    .from('circle_members')
+    .select('role')
+    .eq('circle_id', circleId)
+    .eq('user_id', currentUserId)
+    .single();
+
+  if (!currentUserRole || (currentUserRole.role !== CircleRole.ADMIN && currentUserRole.role !== CircleRole.CO_ADMIN)) {
+    throw new Error('You do not have permission to update member roles');
+  }
+  
+  // If updating a co-admin, only admin can do it
+  if (role === CircleRole.CO_ADMIN && currentUserRole.role !== CircleRole.ADMIN) {
+    throw new Error('Only the admin can assign co-admin roles');
+  }
+
+  const { data, error } = await supabase
+    .from('circle_members')
+    .update({ role })
+    .eq('id', memberId)
+    .eq('circle_id', circleId)
+    .select('*')
+    .single();
+
+  if (error) {
+    console.error('Error updating member role:', error);
+    throw new Error(`Failed to update member role: ${error.message}`);
+  }
+
+  return data as CircleMember;
+};
+
+/**
+ * Remove a member from a circle
+ */
+export const removeMember = async (circleId: string, userId: string): Promise<boolean> => {
+  // Check if the current user has admin/co-admin rights
+  const { data: currentUserData } = await supabase.auth.getUser();
+  if (!currentUserData.user) {
+    throw new Error('User not authenticated');
+  }
+
+  const currentUserId = currentUserData.user.id;
+
+  // If trying to remove yourself, use leaveCircle method
+  if (currentUserId === userId) {
+    return leaveCircle(circleId);
+  }
+
+  const { data: currentUserRole } = await supabase
+    .from('circle_members')
+    .select('role')
+    .eq('circle_id', circleId)
+    .eq('user_id', currentUserId)
+    .single();
+
+  if (!currentUserRole || (currentUserRole.role !== CircleRole.ADMIN && currentUserRole.role !== CircleRole.CO_ADMIN)) {
+    throw new Error('You do not have permission to remove members');
+  }
+
+  // Get the role of the user being removed
+  const { data: targetUserRole } = await supabase
+    .from('circle_members')
+    .select('role')
+    .eq('circle_id', circleId)
+    .eq('user_id', userId)
+    .single();
+
+  // Co-admins can't remove other co-admins or the admin
+  if (currentUserRole.role === CircleRole.CO_ADMIN && 
+      targetUserRole && 
+      (targetUserRole.role === CircleRole.CO_ADMIN || targetUserRole.role === CircleRole.ADMIN)) {
+    throw new Error('Co-admins cannot remove other co-admins or the admin');
+  }
+
+  const { error } = await supabase
+    .from('circle_members')
+    .delete()
+    .eq('circle_id', circleId)
+    .eq('user_id', userId);
+
+  if (error) {
+    console.error('Error removing member:', error);
+    throw new Error(`Failed to remove member: ${error.message}`);
+  }
+
+  return true;
 };
 
 /**
  * Add a post to a circle
- * @param circleId - The ID of the circle
- * @param postId - The ID of the post
- * @returns Whether adding was successful
  */
-export const addPostToCircle = async (circleId: string, postId: string): Promise<boolean> => {
-  const user = supabase.auth.getUser();
-  
-  if (!(await user).data.user) {
-    toast("Please sign in to add posts to circles");
-    return false;
+export const addPostToCircle = async (circleId: string, postId: string, isPinned = false): Promise<CirclePost> => {
+  // Check if the current user is a member of the circle
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) {
+    throw new Error('User not authenticated');
   }
-  
-  try {
-    // Check if the user is a member
-    const { data: membership } = await supabase
-      .from('circle_members')
-      .select('*')
-      .eq('circle_id', circleId)
-      .eq('user_id', (await user).data.user!.id)
-      .single();
-    
-    if (!membership) {
-      toast("You need to be a member to post in this circle");
-      return false;
+
+  const userId = userData.user.id;
+
+  const { data: membershipData } = await supabase
+    .from('circle_members')
+    .select('*')
+    .eq('circle_id', circleId)
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (!membershipData) {
+    throw new Error('You must be a member of the circle to add posts');
+  }
+
+  // Check if the post is already in the circle
+  const { data: existingPostData } = await supabase
+    .from('circle_posts')
+    .select('*')
+    .eq('circle_id', circleId)
+    .eq('post_id', postId)
+    .maybeSingle();
+
+  if (existingPostData) {
+    // If it exists and only the pin status is changing, update it
+    if (existingPostData.is_pinned !== isPinned) {
+      const { data, error } = await supabase
+        .from('circle_posts')
+        .update({ is_pinned: isPinned })
+        .eq('id', existingPostData.id)
+        .select('*')
+        .single();
+
+      if (error) {
+        console.error('Error updating post pin status:', error);
+        throw new Error(`Failed to update post pin status: ${error.message}`);
+      }
+
+      return data as CirclePost;
     }
     
-    // Add the post to the circle
-    const { error } = await supabase
-      .from('circle_posts')
-      .insert({
-        circle_id: circleId,
-        post_id: postId,
-        is_pinned: false
-      });
-    
-    if (error) throw error;
-    
-    toast("Post has been added to the circle");
-    
-    return true;
-  } catch (error) {
-    console.error("Error adding post to circle:", error);
-    toast("Failed to add post to circle. Please try again.");
-    return false;
+    return existingPostData as CirclePost;
   }
+
+  // Add new post to circle
+  const { data, error } = await supabase
+    .from('circle_posts')
+    .insert({
+      circle_id: circleId,
+      post_id: postId,
+      is_pinned: isPinned
+    })
+    .select('*')
+    .single();
+
+  if (error) {
+    console.error('Error adding post to circle:', error);
+    throw new Error(`Failed to add post to circle: ${error.message}`);
+  }
+
+  return data as CirclePost;
+};
+
+/**
+ * Get posts from a circle
+ */
+export const getCirclePosts = async (circleId: string): Promise<EnhancedPost[]> => {
+  const { data, error } = await supabase
+    .from('circle_posts')
+    .select('*, post:posts(*)')
+    .eq('circle_id', circleId);
+
+  if (error) {
+    console.error('Error fetching circle posts:', error);
+    throw new Error(`Failed to fetch circle posts: ${error.message}`);
+  }
+
+  // Extract posts and add is_pinned flag
+  const posts = data.map(item => {
+    return {
+      ...item.post,
+      is_pinned: item.is_pinned
+    } as EnhancedPost;
+  });
+
+  return posts;
 };
 
 /**
  * Toggle pin status of a post in a circle
- * @param circleId - The ID of the circle
- * @param postId - The ID of the post
- * @returns Whether toggling was successful
  */
-export const togglePinPost = async (circleId: string, postId: string): Promise<boolean> => {
-  const user = supabase.auth.getUser();
-  
-  if (!(await user).data.user) {
-    toast("Please sign in to manage posts");
-    return false;
+export const togglePostPin = async (circleId: string, postId: string): Promise<CirclePost> => {
+  // Check if the current user has admin/co-admin rights
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) {
+    throw new Error('User not authenticated');
   }
-  
-  try {
-    // Check if the user is an admin or co-admin
-    const { data: membership } = await supabase
-      .from('circle_members')
-      .select('*')
-      .eq('circle_id', circleId)
-      .eq('user_id', (await user).data.user!.id)
-      .single();
-    
-    if (!membership || (membership.role !== CircleRole.ADMIN && membership.role !== CircleRole.CO_ADMIN)) {
-      toast("Only admins and co-admins can pin posts");
-      return false;
-    }
-    
-    // Get the current pin status
-    const { data: circlePost, error: getError } = await supabase
-      .from('circle_posts')
-      .select('*')
-      .eq('circle_id', circleId)
-      .eq('post_id', postId)
-      .single();
-    
-    if (getError || !circlePost) {
-      toast("This post is not in the circle");
-      return false;
-    }
-    
-    const newPinStatus = !circlePost.is_pinned;
-    
-    // Update the pin status
-    const { error } = await supabase
-      .from('circle_posts')
-      .update({ is_pinned: newPinStatus })
-      .eq('circle_id', circleId)
-      .eq('post_id', postId);
-    
-    if (error) throw error;
-    
-    if (newPinStatus) {
-      toast("Post has been pinned to the top of the circle");
-    } else {
-      toast("Post has been unpinned");
-    }
-    
-    return true;
-  } catch (error) {
-    console.error("Error updating pin status:", error);
-    toast("Failed to update pin status. Please try again.");
-    return false;
+
+  const userId = userData.user.id;
+
+  const { data: userRole } = await supabase
+    .from('circle_members')
+    .select('role')
+    .eq('circle_id', circleId)
+    .eq('user_id', userId)
+    .single();
+
+  if (!userRole || (userRole.role !== CircleRole.ADMIN && userRole.role !== CircleRole.CO_ADMIN)) {
+    throw new Error('You do not have permission to pin or unpin posts');
   }
+
+  // Get current pin status
+  const { data: postData } = await supabase
+    .from('circle_posts')
+    .select('*')
+    .eq('circle_id', circleId)
+    .eq('post_id', postId)
+    .single();
+
+  if (!postData) {
+    throw new Error('Post not found in this circle');
+  }
+
+  // Toggle pin status
+  const { data, error } = await supabase
+    .from('circle_posts')
+    .update({ is_pinned: !postData.is_pinned })
+    .eq('circle_id', circleId)
+    .eq('post_id', postId)
+    .select('*')
+    .single();
+
+  if (error) {
+    console.error('Error toggling post pin status:', error);
+    throw new Error(`Failed to toggle post pin status: ${error.message}`);
+  }
+
+  return data as CirclePost;
 };
 
 /**
  * Remove a post from a circle
- * @param circleId - The ID of the circle
- * @param postId - The ID of the post
- * @returns Whether removal was successful
  */
 export const removePostFromCircle = async (circleId: string, postId: string): Promise<boolean> => {
-  const user = supabase.auth.getUser();
-  
-  if (!(await user).data.user) {
-    toast("Please sign in to remove posts");
-    return false;
+  // Check if the current user has admin/co-admin rights or is the post author
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) {
+    throw new Error('User not authenticated');
   }
-  
-  try {
-    const userId = (await user).data.user!.id;
-    
-    // Get the post to check if the user is the author
-    const { data: post, error: postError } = await supabase
-      .from('posts')
-      .select('user_id')
-      .eq('id', postId)
-      .single();
-    
-    // Check if the user is an admin/co-admin or the post author
-    const { data: membership } = await supabase
-      .from('circle_members')
-      .select('role')
-      .eq('circle_id', circleId)
-      .eq('user_id', userId)
-      .single();
-    
-    const isAdmin = membership && (membership.role === CircleRole.ADMIN || membership.role === CircleRole.CO_ADMIN);
-    const isAuthor = post && post.user_id === userId;
-    
-    if (!isAdmin && !isAuthor) {
-      toast("You need to be the post author or a circle admin/co-admin");
-      return false;
-    }
-    
-    // Remove the post from the circle
-    const { error } = await supabase
-      .from('circle_posts')
-      .delete()
-      .eq('circle_id', circleId)
-      .eq('post_id', postId);
-    
-    if (error) throw error;
-    
-    toast("Post has been removed from the circle");
-    
-    return true;
-  } catch (error) {
-    console.error("Error removing post:", error);
-    toast("Failed to remove post. Please try again.");
-    return false;
-  }
-};
 
-export const circleService = {
-  createCircle,
-  updateCircle,
-  deleteCircle,
-  getCircleById,
-  getCircles,
-  getPopularCircles,
-  getUserCircles,
-  getUserMembership,
-  joinCircle,
-  leaveCircle,
-  getCircleMembers,
-  getCirclePosts,
-  addPostToCircle,
-  togglePinPost,
-  removePostFromCircle
+  const userId = userData.user.id;
+
+  // Check user's role in the circle
+  const { data: userRole } = await supabase
+    .from('circle_members')
+    .select('role')
+    .eq('circle_id', circleId)
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  // Check if user is the post author
+  const { data: postData } = await supabase
+    .from('posts')
+    .select('user_id')
+    .eq('id', postId)
+    .maybeSingle();
+
+  const isAdmin = userRole && (userRole.role === CircleRole.ADMIN || userRole.role === CircleRole.CO_ADMIN);
+  const isAuthor = postData && postData.user_id === userId;
+
+  if (!isAdmin && !isAuthor) {
+    throw new Error('You do not have permission to remove this post');
+  }
+
+  const { error } = await supabase
+    .from('circle_posts')
+    .delete()
+    .eq('circle_id', circleId)
+    .eq('post_id', postId);
+
+  if (error) {
+    console.error('Error removing post from circle:', error);
+    throw new Error(`Failed to remove post from circle: ${error.message}`);
+  }
+
+  return true;
 };

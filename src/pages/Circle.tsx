@@ -10,8 +10,8 @@ import { Separator } from '@/components/ui/separator';
 
 import PostCard from '@/components/posts/PostCard';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/useAuth';
-import { EnhancedPost, Circle as CircleType, CircleMember } from '@/types';
+import { useAuth } from '@/contexts/AuthContext';
+import { EnhancedPost, Circle as CircleType, CircleMember, CircleRole } from '@/types';
 
 import { getCircleById, getCircleMembers, getCirclePosts, joinCircle, leaveCircle } from '@/services/circles/circleService';
 
@@ -26,7 +26,7 @@ export default function Circle() {
   const [posts, setPosts] = useState<EnhancedPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [isMember, setIsMember] = useState(false);
-  const [memberRole, setMemberRole] = useState<'admin' | 'co-admin' | 'member' | null>(null);
+  const [memberRole, setMemberRole] = useState<CircleRole | null>(null);
   const [activeTab, setActiveTab] = useState('posts');
   
   useEffect(() => {
@@ -58,7 +58,7 @@ export default function Circle() {
         if (user) {
           const userMembership = membersData.find(m => m.user_id === user.id);
           setIsMember(!!userMembership);
-          setMemberRole(userMembership ? userMembership.role as any : null);
+          setMemberRole(userMembership ? userMembership.role as CircleRole : null);
         }
       } catch (error) {
         console.error('Error fetching circle data:', error);
@@ -81,7 +81,7 @@ export default function Circle() {
     try {
       await joinCircle(id);
       setIsMember(true);
-      setMemberRole('member');
+      setMemberRole(CircleRole.MEMBER);
       toast({
         title: 'Success',
         description: 'You have joined the circle.',
