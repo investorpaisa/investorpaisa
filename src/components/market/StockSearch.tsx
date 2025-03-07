@@ -2,45 +2,64 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { StockQuote, searchStocks, getStockQuote } from '@/services/market';
-import { ArrowUpIcon, ArrowDownIcon, SearchIcon } from 'lucide-react';
+import { getStockQuote, searchStocks, StockQuote } from '@/services/market';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface StockSearchProps {
-  onSelectStock: (stock: StockQuote) => void;
+  // No props needed
 }
 
-export const StockSearch: React.FC<StockSearchProps> = ({ onSelectStock }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState<StockQuote[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+const StockSearch: React.FC<StockSearchProps> = () => {
+  const [symbol, setSymbol] = useState('');
+  const [stockData, setStockData] = useState<StockQuote | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const handleSymbolChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSymbol(e.target.value);
+  };
+
+  const handleSearchQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
 
   const handleSearch = async () => {
-    setIsLoading(true);
+    setLoading(true);
     try {
-      const results = await searchStocks(searchTerm);
+      const results = await searchStocks(searchQuery);
       setSearchResults(results);
     } catch (error) {
-      console.error("Stock search failed:", error);
-      setSearchResults([]);
+      console.error("Search failed:", error);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const handleSelectStock = async (symbol: string) => {
-    setIsLoading(true);
+  const handleGetQuote = async () => {
+    setLoading(true);
     try {
-      const stock = await getStockQuote(symbol);
-      if (stock) {
-        onSelectStock(stock);
-      } else {
-        console.error("Stock quote not found for symbol:", symbol);
-      }
+      const data = await getStockQuote(symbol);
+      setStockData(data);
+
+      // Mock historical data for the chart
+      const mockChartData = Array.from({ length: 20 }, (_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        return {
+          date: date.toLocaleDateString(),
+          price: data?.currentPrice ? data.currentPrice + (Math.random() - 0.5) * 20 : 0,
+        };
+      }).reverse();
+
+      setChartData(mockChartData);
     } catch (error) {
       console.error("Failed to fetch stock quote:", error);
+      setStockData(null);
+      setChartData([]);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -49,35 +68,64 @@ export const StockSearch: React.FC<StockSearchProps> = ({ onSelectStock }) => {
       <CardHeader>
         <CardTitle>Stock Search</CardTitle>
       </CardHeader>
-      <CardContent className="grid gap-4">
-        <div className="grid grid-cols-4 gap-2">
+      <CardContent>
+        <div className="mb-4">
           <Input
             type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by symbol"
+            placeholder="Enter stock symbol (e.g., AAPL)"
+            value={symbol}
+            onChange={handleSymbolChange}
           />
-          <Button variant="outline" className="col-span-1" onClick={handleSearch} disabled={isLoading}>
-            {isLoading ? "Searching..." : <SearchIcon className="mr-2 h-4 w-4" />}
-            {isLoading ? "" : "Search"}
+          <Button onClick={handleGetQuote} className="mt-2" disabled={loading}>
+            {loading ? "Loading..." : "Get Quote"}
           </Button>
         </div>
-        {searchResults.length > 0 && (
-          <div className="grid gap-2">
-            {searchResults.map((stock) => (
-              <Button
-                key={stock.symbol}
-                variant="ghost"
-                className="justify-start"
-                onClick={() => handleSelectStock(stock.symbol)}
-                disabled={isLoading}
-              >
-                {stock.name} ({stock.symbol})
-              </Button>
-            ))}
+
+        <div className="mb-4">
+          <Input
+            type="text"
+            placeholder="Search for stocks"
+            value={searchQuery}
+            onChange={handleSearchQueryChange}
+          />
+          <Button onClick={handleSearch} className="mt-2" disabled={loading}>
+            {loading ? "Loading..." : "Search"}
+          </Button>
+          {searchResults.length > 0 && (
+            <ul className="mt-2">
+              {searchResults.map((result: any) => (
+                <li key={result.symbol}>
+                  {result.name} ({result.symbol})
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {stockData && (
+          <div className="mt-4">
+            <h3>{stockData.companyName} ({stockData.symbol})</h3>
+            <p>Current Price: ${stockData.currentPrice}</p>
+            <p>High: ${stockData.high}</p>
+            <p>Low: ${stockData.low}</p>
+            <p>Open: ${stockData.open}</p>
+            <p>Previous Close: ${stockData.previousClose}</p>
+            {chartData.length > 0 && (
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="price" stroke="#8884d8" activeDot={{ r: 8 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
           </div>
         )}
       </CardContent>
     </Card>
   );
 };
+
+export { StockSearch };

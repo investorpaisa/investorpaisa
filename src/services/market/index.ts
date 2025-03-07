@@ -16,6 +16,11 @@ export {
   NSE_INDICES
 };
 
+// Export types needed by components
+export type { MarketStatus } from './status';
+export type { StockQuote } from './quotes';
+export type { MarketIndex } from './indices';
+
 // Export as a service object for backward compatibility
 export const marketService = {
   getMarketStatus,

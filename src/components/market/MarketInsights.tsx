@@ -1,241 +1,145 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { StockQuote } from '@/services/market/quotes/stockSearch';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  LineChart,
-  Line
-} from 'recharts';
 import { 
-  getMarketStatus,
-  searchStocks,
-  getStockQuote,
-  getMarketIndices,
-  getTopPerformers
+  getMarketStatus, 
+  getIndexData, 
+  getTopGainers, 
+  getTopLosers,
+  MarketStatus as MarketStatusType,
+  MarketIndex
 } from '@/services/market';
-import { ArrowUpIcon, ArrowDownIcon, RefreshCw } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
-interface MarketStatusData {
-  market: string;
-  isMarketOpen: boolean;
-  nextMarketEvent: string;
+interface MarketIndexProps {
+  label: string;
+  value: number;
+  change: number;
 }
 
-interface IndexData {
-  name: string;
-  last: number;
-  netChange: number;
-  netChangePercent: number;
-}
-
-interface TopPerformer {
-  ticker: string;
-  companyName: string;
+interface GainersLosersProps {
+  symbol: string;
   price: number;
   change: number;
-  percentChange: number;
 }
 
-const MarketInsights: React.FC = () => {
-  const [marketStatus, setMarketStatus] = useState<MarketStatusData | null>(null);
-  const [indices, setIndices] = useState<IndexData[]>([]);
-  const [topGainers, setTopGainers] = useState<TopPerformer[]>([]);
-  const [topLosers, setTopLosers] = useState<TopPerformer[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+const MarketInsights = () => {
+  const [status, setStatus] = useState<MarketStatusType | null>(null);
+  const [indices, setIndices] = useState<MarketIndex[]>([]);
+  const [gainers, setGainers] = useState<any[]>([]);
+  const [losers, setLosers] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState('indices');
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      setError(null);
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const marketStatus = await getMarketStatus();
+      setStatus(marketStatus);
 
-      try {
-        const status = await getMarketStatus();
-        setMarketStatus(status);
+      const indexData = await getIndexData();
+      setIndices(indexData);
 
-        const indicesData = await getMarketIndices();
-        setIndices(indicesData);
+      const topGainers = await getTopGainers();
+      setGainers(topGainers);
 
-        const topPerformers = await getTopPerformers('gainers');
-        setTopGainers(topPerformers);
-
-        const topLosers = await getTopPerformers('losers');
-        setTopLosers(topLosers);
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch market data.');
-        console.error("Error fetching market data:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-
-    // Refresh data every 5 minutes
-    const intervalId = setInterval(fetchData, 300000);
-
-    return () => clearInterval(intervalId);
-  }, []);
-
-  const getArrowIcon = (change: number) => {
-    if (change > 0) {
-      return <ArrowUpIcon className="inline-block w-4 h-4 ml-1 text-green-500" />;
-    } else if (change < 0) {
-      return <ArrowDownIcon className="inline-block w-4 h-4 ml-1 text-red-500" />;
-    } else {
-      return null;
+      const topLosers = await getTopLosers();
+      setLosers(topLosers);
+    } catch (error) {
+      console.error("Failed to fetch market data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (isLoading) {
-    return <Card><CardContent>Loading market data...</CardContent></Card>;
-  }
+  useEffect(() => {
+    fetchData();
+    const intervalId = setInterval(fetchData, 60000); // Update every minute
 
-  if (error) {
-    return <Card><CardContent>Error: {error}</CardContent></Card>;
-  }
+    return () => clearInterval(intervalId); // Clean up interval on unmount
+  }, []);
 
   return (
-    <Tabs defaultValue="overview" className="w-full">
-      <TabsList>
-        <TabsTrigger value="overview">Overview</TabsTrigger>
-        <TabsTrigger value="top-gainers">Top Gainers</TabsTrigger>
-        <TabsTrigger value="top-losers">Top Losers</TabsTrigger>
-      </TabsList>
-      <TabsContent value="overview" className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Market Status</CardTitle>
-            <CardDescription>
-              {marketStatus?.isMarketOpen ? (
-                <Badge variant="outline">Open</Badge>
-              ) : (
-                <Badge variant="destructive">Closed</Badge>
-              )}
-              <p className="text-sm mt-1">Next Event: {marketStatus?.nextMarketEvent}</p>
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {indices.map((index) => (
-                <div key={index.name} className="p-4 border rounded-md">
-                  <h3 className="text-lg font-semibold">{index.name}</h3>
-                  <p className="text-gray-500">Last: {index.last}</p>
-                  <p className="text-gray-500">
-                    Change: {index.netChange} ({index.netChangePercent}%)
-                    {getArrowIcon(index.netChange)}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </TabsContent>
-      <TabsContent value="top-gainers" className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Gainers</CardTitle>
-            <CardDescription>Stocks with the highest gains today.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead>
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Ticker
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Company
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Price
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Change
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      % Change
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {topGainers.map((stock) => (
-                    <tr key={stock.ticker}>
-                      <td className="px-6 py-4 whitespace-nowrap">{stock.ticker}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">{stock.companyName}</td>
-                      <td className="px-6 py-4 text-right whitespace-nowrap">{stock.price}</td>
-                      <td className="px-6 py-4 text-right whitespace-nowrap">{stock.change}</td>
-                      <td className="px-6 py-4 text-right whitespace-nowrap">
-                        {stock.percentChange}%
-                        {getArrowIcon(stock.change)}
-                      </td>
-                    </tr>
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>Market Insights</CardTitle>
+        <CardDescription>Real-time market status and insights.</CardDescription>
+      </CardHeader>
+      <CardContent className="pl-4 pb-4">
+        {loading ? (
+          <div>Loading market data...</div>
+        ) : (
+          <>
+            {status && (
+              <div className="mb-4">
+                Market Status:{" "}
+                <Badge
+                  variant={status.isOpen ? "success" : "destructive"}
+                >
+                  {status.isOpen ? "Open" : "Closed"}
+                </Badge>
+                <p>
+                  Last Updated: {new Date(status.timestamp).toLocaleTimeString()}
+                </p>
+              </div>
+            )}
+            <Tabs defaultValue="indices" className="w-full" onValueChange={setActiveTab}>
+              <TabsList>
+                <TabsTrigger value="indices">Indices</TabsTrigger>
+                <TabsTrigger value="gainers">Top Gainers</TabsTrigger>
+                <TabsTrigger value="losers">Top Losers</TabsTrigger>
+              </TabsList>
+              <TabsContent value="indices" className="space-y-2">
+                <ScrollArea className="h-[200px] w-full rounded-md border">
+                  {indices.map((index) => (
+                    <div key={index.index} className="flex items-center justify-between p-2">
+                      <span>{index.index}</span>
+                      <div className="text-right">
+                        <div>{index.last}</div>
+                        <div className={index.variation >= 0 ? 'text-green-500' : 'text-red-500'}>
+                          {index.absoluteVariation} ({index.percentageVariation}%)
+                        </div>
+                      </div>
+                    </div>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-      </TabsContent>
-      <TabsContent value="top-losers" className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Losers</CardTitle>
-            <CardDescription>Stocks with the highest losses today.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead>
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Ticker
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Company
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Price
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Change
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      % Change
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {topLosers.map((stock) => (
-                    <tr key={stock.ticker}>
-                      <td className="px-6 py-4 whitespace-nowrap">{stock.ticker}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">{stock.companyName}</td>
-                      <td className="px-6 py-4 text-right whitespace-nowrap">{stock.price}</td>
-                      <td className="px-6 py-4 text-right whitespace-nowrap">{stock.change}</td>
-                      <td className="px-6 py-4 text-right whitespace-nowrap">
-                        {stock.percentChange}%
-                        {getArrowIcon(stock.change)}
-                      </td>
-                    </tr>
+                </ScrollArea>
+              </TabsContent>
+              <TabsContent value="gainers" className="space-y-2">
+                <ScrollArea className="h-[200px] w-full rounded-md border">
+                  {gainers.map((gainer) => (
+                    <div key={gainer.symbol} className="flex items-center justify-between p-2">
+                      <span>{gainer.symbol}</span>
+                      <div className="text-right">
+                        <div>₹{gainer.lastPrice}</div>
+                        <div className="text-green-500">
+                          {gainer.change} ({gainer.pChange}%)
+                        </div>
+                      </div>
+                    </div>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-      </TabsContent>
-    </Tabs>
+                </ScrollArea>
+              </TabsContent>
+              <TabsContent value="losers" className="space-y-2">
+                <ScrollArea className="h-[200px] w-full rounded-md border">
+                  {losers.map((loser) => (
+                    <div key={loser.symbol} className="flex items-center justify-between p-2">
+                      <span>{loser.symbol}</span>
+                      <div className="text-right">
+                        <div>₹{loser.lastPrice}</div>
+                        <div className="text-red-500">
+                          {loser.change} ({loser.pChange}%)
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </ScrollArea>
+              </TabsContent>
+            </Tabs>
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 
