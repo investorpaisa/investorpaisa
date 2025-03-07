@@ -1,26 +1,40 @@
 
 // Re-export all services
+
+// Auth services
 export * from './auth';
+
+// Profile services
 export * from './profiles';
-// Export from posts with carefully managed types to avoid conflicts
-export {
-  createPost,
-  updatePost,
-  deletePost,
-  getPosts,
-  getPostById,
-  getUserPosts,
-  getFeedPosts,
-  getTrendingPosts,
-  searchPosts
-} from './posts';
+
+// Export from posts module using import/export to avoid conflicts
+import { postService } from './posts';
+export { postService };
+
+// Circle services
 export * from './circles';
+
+// Engagement services
 export * from './engagement';
-export * from './messages';
+
+// Message services - avoid type conflicts
+import { messageService } from './messages';
+export { messageService };
+
+// Market services
 export * from './market';
+
+// News services
 export * from './news';
-export * from './api';
+
+// API services - avoid type conflicts
+import { api } from './api';
+export { api };
+
+// Analytics services
 export * from './analytics/metricsService';
+
+// Standalone services
 export * from './categoryService';
 export * from './postService';
 export * from './authService';
@@ -28,10 +42,8 @@ export * from './authService';
 // Backward compatibility exports
 import { authService } from './auth';
 import { profileService } from './profiles';
-import { postService } from './posts';
 import { circleService } from './circles';
 import { engagement } from './engagement';
-import { messageService } from './messages';
 import { marketService } from './market';
 import { newsService } from './news';
 

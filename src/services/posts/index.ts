@@ -1,18 +1,36 @@
 
+// Import and re-export everything from each service file
 import { getPosts, getCategoryPosts, getComments, createPost, addComment } from './postService';
-import { likePost, unlikePost } from './likeService';
-import { getCategories } from './categoryService';
-import type { Post, Category, Comment, PostWithCategoryObject } from './types';
 
-export const postService = {
+// Export individual functions
+export {
   getPosts,
   getCategoryPosts,
-  getCategories,
   getComments,
   createPost,
-  addComment,
-  likePost,
-  unlikePost
+  addComment
 };
 
-export type { Post, Category, Comment, PostWithCategoryObject };
+// Export type definitions 
+export * from './types';
+
+// Import services
+import * as categoryServices from './categoryService';
+import * as likeServices from './likeService';
+import * as utilServices from './utils';
+
+// Individual named exports from postService
+const posts = {
+  getPosts,
+  getCategoryPosts,
+  getComments,
+  createPost,
+  addComment
+};
+
+// Export as a service object for backward compatibility
+export const postService = {
+  ...posts,
+  ...categoryServices,
+  ...likeServices
+};
