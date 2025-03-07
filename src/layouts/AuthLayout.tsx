@@ -9,7 +9,7 @@ const AuthLayout = () => {
       <header className="py-6 px-8 border-b border-black/5">
         <div className="flex justify-between items-center max-w-7xl mx-auto w-full">
           <Link to="/" className="flex items-center space-x-2">
-            <span className="font-bold text-xl bg-gradient-gold bg-clip-text text-transparent">Investor Paisa</span>
+            <span className="font-bold text-xl">Investor<span className="text-gold">Paisa</span></span>
           </Link>
           <nav className="flex items-center space-x-6">
             <Link to="/" className="text-sm text-black/60 hover:text-black transition-colors">

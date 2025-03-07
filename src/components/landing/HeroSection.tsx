@@ -44,7 +44,7 @@ const HeroSection = () => {
             ref={titleRef}
             className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight opacity-0 transition-opacity duration-1000"
           >
-            <span className="bg-gradient-gold bg-clip-text text-transparent">Where Finance Meets</span>{' '}
+            <span className="bg-clip-text text-transparent bg-gradient-gold">Where Finance Meets</span>{' '}
             <br className="hidden md:block" />
             <span className="relative">
               Community

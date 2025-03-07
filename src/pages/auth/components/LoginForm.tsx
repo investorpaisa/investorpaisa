@@ -82,7 +82,7 @@ export const LoginForm: React.FC = () => {
     <Card className="premium-card overflow-hidden">
       <div className="h-2 bg-gradient-gold w-full"></div>
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-premium-gold">Sign in</CardTitle>
+        <CardTitle className="text-2xl font-bold text-gold">Sign in</CardTitle>
         <CardDescription className="text-muted-foreground">
           Enter your email and password to access your account
         </CardDescription>
@@ -119,9 +119,9 @@ export const LoginForm: React.FC = () => {
 
         <div className="mt-4">
           <div className="flex items-center mt-2">
-            <Separator className="flex-1 bg-premium-dark-700/50" />
+            <Separator className="flex-1 bg-black/10" />
             <span className="px-3 text-xs text-muted-foreground">OR</span>
-            <Separator className="flex-1 bg-premium-dark-700/50" />
+            <Separator className="flex-1 bg-black/10" />
           </div>
 
           <div className="grid gap-2 mt-4">

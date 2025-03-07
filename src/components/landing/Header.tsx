@@ -9,7 +9,7 @@ const Header = () => {
     <header className="py-3 px-4 border-b border-black/5 backdrop-blur-sm bg-white/90 sticky top-0 z-10">
       <div className="flex justify-between items-center max-w-6xl mx-auto w-full">
         <Link to="/" className="flex items-center space-x-2">
-          <span className="font-bold text-xl bg-gradient-gold bg-clip-text text-transparent">Investor Paisa</span>
+          <span className="font-bold text-xl">Investor<span className="text-gold">Paisa</span></span>
         </Link>
         
         {/* Search Bar */}

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { SidebarTrigger } from './ui/sidebar';
 import { PremiumButton } from './ui/premium/button';
 import { Button } from './ui/button';
-import { BarChart2, Bell, Home, Globe, Inbox, User, Menu } from 'lucide-react';
+import { BarChart2, Bell, Home, Globe, Inbox, Menu } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -26,8 +26,7 @@ export function MainNav() {
         
         <div className="flex items-center">
           <Link to="/feed" className="flex items-center gap-2">
-            <img src="/logo-ip-symbol.svg" alt="Investor Paisa Logo" className="h-8 w-8 mr-2" />
-            <span className="font-bold text-xl tracking-tight">Investor Paisa</span>
+            <span className="font-bold text-xl tracking-tight">Investor<span className="text-gold">Paisa</span></span>
           </Link>
         </div>
         
