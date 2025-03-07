@@ -1,0 +1,13 @@
+
+# robots.txt for investorpaisa.com
+
+User-agent: *
+Allow: /
+
+# Disallow specific paths that shouldn't be indexed
+Disallow: /app/inbox/
+Disallow: /app/settings/
+Disallow: /auth/
+
+# Sitemap
+Sitemap: https://investorpaisa.com/sitemap.xml
