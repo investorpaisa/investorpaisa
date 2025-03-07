@@ -5,7 +5,12 @@ export * from './circleMembersService';
 export * from './circlePostsService';
 export * from './types';
 
-// Individual named functions from circlesService for backward compatibility
+// Import all service modules
+import { circles } from './circlesService';
+import { circleMembers } from './circleMembersService';
+import { circlePosts } from './circlePostsService';
+
+// Individual named functions from circlesService
 export const {
   createCircle,
   updateCircle,
@@ -15,9 +20,9 @@ export const {
   getPublicCircles,
   getTrendingCircles,
   searchCircles
-} = require('./circlesService').circles;
+} = circles;
 
-// Individual named functions from circleMembersService for backward compatibility
+// Individual named functions from circleMembersService
 export const {
   getCircleMembers,
   joinCircle,
@@ -25,19 +30,19 @@ export const {
   getUserCircleRole,
   updateMemberRole,
   removeMember
-} = require('./circleMembersService').circleMembers;
+} = circleMembers;
 
-// Individual named functions from circlePostsService for backward compatibility
+// Individual named functions from circlePostsService
 export const {
   addPostToCircle,
   getCirclePosts,
   togglePostPin,
   removePostFromCircle
-} = require('./circlePostsService').circlePosts;
+} = circlePosts;
 
 // For backward compatibility with existing code
 export const circleService = {
-  ...require('./circlesService').circles,
-  ...require('./circleMembersService').circleMembers,
-  ...require('./circlePostsService').circlePosts
+  ...circles,
+  ...circleMembers,
+  ...circlePosts
 };

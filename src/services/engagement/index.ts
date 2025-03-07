@@ -1,12 +1,25 @@
 
-import { bookmarkService } from './bookmarkService';
-import * as commentService from './commentService';
 import { likeService } from './likeService';
-import * as shareService from './shareService';
+import { bookmarkService } from './bookmarkService';
+import { commentService } from './commentService';
+import { shareService } from './shareService';
 
-export {
-  bookmarkService,
-  commentService,
-  likeService,
-  shareService
+// Export all services
+export { likeService, bookmarkService, commentService, shareService };
+
+// Export individual function groups from each service
+export * from './likeService';
+export * from './bookmarkService';
+export * from './commentService';
+export * from './shareService';
+
+// Export utility functions
+export * from './utils';
+
+// For backward compatibility
+export const engagement = {
+  ...likeService,
+  ...bookmarkService,
+  ...commentService,
+  ...shareService
 };
