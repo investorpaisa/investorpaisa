@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { PostShare, PostShareInsert, ShareType } from '@/types';
 
@@ -98,4 +99,12 @@ export const deleteShare = async (id: string): Promise<void> => {
     console.error('Error in deleteShare:', error);
     throw error;
   }
+};
+
+// Export as a service object for backward compatibility
+export const shareService = {
+  sharePost,
+  getPostShares,
+  getUserShares,
+  deleteShare
 };

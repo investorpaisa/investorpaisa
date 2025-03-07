@@ -2,7 +2,18 @@
 // Re-export all services
 export * from './auth';
 export * from './profiles';
-export * from './posts';
+// Export from posts with carefully managed types to avoid conflicts
+export {
+  createPost,
+  updatePost,
+  deletePost,
+  getPosts,
+  getPostById,
+  getUserPosts,
+  getFeedPosts,
+  getTrendingPosts,
+  searchPosts
+} from './posts';
 export * from './circles';
 export * from './engagement';
 export * from './messages';
