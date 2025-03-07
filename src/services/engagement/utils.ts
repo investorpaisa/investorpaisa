@@ -2,38 +2,46 @@
 import { Comment } from '@/types';
 
 /**
- * Builds a comment tree from a flat array of comments
+ * Build a comment tree from flat comments array
  */
-export const buildCommentTree = (comments: Comment[]): Comment[] => {
-  const commentMap = new Map<string, Comment>();
-  const rootComments: Comment[] = [];
-
-  // First pass: create a map of comments by ID
-  comments.forEach(comment => {
-    commentMap.set(comment.id, { ...comment, replies: [] });
+export const buildCommentTree = (comments: any[]): Comment[] => {
+  // First, create a map of all comments
+  const commentMap = new Map();
+  
+  // Convert response format to match our Comment type
+  const processedComments = comments.map(comment => {
+    // Create a new object that matches the Comment type
+    const processedComment: Comment = {
+      ...comment,
+      edited: false, // Set default value
+      parent_id: comment.parent_id || undefined,
+      author: comment.author ? comment.author : undefined,
+      replies: []
+    };
+    
+    // Add to map
+    commentMap.set(comment.id, processedComment);
+    return processedComment;
   });
-
-  // Second pass: build the tree structure
-  comments.forEach(comment => {
-    const thisComment = commentMap.get(comment.id);
-    if (!thisComment) return;
-
+  
+  // Build the tree
+  const rootComments: Comment[] = [];
+  
+  processedComments.forEach(comment => {
     if (comment.parent_id) {
+      // This is a reply
       const parentComment = commentMap.get(comment.parent_id);
       if (parentComment) {
         if (!parentComment.replies) {
           parentComment.replies = [];
         }
-        parentComment.replies.push(thisComment);
-      } else {
-        rootComments.push(thisComment);
+        parentComment.replies.push(comment);
       }
     } else {
-      rootComments.push(thisComment);
+      // This is a root comment
+      rootComments.push(comment);
     }
   });
-
+  
   return rootComments;
 };
-
-// Add any additional utility functions here

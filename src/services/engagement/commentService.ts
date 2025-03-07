@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { Comment, CommentInsert, CommentUpdate } from '@/types';
 import { buildCommentTree } from './utils';
@@ -102,8 +103,8 @@ export const getPostComments = async (postId: string): Promise<Comment[]> => {
     throw new Error(`Failed to fetch comments: ${error.message}`);
   }
 
-  // Build comment tree
-  const commentTree = buildCommentTree(data);
+  // Build comment tree - pass as any[] to avoid type issues with buildCommentTree
+  const commentTree = buildCommentTree(data as any[]);
 
   return commentTree;
 };

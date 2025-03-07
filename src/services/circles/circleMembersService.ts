@@ -1,6 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
-import { CircleMember, Profile } from '@/types';
-import { CircleRole } from './types';
+import { Profile } from '@/types';
+import { CircleMember, CircleRole } from './types';
 
 /**
  * Get members of a circle
