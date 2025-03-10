@@ -21,6 +21,7 @@ export interface Circle {
   created_by: string;
   member_count?: number;
   post_count?: number;
+  hasNewPost?: boolean; // Added missing property
 }
 
 export interface CircleInsert {
@@ -86,6 +87,9 @@ export interface Comment {
   created_at: string;
   updated_at: string;
   profile?: Profile;
+  author?: Profile; // Added missing property
+  edited?: boolean; // Added missing property
+  replies?: Comment[]; // Added missing property
 }
 
 export interface CommentInsert {
@@ -143,7 +147,10 @@ export interface BookmarkInsert {
 export enum ShareType {
   SOCIAL = 'social',
   INTERNAL = 'internal',
-  EMAIL = 'email'
+  EMAIL = 'email',
+  PUBLIC = 'public', // Added missing values to match what's used in the code
+  USER = 'user',
+  CIRCLE = 'circle'
 }
 
 export interface PostShare {
@@ -154,6 +161,7 @@ export interface PostShare {
   target_id?: string;
   commentary?: string;
   created_at: string;
+  sharer?: any; // Added to support the sharer property
 }
 
 export interface PostShareInsert {

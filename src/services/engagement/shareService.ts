@@ -40,10 +40,10 @@ export const getPostShares = async (postId: string): Promise<PostShare[]> => {
       throw new Error(`Failed to fetch post shares: ${error.message}`);
     }
 
-    // Ensure share_type is of the correct type
+    // Cast the share_type to ShareType enum
     const typedShares = data.map(share => ({
       ...share,
-      share_type: share.share_type as 'user' | 'circle' | 'public'
+      share_type: share.share_type as ShareType
     }));
 
     return typedShares as PostShare[];
@@ -68,10 +68,10 @@ export const getUserShares = async (userId: string): Promise<PostShare[]> => {
       throw new Error(`Failed to fetch user shares: ${error.message}`);
     }
 
-    // Ensure share_type is of the correct type
+    // Cast the share_type to ShareType enum
     const typedShares = data.map(share => ({
       ...share,
-      share_type: share.share_type as 'user' | 'circle' | 'public'
+      share_type: share.share_type as ShareType
     }));
 
     return typedShares as PostShare[];
