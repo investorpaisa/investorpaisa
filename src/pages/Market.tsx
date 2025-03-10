@@ -2,6 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StockSearch } from '@/components/market/StockSearch';
+import { CryptoSearch } from '@/components/market/CryptoSearch';
 import MarketInsights from '@/components/market/MarketInsights';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -47,9 +48,7 @@ const Market = () => {
             </TabsContent>
             
             <TabsContent value="crypto" className="mt-4">
-              <div className="p-4 border rounded-md text-center">
-                <p className="text-muted-foreground">Cryptocurrency research is coming soon</p>
-              </div>
+              <CryptoSearch />
             </TabsContent>
             
             <TabsContent value="bonds" className="mt-4">
