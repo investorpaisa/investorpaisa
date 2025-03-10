@@ -1,14 +1,31 @@
 
 project_id = "yjyfhvaorpfbifkfejff"
 
-[functions.fetch-financial-news]
-verify_jwt = false
+[api]
+enabled = true
+port = 54321
+schemas = [ "public", "storage", "graphql_public" ]
 
-[functions.fetch-financial-news-cron]
-verify_jwt = false
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
 
-[functions.schedule-news-updates]
-verify_jwt = false
+[studio]
+enabled = true
+port = 54323
 
-[functions.update-metrics]
-verify_jwt = false
+[inbucket]
+enabled = true
+port = 54324
+
+[auth]
+enabled = true
+port = 54326
+
+[storage]
+enabled = true
+port = 54325
+
+[edge-functions]
+enabled = true

@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StockSearch } from '@/components/market/StockSearch';
-import { CryptoSearch } from '@/components/market/CryptoSearch';
+import CryptoSearch from '@/components/market/CryptoSearch';
 import MarketInsights from '@/components/market/MarketInsights';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
