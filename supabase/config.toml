@@ -21,11 +21,10 @@ port = 54324
 
 [auth]
 enabled = true
-port = 54326
 
 [storage]
 enabled = true
-port = 54325
 
-[edge-functions]
+[functions]
 enabled = true
+
