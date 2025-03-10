@@ -44,8 +44,6 @@ function App() {
           }
         >
           <Route path="home" element={<Home />} />
-          <Route path="feed" element={<Home />} /> {/* Redirect from old path */}
-          <Route path="discover" element={<Home />} /> {/* Redirect from old path */}
           <Route path="market" element={<Market />} />
           <Route path="mycircle" element={<Circles />} />
           <Route path="inbox" element={<Inbox />} />
@@ -54,6 +52,10 @@ function App() {
           <Route path="app/circles/:id" element={<Circle />} />
           <Route path="communities/:id" element={<Circle />} /> {/* Added for backward compatibility */}
           <Route path="app/dashboard" element={<Dashboard />} />
+          
+          {/* Redirect routes for old paths */}
+          <Route path="feed" element={<Home />} />
+          <Route path="discover" element={<Home />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />

@@ -11,7 +11,7 @@ const Index = () => {
   useEffect(() => {
     if (!isLoading) {
       if (user) {
-        navigate('/feed');
+        navigate('/home');
       } else {
         navigate('/landing');
       }

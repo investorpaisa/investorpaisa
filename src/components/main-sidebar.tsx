@@ -1,4 +1,3 @@
-
 import { Link, useLocation } from 'react-router-dom';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
@@ -52,9 +51,13 @@ export function MainSidebar() {
         )}
         
         <div className="space-y-1 px-2 mb-6">
-          <Link to="/home" className={`flex items-center gap-x-2 rounded-md px-3 py-2 text-sm ${location.pathname === '/home' || location.pathname === '/feed' ? 'bg-black/5 font-medium' : 'hover:bg-black/5'} transition-colors`}>
+          <Link to="/home" className={`flex items-center gap-x-2 rounded-md px-3 py-2 text-sm ${location.pathname === '/home' ? 'bg-black/5 font-medium' : 'hover:bg-black/5'} transition-colors`}>
             <Home className="h-5 w-5" />
             <span>Home</span>
+          </Link>
+          <Link to="/market" className={`flex items-center gap-x-2 rounded-md px-3 py-2 text-sm ${location.pathname === '/market' ? 'bg-black/5 font-medium' : 'hover:bg-black/5'} transition-colors`}>
+            <BarChart2 className="h-5 w-5" />
+            <span>Market</span>
           </Link>
           <Link to="/mycircle" className={`flex items-center gap-x-2 rounded-md px-3 py-2 text-sm ${location.pathname === '/mycircle' ? 'bg-black/5 font-medium' : 'hover:bg-black/5'} transition-colors`}>
             <CircleUser className="h-5 w-5" />
