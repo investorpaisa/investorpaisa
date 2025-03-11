@@ -3,9 +3,11 @@ import { useState } from 'react';
 import { NewsArticle } from '@/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, Share2, Bookmark, Clock } from 'lucide-react';
+import { ExternalLink, Share2, Bookmark, Clock, Heart, MessageSquare } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
+import { useCommentsDialog } from '@/hooks/useCommentsDialog';
+import { toast } from 'sonner';
 
 interface NewsCardProps {
   article: NewsArticle;
@@ -16,6 +18,10 @@ interface NewsCardProps {
 
 const NewsCard = ({ article, onBookmark, onShare, isBookmarked = false }: NewsCardProps) => {
   const [bookmarked, setBookmarked] = useState(isBookmarked);
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 20)); // Mock like count
+  const [commentCount, setCommentCount] = useState(Math.floor(Math.random() * 10)); // Mock comment count
+  const { openComments } = useCommentsDialog();
 
   const handleBookmark = () => {
     setBookmarked(!bookmarked);
@@ -32,6 +38,27 @@ const NewsCard = ({ article, onBookmark, onShare, isBookmarked = false }: NewsCa
 
   const handleOpenArticle = () => {
     window.open(article.url, '_blank');
+  };
+
+  const handleLike = () => {
+    if (liked) {
+      setLikeCount(prev => prev - 1);
+    } else {
+      setLikeCount(prev => prev + 1);
+    }
+    setLiked(!liked);
+    toast.success(liked ? 'Removed like' : 'Added like');
+  };
+
+  const handleComment = () => {
+    openComments({
+      id: article.id,
+      title: article.title,
+      content: article.summary || '',
+      entityType: 'news',
+      commentsCount: commentCount,
+      onCommentAdded: () => setCommentCount(prev => prev + 1)
+    });
   };
 
   const getPublishedTime = () => {
@@ -83,11 +110,21 @@ const NewsCard = ({ article, onBookmark, onShare, isBookmarked = false }: NewsCa
         )}
       </CardContent>
       <CardFooter className="p-4 pt-2 flex justify-between">
-        <Button variant="outline" size="sm" className="gap-1" onClick={handleOpenArticle}>
-          <ExternalLink className="h-4 w-4" />
-          <span>Read Full Article</span>
-        </Button>
+        <div className="flex items-center space-x-1">
+          <Button variant="ghost" size="sm" className="gap-1" onClick={handleLike}>
+            <Heart className="h-4 w-4" fill={liked ? "currentColor" : "none"} color={liked ? "#10b981" : "currentColor"} />
+            <span>{likeCount}</span>
+          </Button>
+          <Button variant="ghost" size="sm" className="gap-1" onClick={handleComment}>
+            <MessageSquare className="h-4 w-4" />
+            <span>{commentCount}</span>
+          </Button>
+        </div>
         <div className="flex space-x-1">
+          <Button variant="outline" size="sm" className="gap-1" onClick={handleOpenArticle}>
+            <ExternalLink className="h-4 w-4" />
+            <span className="hidden sm:inline">Read Article</span>
+          </Button>
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleShare}>
             <Share2 className="h-4 w-4" />
           </Button>
