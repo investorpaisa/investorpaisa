@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useUserCircles } from '@/hooks/useCircles';
+import { useProfileData } from '@/hooks/useProfileData'; 
 import { 
   Popover,
   PopoverContent,
@@ -35,6 +37,7 @@ const mockUsers = [
 
 export function CreatePostForm({ onSuccess, onCancel, circleId, compact = false, onPostCreated }: CreatePostFormProps) {
   const { user } = useAuth();
+  const { addPostToProfile } = useProfileData();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('');
@@ -98,6 +101,7 @@ export function CreatePostForm({ onSuccess, onCancel, circleId, compact = false,
     setLoading(true);
 
     try {
+      // In a real app, this would be an API call to create the post
       setTimeout(() => {
         let successMessage = 'Post created successfully';
         
@@ -109,6 +113,8 @@ export function CreatePostForm({ onSuccess, onCancel, circleId, compact = false,
           successMessage = `Post sent to ${userName}`;
         }
         
+        const categoryName = category ? categories.find(c => c.id === category)?.name : undefined;
+        
         const newPost = {
           id: Math.floor(Math.random() * 1000).toString(),
           author: {
@@ -118,7 +124,7 @@ export function CreatePostForm({ onSuccess, onCancel, circleId, compact = false,
             role: user?.role || 'user',
             verified: false,
           },
-          category: category,
+          category: categoryName,
           title: title,
           content: content,
           timestamp: 'Just now',
@@ -130,8 +136,14 @@ export function CreatePostForm({ onSuccess, onCancel, circleId, compact = false,
         
         toast.success(successMessage);
         
+        // Add post to feed via callback
         if (onPostCreated) {
           onPostCreated(newPost);
+        }
+        
+        // Add post to profile
+        if (addPostToProfile) {
+          addPostToProfile(newPost);
         }
         
         setTitle('');

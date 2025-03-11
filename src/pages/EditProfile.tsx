@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,33 +11,85 @@ import { ChevronLeft, Upload, Save, Trash } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfileData } from '@/hooks/useProfileData';
 
 const EditProfile = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, updateUserProfile } = useAuth();
+  const { profileData, loading, refreshProfile } = useProfileData();
   
   // Public Profile States
-  const [name, setName] = useState(user?.name || '');
-  const [bio, setBio] = useState(user?.bio || '');
-  const [userId, setUserId] = useState(user?.username || '');
+  const [name, setName] = useState('');
+  const [bio, setBio] = useState('');
+  const [username, setUsername] = useState('');
   const [career, setCareer] = useState('');
   const [education, setEducation] = useState('');
   const [certifications, setCertifications] = useState('');
   const [achievements, setAchievements] = useState('');
   const [location, setLocation] = useState('');
   const [interests, setInterests] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Load profile data when component mounts
+  useEffect(() => {
+    if (profileData && !loading) {
+      setName(profileData.name || '');
+      setBio(profileData.bio || '');
+      setUsername(profileData.username || '');
+      setCareer(profileData.career || '');
+      setEducation(profileData.education || '');
+      setCertifications(profileData.certifications || '');
+      setAchievements(profileData.achievements || '');
+      setLocation(profileData.location || '');
+      setInterests(profileData.interests || []);
+    }
+  }, [profileData, loading]);
 
   // Function to handle profile update
   const handleUpdateProfile = async () => {
     try {
+      setIsSubmitting(true);
+      
+      // Create updated profile object
+      const updatedProfile = {
+        name,
+        bio,
+        username,
+        career,
+        education,
+        certifications,
+        achievements,
+        location,
+        interests
+      };
+      
       // In a real app, this would be an API call to update the profile
+      // For now, we'll update locally and show a success message
       setTimeout(() => {
+        // Update auth context with new profile data
+        if (updateUserProfile) {
+          updateUserProfile({
+            ...user,
+            name,
+            username,
+            bio
+          });
+        }
+        
         toast.success('Profile updated successfully');
+        
+        // Refresh profile data
+        if (refreshProfile) {
+          refreshProfile(updatedProfile);
+        }
+        
+        setIsSubmitting(false);
         navigate('/profile');
       }, 1000);
     } catch (error) {
       console.error('Error updating profile:', error);
       toast.error('Failed to update profile. Please try again.');
+      setIsSubmitting(false);
     }
   };
 
@@ -59,6 +111,10 @@ const EditProfile = () => {
       }
     }
   };
+
+  if (loading) {
+    return <div className="flex justify-center items-center h-64">Loading profile data...</div>;
+  }
 
   return (
     <div className="container max-w-2xl mx-auto py-6 space-y-6">
@@ -103,12 +159,12 @@ const EditProfile = () => {
             </div>
             
             <div className="grid gap-2">
-              <Label htmlFor="userId">User ID</Label>
+              <Label htmlFor="username">Username</Label>
               <Input
-                id="userId"
-                value={userId}
-                onChange={(e) => setUserId(e.target.value)}
-                placeholder="Your unique user ID"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Your unique username"
               />
               <p className="text-xs text-muted-foreground">This will be your @username for others to find you</p>
             </div>
@@ -211,14 +267,12 @@ const EditProfile = () => {
           <Button variant="outline" onClick={() => navigate('/profile')}>
             Cancel
           </Button>
-          <Button onClick={handleUpdateProfile}>
+          <Button onClick={handleUpdateProfile} disabled={isSubmitting}>
             <Save className="h-4 w-4 mr-2" />
-            Save Changes
+            {isSubmitting ? 'Saving...' : 'Save Changes'}
           </Button>
         </CardFooter>
       </Card>
-
-      {/* Private Profile section could be added here but omitting for now since it requires API integration */}
     </div>
   );
 };

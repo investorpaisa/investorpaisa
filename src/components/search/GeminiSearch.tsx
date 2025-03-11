@@ -1,226 +1,263 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Search, X, Sparkles, TrendingUp, Users, User, ArrowRight } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import React, { useState, useRef, useEffect } from 'react';
+import { Input } from "@/components/ui/input";
+import { Search, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { motion, AnimatePresence } from 'framer-motion';
-import TrendingTopics from '@/components/feed/TrendingTopics';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useNavigate } from 'react-router-dom';
 
-interface GeminiSearchProps {
-  expanded: boolean;
-  onExpandToggle: (expanded: boolean) => void;
-  trendingTopics: any[];
+interface SearchResult {
+  id: string;
+  type: 'category' | 'post' | 'influencer' | 'circle';
+  title: string;
+  subtitle?: string;
+  avatar?: string;
 }
 
-export const GeminiSearch = ({ expanded, onExpandToggle, trendingTopics }: GeminiSearchProps) => {
+interface GeminiSearchProps {
+  expanded?: boolean;
+  onExpandToggle?: (expanded: boolean) => void;
+  trendingTopics?: any[];
+}
+
+export function GeminiSearch({ expanded = false, onExpandToggle, trendingTopics = [] }: GeminiSearchProps) {
+  const [isExpanded, setIsExpanded] = useState(expanded);
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
-  const isMobile = useIsMobile();
-  const [searchSuggestions] = useState([
-    { title: 'Mutual Fund Returns', category: 'Investment' },
-    { title: 'Tax Saving Strategies', category: 'Tax Planning' },
-    { title: 'Stock Market Analysis', category: 'Markets' },
-    { title: 'Retirement Planning', category: 'Personal Finance' },
-  ]);
-  
-  const [recentSearches] = useState([
-    { type: 'user', name: 'Rajan Mehta', username: '@rajan_investor', avatar: '/placeholder.svg' },
-    { type: 'circle', name: 'Stock Market Experts', members: 1245, avatar: '/placeholder.svg' },
-    { type: 'topic', name: 'Dividend Investing', posts: 564 },
-  ]);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (expanded && inputRef.current) {
+  // Toggle search expansion
+  const toggleExpanded = () => {
+    const newState = !isExpanded;
+    setIsExpanded(newState);
+    if (onExpandToggle) {
+      onExpandToggle(newState);
+    }
+    if (newState && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [expanded]);
-
-  const handleExpand = () => {
-    onExpandToggle(true);
   };
 
-  const handleCollapse = () => {
-    onExpandToggle(false);
+  // Close search
+  const closeSearch = () => {
+    setIsExpanded(false);
     setQuery('');
+    setSearchResults([]);
+    if (onExpandToggle) {
+      onExpandToggle(false);
+    }
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    // In a real app, this would search and navigate to results
-    console.log('Searching for:', query);
+  // Handle input changes
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
+    if (e.target.value.length > 2) {
+      performSearch(e.target.value);
+    } else {
+      setSearchResults([]);
+    }
+  };
+
+  // Mock search function - replace with real API call
+  const performSearch = (searchQuery: string) => {
+    setLoading(true);
+    
+    // Simulate API delay
+    setTimeout(() => {
+      // Mock results based on query
+      const results: SearchResult[] = [
+        {
+          id: '1',
+          type: 'category',
+          title: 'Mutual Funds',
+          subtitle: '245 posts'
+        },
+        {
+          id: '2',
+          type: 'category',
+          title: 'Tax Planning',
+          subtitle: '189 posts'
+        },
+        {
+          id: '3',
+          type: 'post',
+          title: 'How to save taxes with ELSS investments',
+          subtitle: 'Posted by Rahul Sharma'
+        },
+        {
+          id: '4',
+          type: 'influencer',
+          title: 'Priya Mehta',
+          subtitle: '@priya_finance',
+          avatar: 'https://i.pravatar.cc/150?u=priya'
+        },
+        {
+          id: '5',
+          type: 'circle',
+          title: 'Tax Saving Circle',
+          subtitle: '1,245 members',
+        }
+      ].filter(result => 
+        result.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (result.subtitle && result.subtitle.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+      
+      setSearchResults(results);
+      setLoading(false);
+    }, 300);
+  };
+
+  // Focus the input when expanded
+  useEffect(() => {
+    if (isExpanded && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isExpanded]);
+
+  // Handle result click
+  const handleResultClick = (result: SearchResult) => {
+    switch (result.type) {
+      case 'category':
+        navigate(`/category/${result.id}`);
+        break;
+      case 'post':
+        navigate(`/post/${result.id}`);
+        break;
+      case 'influencer':
+        navigate(`/profile/${result.id}`);
+        break;
+      case 'circle':
+        navigate(`/circle/${result.id}`);
+        break;
+    }
+    closeSearch();
   };
 
   return (
-    <div className={`w-full ${isMobile ? 'px-2' : ''}`}>
-      <AnimatePresence>
-        {!expanded ? (
-          <motion.div 
-            initial={{ opacity: 0.8 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="relative"
-          >
-            <div 
-              className="h-12 px-4 border rounded-full flex items-center cursor-pointer bg-white shadow-sm hover:shadow-md transition-shadow"
-              onClick={handleExpand}
+    <div className={`relative w-full ${isExpanded ? 'z-50' : ''}`}>
+      <div className="relative max-w-4xl mx-auto">
+        <div className={`flex items-center relative rounded-lg border bg-background ${isExpanded ? 'border-input' : 'border-muted'}`}>
+          <Search className="absolute left-2.5 h-4 w-4 text-muted-foreground" />
+          
+          <Input
+            ref={inputRef}
+            type="text"
+            placeholder="Search for people, topics, and posts..."
+            value={query}
+            onChange={handleInputChange}
+            className={`pl-9 focus-visible:ring-0 border-none shadow-none ${isExpanded ? '' : 'cursor-pointer'}`}
+            onClick={toggleExpanded}
+          />
+          
+          {isExpanded && query && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="absolute right-1 h-7 w-7" 
+              onClick={() => setQuery('')}
             >
-              <Search className="w-5 h-5 text-muted-foreground mr-2" />
-              <span className="text-muted-foreground text-sm truncate">Search financial topics, news, or stocks...</span>
-              <div className="ml-auto flex items-center">
-                <div className="w-5 h-5 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center mr-1">
-                  <Sparkles className="w-3 h-3 text-white" />
-                </div>
-                <span className="text-xs font-medium bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent mr-1">AI</span>
-              </div>
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 bg-background z-50 pb-4 overflow-auto"
-            style={{ top: 0 }}
-          >
-            <div className="max-w-6xl mx-auto px-4 py-4">
-              <form onSubmit={handleSearch}>
-                <div className="flex items-center mb-6">
-                  <div className="relative flex-1">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                      <Search className="h-5 w-5" />
-                    </div>
-                    <Input
-                      ref={inputRef}
-                      type="text"
-                      placeholder="Search with AI assistance..."
-                      className="w-full h-12 pl-10 pr-12 rounded-full text-base focus-visible:ring-gold focus-visible:ring-offset-2 border-gray-300 shadow-sm"
-                      value={query}
-                      onChange={(e) => setQuery(e.target.value)}
-                    />
-                    {query && (
-                      <button
-                        type="button"
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                        onClick={() => setQuery('')}
-                      >
-                        <X className="h-5 w-5" />
-                      </button>
-                    )}
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="ml-2"
-                    onClick={handleCollapse}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-
-              <div className="max-w-4xl mx-auto">
-                {/* Recent Searches */}
-                <div className="mb-8">
-                  <h3 className="font-medium text-lg mb-4 flex items-center">
-                    <TrendingUp className="mr-2 h-5 w-5 text-gold" />
-                    Recent Searches
-                  </h3>
-                  <div className="space-y-3">
-                    {recentSearches.map((item, index) => (
-                      <div 
-                        key={index} 
-                        className="flex items-center p-3 border rounded-xl hover:bg-muted/30 cursor-pointer transition-colors"
-                      >
-                        {item.type === 'user' ? (
-                          <>
-                            <Avatar className="h-10 w-10 mr-3">
-                              <AvatarImage src={item.avatar} alt={item.name} />
-                              <AvatarFallback>{item.name[0]}</AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1">
-                              <div className="flex items-center">
-                                <h4 className="font-medium">{item.name}</h4>
-                                <Badge variant="outline" className="ml-2 bg-blue-50 text-blue-700">User</Badge>
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+        
+        {isExpanded && (
+          <div className="absolute top-full left-0 right-0 mt-1 p-2 rounded-lg border bg-background shadow-md max-h-[80vh] overflow-hidden flex flex-col">
+            {query.length > 0 ? (
+              <>
+                {loading ? (
+                  <div className="py-10 text-center text-muted-foreground">Searching...</div>
+                ) : (
+                  <ScrollArea className="max-h-[60vh]">
+                    {searchResults.length > 0 ? (
+                      <div className="space-y-1 p-1">
+                        {searchResults.map((result) => (
+                          <div 
+                            key={`${result.type}-${result.id}`}
+                            className="flex items-center gap-3 p-2 rounded-md hover:bg-muted cursor-pointer"
+                            onClick={() => handleResultClick(result)}
+                          >
+                            {result.type === 'influencer' && result.avatar ? (
+                              <div className="rounded-full h-10 w-10 overflow-hidden">
+                                <img src={result.avatar} alt={result.title} className="h-full w-full object-cover" />
                               </div>
-                              <p className="text-xs text-muted-foreground">{item.username}</p>
-                            </div>
-                          </>
-                        ) : item.type === 'circle' ? (
-                          <>
-                            <div className="h-10 w-10 rounded-full bg-gold/20 flex items-center justify-center mr-3">
-                              <Users className="h-5 w-5 text-gold" />
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex items-center">
-                                <h4 className="font-medium">{item.name}</h4>
-                                <Badge variant="outline" className="ml-2 bg-purple-50 text-purple-700">Circle</Badge>
+                            ) : (
+                              <div className={`
+                                h-10 w-10 flex items-center justify-center rounded-md
+                                ${result.type === 'category' ? 'bg-blue-100 text-blue-500' : 
+                                  result.type === 'post' ? 'bg-green-100 text-green-500' : 
+                                  result.type === 'circle' ? 'bg-purple-100 text-purple-500' : 'bg-gray-100 text-gray-500'}
+                              `}>
+                                {result.type === 'category' ? '#' : 
+                                 result.type === 'post' ? 'P' : 
+                                 result.type === 'circle' ? 'C' : '@'}
                               </div>
-                              <p className="text-xs text-muted-foreground">{item.members} members</p>
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center mr-3">
-                              <TrendingUp className="h-5 w-5 text-blue-500" />
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex items-center">
-                                <h4 className="font-medium">{item.name}</h4>
-                                <Badge variant="outline" className="ml-2 bg-green-50 text-green-700">Topic</Badge>
+                            )}
+                            
+                            <div>
+                              <div className="font-medium">{result.title}</div>
+                              <div className="text-xs text-muted-foreground flex items-center gap-2">
+                                <Badge 
+                                  variant="outline" 
+                                  className={`
+                                    text-[10px] py-0 h-4
+                                    ${result.type === 'category' ? 'bg-blue-50 text-blue-500' : 
+                                      result.type === 'post' ? 'bg-green-50 text-green-500' : 
+                                      result.type === 'influencer' ? 'bg-orange-50 text-orange-500' : 
+                                      'bg-purple-50 text-purple-500'}
+                                  `}
+                                >
+                                  {result.type === 'category' ? 'Category' : 
+                                   result.type === 'post' ? 'Post' : 
+                                   result.type === 'influencer' ? 'Influencer' : 'Circle'}
+                                </Badge>
+                                <span>{result.subtitle}</span>
                               </div>
-                              <p className="text-xs text-muted-foreground">{item.posts} posts</p>
                             </div>
-                          </>
-                        )}
-                        <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mb-8">
-                  <h3 className="font-medium text-lg mb-4 flex items-center">
-                    <Sparkles className="mr-2 h-5 w-5 text-gold" />
-                    Suggested Searches
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {searchSuggestions.map((suggestion, index) => (
-                      <Card 
-                        key={index} 
-                        className="cursor-pointer hover:shadow-md transition-shadow border-gold/10 hover:border-gold/30"
-                        onClick={() => setQuery(suggestion.title)}
-                      >
-                        <CardContent className="flex items-start p-4">
-                          <div className="mr-3 mt-1 w-8 h-8 rounded-full bg-gradient-to-r from-gold/60 to-gold flex items-center justify-center">
-                            <Sparkles className="w-4 h-4 text-white" />
-                          </div>
-                          <div>
-                            <h4 className="font-medium">{suggestion.title}</h4>
-                            <p className="text-xs text-muted-foreground mt-1">{suggestion.category}</p>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="font-medium text-lg mb-4 flex items-center">
-                    <TrendingUp className="mr-2 h-5 w-5 text-gold" />
-                    Trending Topics
-                  </h3>
-                  <TrendingTopics topics={trendingTopics} />
+                    ) : (
+                      <div className="py-10 text-center text-muted-foreground">No results found</div>
+                    )}
+                  </ScrollArea>
+                )}
+              </>
+            ) : (
+              <div className="p-2">
+                <h3 className="text-sm font-medium mb-2">Trending Categories</h3>
+                <div className="flex flex-wrap gap-2">
+                  {trendingTopics?.slice(0, 8).map((topic, index) => (
+                    <Badge 
+                      key={index} 
+                      variant="outline"
+                      className="cursor-pointer hover:bg-muted transition-colors"
+                      onClick={() => {
+                        setQuery(topic.topic);
+                        performSearch(topic.topic);
+                      }}
+                    >
+                      {topic.topic}
+                    </Badge>
+                  ))}
                 </div>
               </div>
+            )}
+            
+            <div className="pt-3 mt-3 border-t flex justify-between">
+              <div className="text-xs text-muted-foreground">
+                Press ESC to close
+              </div>
+              <Button size="sm" variant="outline" onClick={closeSearch}>
+                Close
+              </Button>
             </div>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+      </div>
     </div>
   );
-};
+}

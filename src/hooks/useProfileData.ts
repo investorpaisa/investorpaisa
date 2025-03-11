@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProfileData } from '@/types/profile';
 
@@ -8,17 +8,17 @@ export const useProfileData = () => {
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // In a real app, we would fetch this data from an API
-    // For now, we're using mock data based on the current user
+  // Function to load profile data
+  const loadProfileData = useCallback(() => {
     setLoading(true);
     
-    // Mock profile data
+    // In a real app, we would fetch this data from an API
+    // For now, we're using mock data based on the current user
     const mockProfile: ProfileData = {
       name: user?.name || "Jai Sharma",
       username: user?.username || "@jaisharma",
       avatar: user?.avatar || "/placeholder.svg",
-      bio: "SEBI Registered Investment Advisor with 8+ years of experience. Specializing in equity investments, retirement planning, and tax optimization strategies for young professionals.",
+      bio: user?.bio || "SEBI Registered Investment Advisor with 8+ years of experience. Specializing in equity investments, retirement planning, and tax optimization strategies for young professionals.",
       location: "Mumbai, India",
       career: "Financial Advisor at XYZ Investments (2018-Present), Associate at ABC Financial Services (2015-2018)",
       education: "MBA Finance, IIM Ahmedabad (2016), B.Com, Delhi University (2013)",
@@ -74,5 +74,59 @@ export const useProfileData = () => {
     setLoading(false);
   }, [user]);
 
-  return { profileData, loading };
+  // Load profile data when user changes
+  useEffect(() => {
+    loadProfileData();
+  }, [loadProfileData]);
+
+  // Function to refresh profile data with updates
+  const refreshProfile = useCallback((updatedData: Partial<ProfileData>) => {
+    setProfileData(prevData => {
+      if (!prevData) return null;
+      return { ...prevData, ...updatedData };
+    });
+  }, []);
+
+  // Function to add a post to the profile
+  const addPostToProfile = useCallback((newPost: any) => {
+    setProfileData(prevData => {
+      if (!prevData) return null;
+      
+      // Create a post object in the expected format
+      const profilePost = {
+        id: newPost.id,
+        title: newPost.title,
+        content: newPost.content,
+        likes: newPost.likes || 0,
+        comments: newPost.comments || 0,
+        date: newPost.timestamp || "Just now",
+        isShared: false
+      };
+      
+      return {
+        ...prevData,
+        posts: [profilePost, ...(prevData.posts || [])]
+      };
+    });
+  }, []);
+
+  // Function to add an interaction to the profile
+  const addInteractionToProfile = useCallback((interaction: any) => {
+    setProfileData(prevData => {
+      if (!prevData) return null;
+      
+      return {
+        ...prevData,
+        interactions: [interaction, ...(prevData.interactions || [])]
+      };
+    });
+  }, []);
+
+  return { 
+    profileData, 
+    loading, 
+    refreshProfile, 
+    addPostToProfile, 
+    addInteractionToProfile 
+  };
 };
