@@ -1,263 +1,173 @@
 
-import React, { useState, useRef, useEffect } from 'react';
-import { Input } from "@/components/ui/input";
-import { Search, X } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from '@/components/ui/scroll-area';
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { useIsMobile } from '@/hooks/use-mobile';
+
+type SearchResultType = 'circle' | 'category' | 'post' | 'influencer';
 
 interface SearchResult {
   id: string;
-  type: 'category' | 'post' | 'influencer' | 'circle';
+  type: SearchResultType;
   title: string;
-  subtitle?: string;
+  subtitle: string;
   avatar?: string;
 }
 
 interface GeminiSearchProps {
-  expanded?: boolean;
-  onExpandToggle?: (expanded: boolean) => void;
-  trendingTopics?: any[];
+  expanded: boolean;
+  onExpandToggle: (expanded: boolean) => void;
+  trendingTopics?: { id: string; name: string }[];
 }
 
-export function GeminiSearch({ expanded = false, onExpandToggle, trendingTopics = [] }: GeminiSearchProps) {
-  const [isExpanded, setIsExpanded] = useState(expanded);
-  const [query, setQuery] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
+export const GeminiSearch = ({ expanded, onExpandToggle, trendingTopics = [] }: GeminiSearchProps) => {
+  const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const searchRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const isMobile = useIsMobile();
 
-  // Toggle search expansion
-  const toggleExpanded = () => {
-    const newState = !isExpanded;
-    setIsExpanded(newState);
-    if (onExpandToggle) {
-      onExpandToggle(newState);
-    }
-    if (newState && inputRef.current) {
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        onExpandToggle(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [onExpandToggle]);
+
+  useEffect(() => {
+    if (expanded && inputRef.current) {
       inputRef.current.focus();
     }
-  };
+  }, [expanded]);
 
-  // Close search
-  const closeSearch = () => {
-    setIsExpanded(false);
-    setQuery('');
-    setSearchResults([]);
-    if (onExpandToggle) {
-      onExpandToggle(false);
-    }
-  };
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
 
-  // Handle input changes
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setQuery(e.target.value);
-    if (e.target.value.length > 2) {
-      performSearch(e.target.value);
+    if (value.trim()) {
+      // Mock search results
+      const results: SearchResult[] = [
+        { id: '1', type: 'circle' as SearchResultType, title: 'Investment Circle', subtitle: '1.2k members' },
+        { id: '2', type: 'category' as SearchResultType, title: 'Tax Planning', subtitle: '245 posts' },
+        { id: '3', type: 'post' as SearchResultType, title: 'How to minimize tax liability', subtitle: 'by John Smith' },
+        { id: '4', type: 'influencer' as SearchResultType, title: 'Jane Doe', subtitle: 'Financial Advisor', avatar: 'https://i.pravatar.cc/150?u=jane' },
+        { id: '5', type: 'circle' as SearchResultType, title: 'Retirement Planning', subtitle: '3.4k members' },
+        { id: '6', type: 'influencer' as SearchResultType, title: 'Mike Wilson', subtitle: 'Tax Expert', avatar: 'https://i.pravatar.cc/150?u=mike' },
+      ];
+      setSearchResults(results);
     } else {
       setSearchResults([]);
     }
   };
 
-  // Mock search function - replace with real API call
-  const performSearch = (searchQuery: string) => {
-    setLoading(true);
-    
-    // Simulate API delay
-    setTimeout(() => {
-      // Mock results based on query with proper type annotations
-      const results: SearchResult[] = [
-        {
-          id: '1',
-          type: 'category',
-          title: 'Mutual Funds',
-          subtitle: '245 posts'
-        },
-        {
-          id: '2',
-          type: 'category',
-          title: 'Tax Planning',
-          subtitle: '189 posts'
-        },
-        {
-          id: '3',
-          type: 'post',
-          title: 'How to save taxes with ELSS investments',
-          subtitle: 'Posted by Rahul Sharma'
-        },
-        {
-          id: '4',
-          type: 'influencer',
-          title: 'Priya Mehta',
-          subtitle: '@priya_finance',
-          avatar: 'https://i.pravatar.cc/150?u=priya'
-        },
-        {
-          id: '5',
-          type: 'circle',
-          title: 'Tax Saving Circle',
-          subtitle: '1,245 members',
-        }
-      ].filter(result => 
-        result.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (result.subtitle && result.subtitle.toLowerCase().includes(searchQuery.toLowerCase()))
-      );
-      
-      setSearchResults(results);
-      setLoading(false);
-    }, 300);
+  const handleToggleSearch = () => {
+    onExpandToggle(!expanded);
   };
 
-  // Focus the input when expanded
-  useEffect(() => {
-    if (isExpanded && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [isExpanded]);
-
-  // Handle result click
-  const handleResultClick = (result: SearchResult) => {
-    switch (result.type) {
-      case 'category':
-        navigate(`/category/${result.id}`);
-        break;
-      case 'post':
-        navigate(`/post/${result.id}`);
-        break;
-      case 'influencer':
-        navigate(`/profile/${result.id}`);
-        break;
-      case 'circle':
-        navigate(`/circle/${result.id}`);
-        break;
-    }
-    closeSearch();
+  const handleClear = () => {
+    setSearchTerm('');
+    setSearchResults([]);
   };
 
   return (
-    <div className={`relative w-full ${isExpanded ? 'z-50' : ''}`}>
-      <div className="relative max-w-4xl mx-auto">
-        <div className={`flex items-center relative rounded-lg border bg-background ${isExpanded ? 'border-input' : 'border-muted'}`}>
-          <Search className="absolute left-2.5 h-4 w-4 text-muted-foreground" />
-          
-          <Input
-            ref={inputRef}
-            type="text"
-            placeholder="Search for people, topics, and posts..."
-            value={query}
-            onChange={handleInputChange}
-            className={`pl-9 focus-visible:ring-0 border-none shadow-none ${isExpanded ? '' : 'cursor-pointer'}`}
-            onClick={toggleExpanded}
-          />
-          
-          {isExpanded && query && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="absolute right-1 h-7 w-7" 
-              onClick={() => setQuery('')}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
+    <div ref={searchRef} className={`relative ${expanded ? 'w-full' : ''}`}>
+      <div className={`flex items-center gap-2 ${expanded ? 'bg-background border rounded-md shadow-sm px-3 py-2' : ''}`}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-9 w-9"
+          onClick={handleToggleSearch}
+        >
+          <Search className="h-4 w-4" />
+        </Button>
         
-        {isExpanded && (
-          <div className="absolute top-full left-0 right-0 mt-1 p-2 rounded-lg border bg-background shadow-md max-h-[80vh] overflow-hidden flex flex-col">
-            {query.length > 0 ? (
-              <>
-                {loading ? (
-                  <div className="py-10 text-center text-muted-foreground">Searching...</div>
-                ) : (
-                  <ScrollArea className="max-h-[60vh]">
-                    {searchResults.length > 0 ? (
-                      <div className="space-y-1 p-1">
-                        {searchResults.map((result) => (
-                          <div 
-                            key={`${result.type}-${result.id}`}
-                            className="flex items-center gap-3 p-2 rounded-md hover:bg-muted cursor-pointer"
-                            onClick={() => handleResultClick(result)}
-                          >
-                            {result.type === 'influencer' && result.avatar ? (
-                              <div className="rounded-full h-10 w-10 overflow-hidden">
-                                <img src={result.avatar} alt={result.title} className="h-full w-full object-cover" />
-                              </div>
-                            ) : (
-                              <div className={`
-                                h-10 w-10 flex items-center justify-center rounded-md
-                                ${result.type === 'category' ? 'bg-blue-100 text-blue-500' : 
-                                  result.type === 'post' ? 'bg-green-100 text-green-500' : 
-                                  result.type === 'circle' ? 'bg-purple-100 text-purple-500' : 'bg-gray-100 text-gray-500'}
-                              `}>
-                                {result.type === 'category' ? '#' : 
-                                 result.type === 'post' ? 'P' : 
-                                 result.type === 'circle' ? 'C' : '@'}
-                              </div>
-                            )}
-                            
-                            <div>
-                              <div className="font-medium">{result.title}</div>
-                              <div className="text-xs text-muted-foreground flex items-center gap-2">
-                                <Badge 
-                                  variant="outline" 
-                                  className={`
-                                    text-[10px] py-0 h-4
-                                    ${result.type === 'category' ? 'bg-blue-50 text-blue-500' : 
-                                      result.type === 'post' ? 'bg-green-50 text-green-500' : 
-                                      result.type === 'influencer' ? 'bg-orange-50 text-orange-500' : 
-                                      'bg-purple-50 text-purple-500'}
-                                  `}
-                                >
-                                  {result.type === 'category' ? 'Category' : 
-                                   result.type === 'post' ? 'Post' : 
-                                   result.type === 'influencer' ? 'Influencer' : 'Circle'}
-                                </Badge>
-                                <span>{result.subtitle}</span>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+        {expanded && (
+          <>
+            <Input
+              ref={inputRef}
+              type="text"
+              placeholder="Search investors, topics, or posts..."
+              className="flex-1 border-none shadow-none focus-visible:ring-0 pl-0"
+              value={searchTerm}
+              onChange={handleSearchChange}
+            />
+            {searchTerm && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={handleClear}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </>
+        )}
+      </div>
+      
+      {expanded && (
+        <div className={`absolute left-0 right-0 top-full mt-1 bg-background border rounded-md shadow-lg py-2 z-50 ${isMobile ? 'min-h-[60vh]' : ''}`}>
+          <ScrollArea className={isMobile ? 'h-[60vh]' : 'max-h-[400px]'}>
+            {searchResults.length > 0 ? (
+              <div className="space-y-1">
+                {searchResults.map((result) => (
+                  <div
+                    key={result.id}
+                    className="px-3 py-2 hover:bg-muted/50 cursor-pointer flex items-center gap-3"
+                  >
+                    {result.avatar ? (
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={result.avatar} />
+                        <AvatarFallback>{result.title.substring(0, 2)}</AvatarFallback>
+                      </Avatar>
                     ) : (
-                      <div className="py-10 text-center text-muted-foreground">No results found</div>
+                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                        <span className="text-xs text-primary font-medium">
+                          {result.type === 'circle' ? 'C' : 
+                           result.type === 'category' ? '#' : 
+                           result.type === 'post' ? 'P' : 'U'}
+                        </span>
+                      </div>
                     )}
-                  </ScrollArea>
-                )}
-              </>
+                    <div>
+                      <p className="text-sm font-medium">{result.title}</p>
+                      <p className="text-xs text-muted-foreground">{result.subtitle}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : searchTerm ? (
+              <div className="px-4 py-8 text-center">
+                <p className="text-muted-foreground">No results found</p>
+                <p className="text-xs text-muted-foreground mt-1">Try a different search term</p>
+              </div>
             ) : (
-              <div className="p-2">
-                <h3 className="text-sm font-medium mb-2">Trending Categories</h3>
+              <div className="px-3 py-2">
+                <h3 className="text-sm font-medium mb-2">Trending Topics</h3>
                 <div className="flex flex-wrap gap-2">
-                  {trendingTopics?.slice(0, 8).map((topic, index) => (
-                    <Badge 
-                      key={index} 
-                      variant="outline"
-                      className="cursor-pointer hover:bg-muted transition-colors"
-                      onClick={() => {
-                        setQuery(topic.topic);
-                        performSearch(topic.topic);
-                      }}
+                  {trendingTopics.map((topic) => (
+                    <div
+                      key={topic.id}
+                      className="px-2 py-1 bg-muted rounded-md text-xs cursor-pointer hover:bg-muted/70"
                     >
-                      {topic.topic}
-                    </Badge>
+                      {topic.name}
+                    </div>
                   ))}
                 </div>
               </div>
             )}
-            
-            <div className="pt-3 mt-3 border-t flex justify-between">
-              <div className="text-xs text-muted-foreground">
-                Press ESC to close
-              </div>
-              <Button size="sm" variant="outline" onClick={closeSearch}>
-                Close
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
+          </ScrollArea>
+        </div>
+      )}
     </div>
   );
-}
+};
