@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import NewsSection from '@/components/news/NewsSection';
 import TrendingTopics from '@/components/feed/TrendingTopics';
