@@ -10,7 +10,13 @@ import {
 export const useUserCircles = (userId: string | undefined) => {
   return useQuery({
     queryKey: ['userCircles', userId],
-    queryFn: () => userId ? getUserCircles(userId) : Promise.resolve([]),
+    queryFn: () => userId ? getUserCircles(userId).then(circles => 
+      // Add isPinned property to some circles for demo
+      circles.map((circle, index) => ({
+        ...circle,
+        isPinned: index % 3 === 0 // Demo: Every 3rd circle is pinned
+      }))
+    ) : Promise.resolve([]),
     enabled: !!userId,
   });
 };

@@ -10,7 +10,6 @@ import Index from '@/pages/Index';
 import Login from '@/pages/auth/Login';
 import Register from '@/pages/auth/Register';
 import Home from '@/pages/Home';
-import Inbox from '@/pages/Inbox';
 import ProfileNew from '@/pages/ProfileNew';
 import EditProfile from '@/pages/EditProfile';
 import Landing from '@/pages/Landing';
@@ -46,10 +45,11 @@ function App() {
           <Route path="home" element={<Home />} />
           <Route path="market" element={<Market />} />
           <Route path="mycircle" element={<Circles />} />
-          <Route path="inbox" element={<Inbox />} />
+          <Route path="notifications" element={<Home />} /> {/* Temporarily redirecting to Home */}
           <Route path="profile" element={<ProfileNew />} />
+          <Route path="profile/:id" element={<ProfileNew />} />
           <Route path="edit-profile" element={<EditProfile />} />
-          <Route path="app/circles/:id" element={<Circle />} />
+          <Route path="circles/:id" element={<Circle />} />
           <Route path="communities/:id" element={<Circle />} /> {/* Added for backward compatibility */}
           <Route path="app/dashboard" element={<Dashboard />} />
           

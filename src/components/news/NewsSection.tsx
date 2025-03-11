@@ -21,8 +21,9 @@ const NewsSection = ({ limit = 5 }: NewsSectionProps) => {
   const fetchNews = async () => {
     setIsLoading(true);
     try {
-      const latest = await getLatestNews(limit);
-      setLatestNews(latest);
+      // Update to use getTrendingNews instead of getLatestNews
+      const trending = await getTrendingNews(limit);
+      setLatestNews(trending);
     } catch (error) {
       console.error('Error fetching news:', error);
     } finally {
@@ -36,7 +37,7 @@ const NewsSection = ({ limit = 5 }: NewsSectionProps) => {
       await fetchNews();
       toast({
         title: 'News Refreshed',
-        description: 'Latest financial news has been loaded.',
+        description: 'Trending financial news has been loaded.',
       });
     } catch (error) {
       toast({
@@ -87,7 +88,7 @@ const NewsSection = ({ limit = 5 }: NewsSectionProps) => {
         <CardContent className="p-4 flex justify-center items-center min-h-[200px]">
           <div className="flex flex-col items-center space-y-4">
             <RefreshCw className="h-8 w-8 animate-spin text-ip-teal" />
-            <p className="text-sm text-muted-foreground">Loading financial news...</p>
+            <p className="text-sm text-muted-foreground">Loading trending news...</p>
           </div>
         </CardContent>
       </Card>
@@ -100,7 +101,7 @@ const NewsSection = ({ limit = 5 }: NewsSectionProps) => {
         <CardContent className="p-4 flex justify-center items-center min-h-[200px]">
           <div className="flex flex-col items-center space-y-4">
             <AlertCircle className="h-8 w-8 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">No financial news available at the moment.</p>
+            <p className="text-sm text-muted-foreground">No trending news available at the moment.</p>
             <Button variant="outline" size="sm" onClick={refreshNews} disabled={isRefreshing}>
               {isRefreshing ? (
                 <>
@@ -123,7 +124,8 @@ const NewsSection = ({ limit = 5 }: NewsSectionProps) => {
   return (
     <Card className="border shadow-sm">
       <CardContent className="p-4 space-y-4">
-        <div className="flex justify-end">
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-semibold">Trending</h2>
           <Button
             variant="outline"
             size="sm"

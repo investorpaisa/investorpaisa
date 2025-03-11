@@ -93,12 +93,12 @@ const Home = () => {
           />
         </div>
       )}
-      <div ref={containerRef}>
+      <div ref={containerRef} className="max-w-2xl mx-auto">
         <NewsPage />
         <CommentsDialog />
       </div>
     </>
   );
-};
+}
 
 export default Home;

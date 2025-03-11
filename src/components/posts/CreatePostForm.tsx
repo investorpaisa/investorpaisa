@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -7,9 +7,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Image, X, PlusCircle } from 'lucide-react';
+import { Image, X, PlusCircle, Users, User, Send } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useUserCircles } from '@/hooks/useCircles';
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover';
 
 interface CreatePostFormProps {
   onSuccess?: () => void;
@@ -17,6 +24,15 @@ interface CreatePostFormProps {
   circleId?: string;
   compact?: boolean;
 }
+
+// Mock users for search functionality
+const mockUsers = [
+  { id: '1', name: 'John Doe', username: 'johndoe', avatar: 'https://i.pravatar.cc/150?u=johndoe' },
+  { id: '2', name: 'Jane Smith', username: 'janesmith', avatar: 'https://i.pravatar.cc/150?u=janesmith' },
+  { id: '3', name: 'Alex Johnson', username: 'alexj', avatar: 'https://i.pravatar.cc/150?u=alexj' },
+  { id: '4', name: 'Sam Wilson', username: 'samw', avatar: 'https://i.pravatar.cc/150?u=samw' },
+  { id: '5', name: 'Taylor Green', username: 'tgreen', avatar: 'https://i.pravatar.cc/150?u=tgreen' },
+];
 
 export function CreatePostForm({ onSuccess, onCancel, circleId, compact = false }: CreatePostFormProps) {
   const { user } = useAuth();
@@ -26,6 +42,11 @@ export function CreatePostForm({ onSuccess, onCancel, circleId, compact = false 
   const [images, setImages] = useState<File[]>([]);
   const [isExpanded, setIsExpanded] = useState(!compact);
   const [loading, setLoading] = useState(false);
+  const [shareMode, setShareMode] = useState<'public' | 'circle' | 'user'>('public');
+  const [selectedCircle, setSelectedCircle] = useState<string | null>(circleId || null);
+  const [selectedUser, setSelectedUser] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const { data: userCircles = [] } = useUserCircles(user?.id);
 
   // Mock categories
   const categories = [
@@ -36,6 +57,13 @@ export function CreatePostForm({ onSuccess, onCancel, circleId, compact = false 
     { id: '5', name: 'Stock Market' },
     { id: '6', name: 'Personal Finance' },
   ];
+
+  useEffect(() => {
+    if (circleId) {
+      setShareMode('circle');
+      setSelectedCircle(circleId);
+    }
+  }, [circleId]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -49,6 +77,14 @@ export function CreatePostForm({ onSuccess, onCancel, circleId, compact = false 
     newImages.splice(index, 1);
     setImages(newImages);
   };
+
+  const filteredUsers = searchTerm
+    ? mockUsers.filter(
+        user => 
+          user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+          user.username.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : [];
 
   const handleSubmit = async () => {
     if (!title.trim()) {
@@ -66,12 +102,25 @@ export function CreatePostForm({ onSuccess, onCancel, circleId, compact = false 
     try {
       // In a real app, this would be an API call to create the post
       setTimeout(() => {
-        toast.success('Post created successfully');
+        let successMessage = 'Post created successfully';
+        
+        if (shareMode === 'circle' && selectedCircle) {
+          const circleName = userCircles.find(c => c.id === selectedCircle)?.name || 'circle';
+          successMessage = `Post shared to ${circleName}`;
+        } else if (shareMode === 'user' && selectedUser) {
+          const userName = mockUsers.find(u => u.id === selectedUser)?.name || 'user';
+          successMessage = `Post sent to ${userName}`;
+        }
+        
+        toast.success(successMessage);
         setTitle('');
         setContent('');
         setCategory('');
         setImages([]);
         setIsExpanded(false);
+        setShareMode('public');
+        setSelectedCircle(null);
+        setSelectedUser(null);
         if (onSuccess) onSuccess();
         setLoading(false);
       }, 1000);
@@ -107,11 +156,105 @@ export function CreatePostForm({ onSuccess, onCancel, circleId, compact = false 
               </Avatar>
               <div>
                 <p className="font-medium">{user?.name || 'User'}</p>
-                <p className="text-xs text-muted-foreground">
-                  {circleId ? 'Posting to circle' : 'Posting to your feed'}
-                </p>
+                <div className="text-xs text-muted-foreground">
+                  <Tabs 
+                    value={shareMode} 
+                    onValueChange={(value) => setShareMode(value as 'public' | 'circle' | 'user')}
+                    className="mt-1"
+                  >
+                    <TabsList className="h-7 bg-muted/50">
+                      <TabsTrigger value="public" className="text-xs h-5 px-2">Public Post</TabsTrigger>
+                      <TabsTrigger value="circle" className="text-xs h-5 px-2">Circle Post</TabsTrigger>
+                      <TabsTrigger value="user" className="text-xs h-5 px-2">Direct Message</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                </div>
               </div>
             </div>
+
+            {shareMode === 'circle' && (
+              <div className="space-y-2">
+                <Label htmlFor="circle">Select Circle</Label>
+                <Select 
+                  value={selectedCircle || ''} 
+                  onValueChange={setSelectedCircle}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a circle" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {userCircles.map((circle) => (
+                      <SelectItem key={circle.id} value={circle.id}>
+                        {circle.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {shareMode === 'user' && (
+              <div className="space-y-2">
+                <Label htmlFor="user">Send to User</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <div className="relative">
+                      <Input
+                        id="user"
+                        placeholder="Search by name or username..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full"
+                      />
+                      {selectedUser && (
+                        <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 px-2" 
+                            onClick={() => {
+                              setSelectedUser(null);
+                              setSearchTerm('');
+                            }}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[300px] p-0" align="start">
+                    {searchTerm && filteredUsers.length > 0 ? (
+                      <div className="max-h-[200px] overflow-y-auto">
+                        {filteredUsers.map((user) => (
+                          <div
+                            key={user.id}
+                            className="flex items-center gap-2 p-2 hover:bg-muted cursor-pointer"
+                            onClick={() => {
+                              setSelectedUser(user.id);
+                              setSearchTerm(user.name);
+                            }}
+                          >
+                            <Avatar className="h-6 w-6">
+                              <AvatarImage src={user.avatar} />
+                              <AvatarFallback>{user.name.substring(0, 2)}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="text-sm font-medium">{user.name}</p>
+                              <p className="text-xs text-muted-foreground">@{user.username}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-4 text-center text-sm text-muted-foreground">
+                        {searchTerm ? "No users found" : "Start typing to search users"}
+                      </div>
+                    )}
+                  </PopoverContent>
+                </Popover>
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="title">Title</Label>
@@ -134,7 +277,7 @@ export function CreatePostForm({ onSuccess, onCancel, circleId, compact = false 
               />
             </div>
 
-            {!circleId && (
+            {shareMode === 'public' && (
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
                 <Select value={category} onValueChange={setCategory}>
@@ -205,7 +348,11 @@ export function CreatePostForm({ onSuccess, onCancel, circleId, compact = false 
               </Button>
             )}
             <Button size="sm" onClick={handleSubmit} disabled={loading}>
-              {loading ? 'Posting...' : 'Post'}
+              {loading ? 'Posting...' : (
+                <>
+                  {shareMode === 'public' ? 'Post' : shareMode === 'circle' ? 'Post to Circle' : 'Send Message'}
+                </>
+              )}
             </Button>
           </div>
         </CardFooter>

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,9 +9,6 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   Home, 
-  Search, 
-  Bell, 
-  Mail, 
   PieChart, 
   Settings, 
   LogOut, 
@@ -19,7 +17,9 @@ import {
   ChevronRight,
   ChevronDown,
   Pin,
-  MoreHorizontal
+  MoreHorizontal,
+  MessageSquare,
+  Bell
 } from 'lucide-react';
 import { 
   DropdownMenu,
@@ -47,26 +47,20 @@ export function MainSidebar() {
       exact: true,
     },
     {
-      title: 'Discover',
-      icon: <Search className="h-5 w-5" />,
-      path: '/discover',
-    },
-    {
-      title: 'Notifications',
-      icon: <Bell className="h-5 w-5" />,
-      path: '/notifications',
-      badge: 3,
-    },
-    {
-      title: 'Messages',
-      icon: <Mail className="h-5 w-5" />,
-      path: '/inbox',
-      badge: 1,
-    },
-    {
       title: 'Market',
       icon: <PieChart className="h-5 w-5" />,
       path: '/market',
+    },
+    {
+      title: 'My Circle',
+      icon: <Users className="h-5 w-5" />,
+      path: '/mycircle',
+    },
+    {
+      title: 'Updates',
+      icon: <Bell className="h-5 w-5" />,
+      path: '/notifications',
+      badge: 3,
     },
   ];
 
@@ -83,7 +77,8 @@ export function MainSidebar() {
     toast.success('Circle pinned successfully');
   };
   
-  const circleSidebarItems = circles?.slice(0, circlesExpanded ? circles.length : 3) || [];
+  // Filter only pinned circles for display at the bottom
+  const pinnedCircles = circles?.filter(circle => circle.isPinned)?.slice(0, circlesExpanded ? circles.length : 3) || [];
 
   const renderContent = () => (
     <div className="flex h-full flex-col gap-2 py-4">
@@ -112,7 +107,11 @@ export function MainSidebar() {
           >
             <Button
               variant={pathname === item.path ? "default" : "ghost"}
-              className={`w-full justify-start ${pathname === item.path ? 'bg-ip-teal text-white' : ''}`}
+              className={`w-full justify-start ${
+                pathname === item.path 
+                  ? 'bg-black text-white' 
+                  : 'hover:text-ip-gold hover:bg-transparent'
+              }`}
             >
               {item.icon}
               <span className="ml-2">{item.title}</span>
@@ -126,84 +125,64 @@ export function MainSidebar() {
         ))}
       </div>
 
-      <Separator className="my-2" />
+      {pinnedCircles.length > 0 && (
+        <>
+          <Separator className="my-2" />
 
-      <div className="px-2">
-        <Button
-          variant="ghost"
-          className="w-full justify-between"
-          onClick={() => setCirclesExpanded(!circlesExpanded)}
-        >
-          <div className="flex items-center">
-            <Users className="h-5 w-5" />
-            <span className="ml-2">My Circles</span>
-          </div>
-          {circlesExpanded ? 
-            <ChevronDown className="h-4 w-4" /> : 
-            <ChevronRight className="h-4 w-4" />
-          }
-        </Button>
-
-        <div className="space-y-1 mt-1 pl-2">
-          {circleSidebarItems.map((circle) => (
-            <div key={circle.id} className="flex items-center group">
-              <Link
-                to={`/circles/${circle.id}`}
-                className="flex-1"
-                onClick={() => isMobile && setSidebarOpen(false)}
-              >
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start text-sm"
-                >
-                  {circle.name}
-                  {circle.hasNewPost && (
-                    <span className="h-2 w-2 rounded-full bg-ip-teal ml-2"></span>
-                  )}
-                </Button>
-              </Link>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => handlePinCircle(circle.id)}>
-                    <Pin className="h-4 w-4 mr-2" /> Pin Circle
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleCircleManagement(circle.id)}>
-                    <Settings className="h-4 w-4 mr-2" /> Manage Circle
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+          <div className="px-2">
+            <div className="flex items-center px-3 py-2">
+              <Pin className="h-4 w-4 mr-2 text-muted-foreground" />
+              <span className="text-sm font-medium">Pinned Circles</span>
             </div>
-          ))}
 
-          {circles && circles.length > 3 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full justify-start text-sm text-muted-foreground"
-              onClick={() => setCirclesExpanded(!circlesExpanded)}
-            >
-              {circlesExpanded ? "Show less" : `View all (${circles.length})`}
-            </Button>
-          )}
-        </div>
-      </div>
+            <div className="space-y-1 mt-1 pl-2">
+              {pinnedCircles.map((circle) => (
+                <div key={circle.id} className="flex items-center group">
+                  <Link
+                    to={`/circles/${circle.id}`}
+                    className="flex-1"
+                    onClick={() => isMobile && setSidebarOpen(false)}
+                  >
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-start text-sm hover:text-ip-gold hover:bg-transparent"
+                    >
+                      {circle.name}
+                      {circle.hasNewPost && (
+                        <span className="h-2 w-2 rounded-full bg-ip-teal ml-2"></span>
+                      )}
+                    </Button>
+                  </Link>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleCircleManagement(circle.id)}>
+                        <Settings className="h-4 w-4 mr-2" /> Manage Circle
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
 
       <div className="mt-auto px-2 space-y-1">
         <Link to="/settings">
-          <Button variant="ghost" className="w-full justify-start">
+          <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-ip-gold hover:bg-transparent">
             <Settings className="h-5 w-5" />
             <span className="ml-2">Settings</span>
           </Button>
         </Link>
         <Button
           variant="ghost"
-          className="w-full justify-start text-muted-foreground"
+          className="w-full justify-start text-muted-foreground hover:text-ip-gold hover:bg-transparent"
           onClick={handleLogout}
         >
           <LogOut className="h-5 w-5" />
@@ -238,15 +217,26 @@ export function MainSidebar() {
     <div className="h-screen sticky top-0 w-64 border-r bg-background p-4">
       <div className="flex flex-col h-full">
         <div className="flex items-center gap-2 mb-6">
-          <Avatar className="cursor-pointer" onClick={() => navigate(`/profile/${user?.id}`)}>
+          <Avatar 
+            className="cursor-pointer" 
+            onClick={() => navigate(`/profile/${user?.id}`)}
+          >
             <AvatarImage src={user?.avatar || "/placeholder.svg"} alt={user?.name || "User"} />
             <AvatarFallback>{user?.name?.charAt(0) || "U"}</AvatarFallback>
           </Avatar>
           <div className="overflow-hidden">
-            <p className="font-medium truncate cursor-pointer hover:underline" onClick={() => navigate(`/profile/${user?.id}`)}>
+            <p 
+              className="font-medium truncate cursor-pointer hover:underline hover:text-ip-gold" 
+              onClick={() => navigate(`/profile/${user?.id}`)}
+            >
               {user?.name}
             </p>
-            <p className="text-xs text-muted-foreground truncate">@{user?.username}</p>
+            <p 
+              className="text-xs text-muted-foreground truncate cursor-pointer hover:underline hover:text-ip-gold" 
+              onClick={() => navigate(`/profile/${user?.id}`)}
+            >
+              @{user?.username}
+            </p>
           </div>
         </div>
         {renderContent()}
