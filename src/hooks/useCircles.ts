@@ -28,3 +28,14 @@ export const useTrendingCircles = (limit = 5) => {
     queryFn: () => getTrendingCircles(limit),
   });
 };
+
+// Add a new hook that combines the functionality of the other hooks
+export const useCircles = (userId?: string) => {
+  const userCirclesQuery = useUserCircles(userId);
+  
+  return {
+    circles: userCirclesQuery.data || [],
+    isLoading: userCirclesQuery.isLoading,
+    error: userCirclesQuery.error,
+  };
+};

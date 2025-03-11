@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -28,7 +27,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useCircles } from '@/hooks/useCircles';
+import { useUserCircles } from '@/hooks/useCircles';
 import { toast } from 'sonner';
 
 export function MainSidebar() {
@@ -38,7 +37,7 @@ export function MainSidebar() {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [circlesExpanded, setCirclesExpanded] = useState(false);
-  const { circles } = useCircles();
+  const { data: circles = [] } = useUserCircles(user?.id);
 
   const sidebarItems = [
     {
