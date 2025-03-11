@@ -4,8 +4,7 @@ import { NewsArticle } from '@/types';
 import { getLatestNews, getTrendingNews, getNewsByCategory, getEconomicNews, getFinancialTrends } from '@/services/news/newsService';
 import NewsCard from './NewsCard';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 
@@ -15,31 +14,15 @@ interface NewsSectionProps {
 
 const NewsSection = ({ limit = 5 }: NewsSectionProps) => {
   const [latestNews, setLatestNews] = useState<NewsArticle[]>([]);
-  const [trendingNews, setTrendingNews] = useState<NewsArticle[]>([]);
-  const [businessNews, setBusinessNews] = useState<NewsArticle[]>([]);
-  const [economicNews, setEconomicNews] = useState<NewsArticle[]>([]);
-  const [financialTrends, setFinancialTrends] = useState<NewsArticle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('latest');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { toast } = useToast();
 
   const fetchNews = async () => {
     setIsLoading(true);
     try {
-      const [latest, trending, business, economic, financial] = await Promise.all([
-        getLatestNews(limit),
-        getTrendingNews(limit),
-        getNewsByCategory('Business', limit),
-        getEconomicNews(limit),
-        getFinancialTrends(limit)
-      ]);
-      
+      const latest = await getLatestNews(limit);
       setLatestNews(latest);
-      setTrendingNews(trending);
-      setBusinessNews(business);
-      setEconomicNews(economic);
-      setFinancialTrends(financial);
     } catch (error) {
       console.error('Error fetching news:', error);
     } finally {
@@ -90,40 +73,13 @@ const NewsSection = ({ limit = 5 }: NewsSectionProps) => {
     // Share functionality would go here
     console.log('Share article:', articleId);
     navigator.clipboard.writeText(
-      latestNews.find(article => article.id === articleId)?.url || 
-      trendingNews.find(article => article.id === articleId)?.url || 
-      businessNews.find(article => article.id === articleId)?.url ||
-      economicNews.find(article => article.id === articleId)?.url ||
-      financialTrends.find(article => article.id === articleId)?.url ||
-      ''
+      latestNews.find(article => article.id === articleId)?.url || ''
     );
     toast({
       title: 'Link Copied',
       description: 'Article link has been copied to clipboard.',
     });
   };
-
-  let displayNews: NewsArticle[] = [];
-  
-  switch (activeTab) {
-    case 'latest':
-      displayNews = latestNews;
-      break;
-    case 'trending':
-      displayNews = trendingNews;
-      break;
-    case 'business':
-      displayNews = businessNews;
-      break;
-    case 'economic':
-      displayNews = economicNews;
-      break;
-    case 'financial':
-      displayNews = financialTrends;
-      break;
-    default:
-      displayNews = latestNews;
-  }
 
   if (isLoading) {
     return (
@@ -138,7 +94,7 @@ const NewsSection = ({ limit = 5 }: NewsSectionProps) => {
     );
   }
 
-  if (displayNews.length === 0) {
+  if (latestNews.length === 0) {
     return (
       <Card className="border shadow-sm">
         <CardContent className="p-4 flex justify-center items-center min-h-[200px]">
@@ -166,12 +122,8 @@ const NewsSection = ({ limit = 5 }: NewsSectionProps) => {
 
   return (
     <Card className="border shadow-sm">
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-center">
-          <div>
-            <CardTitle className="text-lg">Financial News</CardTitle>
-            <CardDescription>Stay updated with market trends</CardDescription>
-          </div>
+      <CardContent className="p-4 space-y-4">
+        <div className="flex justify-end">
           <Button
             variant="outline"
             size="sm"
@@ -183,72 +135,15 @@ const NewsSection = ({ limit = 5 }: NewsSectionProps) => {
             <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
           </Button>
         </div>
-      </CardHeader>
-      <CardContent className="p-4">
-        <Tabs defaultValue="latest" value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-5 h-auto mb-4">
-            <TabsTrigger value="latest" className="py-2">Latest</TabsTrigger>
-            <TabsTrigger value="trending" className="py-2">Trending</TabsTrigger>
-            <TabsTrigger value="business" className="py-2">Business</TabsTrigger>
-            <TabsTrigger value="economic" className="py-2">Economic</TabsTrigger>
-            <TabsTrigger value="financial" className="py-2">Financial</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="latest" className="mt-0 p-0 space-y-4">
-            {latestNews.map((article) => (
-              <NewsCard
-                key={article.id}
-                article={article}
-                onBookmark={handleBookmark}
-                onShare={handleShare}
-              />
-            ))}
-          </TabsContent>
-          
-          <TabsContent value="trending" className="mt-0 p-0 space-y-4">
-            {trendingNews.map((article) => (
-              <NewsCard
-                key={article.id}
-                article={article}
-                onBookmark={handleBookmark}
-                onShare={handleShare}
-              />
-            ))}
-          </TabsContent>
-          
-          <TabsContent value="business" className="mt-0 p-0 space-y-4">
-            {businessNews.map((article) => (
-              <NewsCard
-                key={article.id}
-                article={article}
-                onBookmark={handleBookmark}
-                onShare={handleShare}
-              />
-            ))}
-          </TabsContent>
-          
-          <TabsContent value="economic" className="mt-0 p-0 space-y-4">
-            {economicNews.map((article) => (
-              <NewsCard
-                key={article.id}
-                article={article}
-                onBookmark={handleBookmark}
-                onShare={handleShare}
-              />
-            ))}
-          </TabsContent>
-          
-          <TabsContent value="financial" className="mt-0 p-0 space-y-4">
-            {financialTrends.map((article) => (
-              <NewsCard
-                key={article.id}
-                article={article}
-                onBookmark={handleBookmark}
-                onShare={handleShare}
-              />
-            ))}
-          </TabsContent>
-        </Tabs>
+        
+        {latestNews.map((article) => (
+          <NewsCard
+            key={article.id}
+            article={article}
+            onBookmark={handleBookmark}
+            onShare={handleShare}
+          />
+        ))}
       </CardContent>
     </Card>
   );

@@ -34,11 +34,10 @@ const NewsPage = () => {
             
             {/* Unified Feed */}
             <Tabs defaultValue="all" className="w-full">
-              <TabsList className="grid grid-cols-4 h-auto mb-4">
+              <TabsList className="grid grid-cols-3 h-auto mb-4">
                 <TabsTrigger value="all" className="py-2">All</TabsTrigger>
-                <TabsTrigger value="news" className="py-2">News</TabsTrigger>
+                <TabsTrigger value="trending" className="py-2">Trending</TabsTrigger>
                 <TabsTrigger value="community" className="py-2">Community</TabsTrigger>
-                <TabsTrigger value="for-you" className="py-2">For You</TabsTrigger>
               </TabsList>
               
               <TabsContent value="all" className="space-y-6">
@@ -49,19 +48,12 @@ const NewsPage = () => {
                 <PostFeed feedPosts={feedPosts} />
               </TabsContent>
               
-              <TabsContent value="news" className="space-y-6">
+              <TabsContent value="trending" className="space-y-6">
                 <NewsSection />
               </TabsContent>
               
               <TabsContent value="community" className="space-y-6">
                 <PostFeed feedPosts={feedPosts} />
-              </TabsContent>
-              
-              <TabsContent value="for-you" className="space-y-6">
-                <div className="p-6 text-center bg-muted rounded-md">
-                  <h3 className="font-medium mb-2">Personalized feed coming soon</h3>
-                  <p className="text-muted-foreground text-sm">We're working on tailoring content just for you based on your interests.</p>
-                </div>
               </TabsContent>
             </Tabs>
           </div>

@@ -1,19 +1,20 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardFooter, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Heart, MessageSquare, Share2, Bookmark, TrendingUp, AlertCircle } from 'lucide-react';
+import { Heart, MessageSquare, Share2, Bookmark, TrendingUp, AlertCircle, RefreshCw } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { CreatePostForm } from '@/components/posts/CreatePostForm';
 import { MoreHorizontal } from 'lucide-react';
+import { useCommentsDialog } from '@/hooks/useCommentsDialog';
+import { toast } from 'sonner';
+import { RepostDialog } from '@/components/engagement/RepostDialog';
 
 interface Post {
   id: number;
@@ -43,6 +44,10 @@ const PostFeed = ({ feedPosts }: PostFeedProps) => {
   const [savedPosts, setSavedPosts] = useState<Record<number, boolean>>({
     2: true, // Initialize post 2 as saved
   });
+  const [refreshing, setRefreshing] = useState(false);
+  const [repostDialogOpen, setRepostDialogOpen] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const { openComments } = useCommentsDialog();
 
   const handleLike = (postId: number) => {
     setLikedPosts(prev => ({
@@ -57,6 +62,32 @@ const PostFeed = ({ feedPosts }: PostFeedProps) => {
       [postId]: !prev[postId]
     }));
   };
+
+  const handleComment = (post: Post) => {
+    openComments({
+      id: post.id.toString(),
+      title: post.title,
+      content: post.content,
+      entityType: 'post',
+      commentsCount: post.comments,
+      onCommentAdded: () => console.log('Comment added to post', post.id)
+    });
+  };
+
+  const handleRepost = (post: Post) => {
+    setSelectedPost(post);
+    setRepostDialogOpen(true);
+  };
+
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    
+    // Simulate a network request
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    toast.success('Feed refreshed');
+    setRefreshing(false);
+  }, []);
 
   const renderPostCard = (post: Post) => (
     <Card key={post.id} className="border shadow-sm animate-hover-rise">
@@ -123,11 +154,11 @@ const PostFeed = ({ feedPosts }: PostFeedProps) => {
             <Heart className="h-4 w-4" fill={likedPosts[post.id] ? "currentColor" : "none"} />
             <span>{post.likes + (likedPosts[post.id] ? 1 : 0)}</span>
           </Button>
-          <Button variant="ghost" size="sm" className="gap-1">
+          <Button variant="ghost" size="sm" className="gap-1" onClick={() => handleComment(post)}>
             <MessageSquare className="h-4 w-4" />
             <span>{post.comments}</span>
           </Button>
-          <Button variant="ghost" size="sm" className="gap-1">
+          <Button variant="ghost" size="sm" className="gap-1" onClick={() => handleRepost(post)}>
             <Share2 className="h-4 w-4" />
             <span>{post.shares}</span>
           </Button>
@@ -146,43 +177,33 @@ const PostFeed = ({ feedPosts }: PostFeedProps) => {
 
   return (
     <div className="space-y-6">
-      <CreatePostForm compact={true} />
+      {refreshing && (
+        <div className="flex justify-center py-2">
+          <RefreshCw className="h-6 w-6 animate-spin text-ip-teal" />
+        </div>
+      )}
       
-      <Tabs defaultValue="for-you" className="w-full">
-        <TabsList className="grid grid-cols-4 h-auto mb-4">
-          <TabsTrigger value="for-you" className="py-2">For You</TabsTrigger>
-          <TabsTrigger value="following" className="py-2">Following</TabsTrigger>
-          <TabsTrigger value="trending" className="py-2">Trending</TabsTrigger>
-          <TabsTrigger value="latest" className="py-2">Latest</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="for-you" className="mt-0 p-0">
-          <div className="space-y-6">
-            {feedPosts.map(renderPostCard)}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="following" className="mt-0 p-0">
-          <div className="flex flex-col items-center justify-center py-10">
-            <AlertCircle className="h-10 w-10 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">No posts yet</h3>
-            <p className="text-muted-foreground text-center mb-4">Follow more users and experts to see their posts here</p>
-            <Button>Discover People to Follow</Button>
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="trending" className="mt-0 p-0">
-          <div className="space-y-6">
-            {feedPosts.sort((a, b) => b.likes - a.likes).map(renderPostCard)}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="latest" className="mt-0 p-0">
-          <div className="space-y-6">
-            {[...feedPosts].reverse().map(renderPostCard)}
-          </div>
-        </TabsContent>
-      </Tabs>
+      <div className="space-y-6">
+        {feedPosts.map(renderPostCard)}
+      </div>
+      
+      {feedPosts.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-10">
+          <AlertCircle className="h-10 w-10 text-muted-foreground mb-4" />
+          <h3 className="text-lg font-medium mb-2">No posts yet</h3>
+          <p className="text-muted-foreground text-center mb-4">Follow more users and experts to see their posts here</p>
+          <Button>Discover People to Follow</Button>
+        </div>
+      )}
+      
+      {/* Repost Dialog */}
+      {selectedPost && (
+        <RepostDialog 
+          open={repostDialogOpen} 
+          onOpenChange={setRepostDialogOpen} 
+          post={selectedPost} 
+        />
+      )}
     </div>
   );
 };

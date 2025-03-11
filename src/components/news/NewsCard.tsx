@@ -3,11 +3,12 @@ import { useState } from 'react';
 import { NewsArticle } from '@/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, Share2, Bookmark, Clock, Heart, MessageSquare } from 'lucide-react';
+import { ExternalLink, Share2, Bookmark, Clock, Heart, MessageSquare, Repeat2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
 import { useCommentsDialog } from '@/hooks/useCommentsDialog';
 import { toast } from 'sonner';
+import { RepostDialog } from '@/components/engagement/RepostDialog';
 
 interface NewsCardProps {
   article: NewsArticle;
@@ -21,7 +22,28 @@ const NewsCard = ({ article, onBookmark, onShare, isBookmarked = false }: NewsCa
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 20)); // Mock like count
   const [commentCount, setCommentCount] = useState(Math.floor(Math.random() * 10)); // Mock comment count
+  const [repostDialogOpen, setRepostDialogOpen] = useState(false);
   const { openComments } = useCommentsDialog();
+
+  // Convert NewsArticle to Post format for reposting
+  const articleAsPost = {
+    id: parseInt(article.id),
+    author: {
+      name: article.source || 'News Source',
+      username: (article.source || 'news').toLowerCase().replace(/\s/g, ''),
+      avatar: article.thumbnail_url || '/placeholder.svg',
+      role: 'publisher',
+      verified: true,
+    },
+    category: article.category,
+    title: article.title,
+    content: article.summary || '',
+    timestamp: article.published_at || 'Recently',
+    likes: likeCount,
+    comments: commentCount,
+    shares: Math.floor(Math.random() * 15),
+    saved: bookmarked
+  };
 
   const handleBookmark = () => {
     setBookmarked(!bookmarked);
@@ -59,6 +81,10 @@ const NewsCard = ({ article, onBookmark, onShare, isBookmarked = false }: NewsCa
       commentsCount: commentCount,
       onCommentAdded: () => setCommentCount(prev => prev + 1)
     });
+  };
+
+  const handleRepost = () => {
+    setRepostDialogOpen(true);
   };
 
   const getPublishedTime = () => {
@@ -119,6 +145,10 @@ const NewsCard = ({ article, onBookmark, onShare, isBookmarked = false }: NewsCa
             <MessageSquare className="h-4 w-4" />
             <span>{commentCount}</span>
           </Button>
+          <Button variant="ghost" size="sm" className="gap-1" onClick={handleRepost}>
+            <Repeat2 className="h-4 w-4" />
+            <span>Repost</span>
+          </Button>
         </div>
         <div className="flex space-x-1">
           <Button variant="outline" size="sm" className="gap-1" onClick={handleOpenArticle}>
@@ -138,6 +168,13 @@ const NewsCard = ({ article, onBookmark, onShare, isBookmarked = false }: NewsCa
           </Button>
         </div>
       </CardFooter>
+      
+      {/* Repost Dialog */}
+      <RepostDialog 
+        open={repostDialogOpen} 
+        onOpenChange={setRepostDialogOpen} 
+        post={articleAsPost} 
+      />
     </Card>
   );
 };
