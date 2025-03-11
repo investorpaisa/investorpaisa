@@ -6,7 +6,7 @@ import TrendingTopics from '@/components/feed/TrendingTopics';
 import PostFeed from '@/components/feed/PostFeed';
 import { useHomeFeedData } from '@/hooks/useHomeFeedData';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { TabsList, TabsTrigger, Tabs } from '@/components/ui/tabs';
+import { TabsList, TabsTrigger, Tabs, TabsContent } from '@/components/ui/tabs';
 import { CreatePostForm } from '@/components/posts/CreatePostForm';
 import { GeminiSearch } from '@/components/search/GeminiSearch';
 
