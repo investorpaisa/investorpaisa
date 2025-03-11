@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,9 +22,9 @@ interface CreatePostFormProps {
   onCancel?: () => void;
   circleId?: string;
   compact?: boolean;
+  onPostCreated?: (newPost: any) => void;
 }
 
-// Mock users for search functionality
 const mockUsers = [
   { id: '1', name: 'John Doe', username: 'johndoe', avatar: 'https://i.pravatar.cc/150?u=johndoe' },
   { id: '2', name: 'Jane Smith', username: 'janesmith', avatar: 'https://i.pravatar.cc/150?u=janesmith' },
@@ -34,7 +33,7 @@ const mockUsers = [
   { id: '5', name: 'Taylor Green', username: 'tgreen', avatar: 'https://i.pravatar.cc/150?u=tgreen' },
 ];
 
-export function CreatePostForm({ onSuccess, onCancel, circleId, compact = false }: CreatePostFormProps) {
+export function CreatePostForm({ onSuccess, onCancel, circleId, compact = false, onPostCreated }: CreatePostFormProps) {
   const { user } = useAuth();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -48,7 +47,6 @@ export function CreatePostForm({ onSuccess, onCancel, circleId, compact = false 
   const [searchTerm, setSearchTerm] = useState('');
   const { data: userCircles = [] } = useUserCircles(user?.id);
 
-  // Mock categories
   const categories = [
     { id: '1', name: 'Investments' },
     { id: '2', name: 'Tax Planning' },
@@ -100,7 +98,6 @@ export function CreatePostForm({ onSuccess, onCancel, circleId, compact = false 
     setLoading(true);
 
     try {
-      // In a real app, this would be an API call to create the post
       setTimeout(() => {
         let successMessage = 'Post created successfully';
         
@@ -112,7 +109,31 @@ export function CreatePostForm({ onSuccess, onCancel, circleId, compact = false 
           successMessage = `Post sent to ${userName}`;
         }
         
+        const newPost = {
+          id: Math.floor(Math.random() * 1000).toString(),
+          author: {
+            name: user?.name || 'User',
+            username: user?.username || 'user',
+            avatar: user?.avatar || '/placeholder.svg',
+            role: user?.role || 'user',
+            verified: false,
+          },
+          category: category,
+          title: title,
+          content: content,
+          timestamp: 'Just now',
+          likes: 0,
+          comments: 0,
+          shares: 0,
+          saved: false,
+        };
+        
         toast.success(successMessage);
+        
+        if (onPostCreated) {
+          onPostCreated(newPost);
+        }
+        
         setTitle('');
         setContent('');
         setCategory('');
