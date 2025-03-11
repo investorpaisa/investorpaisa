@@ -67,7 +67,7 @@ export function GeminiSearch({ expanded = false, onExpandToggle, trendingTopics 
     
     // Simulate API delay
     setTimeout(() => {
-      // Mock results based on query
+      // Mock results based on query with proper type annotations
       const results: SearchResult[] = [
         {
           id: '1',

@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@/services/api';
 import { authService } from '@/services/auth';
@@ -11,6 +10,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<User | null>;
   register: (name: string, email: string, password: string) => Promise<User | null>;
   logout: () => Promise<boolean>;
+  updateUserProfile: (updatedProfile: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -105,8 +105,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updateUserProfile = (updatedProfile: Partial<User>) => {
+    if (!user) return;
+    
+    // Update user state with the new profile data
+    setUser({
+      ...user,
+      ...updatedProfile
+    });
+
+    // In a real app, we would also call an API to update the user's profile
+    console.log('Profile updated:', updatedProfile);
+    // This is where you would call a service to update the user profile
+    // e.g. userService.updateProfile(user.id, updatedProfile)
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, login, register, logout, updateUserProfile }}>
       {children}
     </AuthContext.Provider>
   );
