@@ -11,13 +11,18 @@ import { CreatePostForm } from '@/components/posts/CreatePostForm';
 import { GeminiSearch } from '@/components/search/GeminiSearch';
 
 const NewsPage = () => {
-  const { feedPosts, trendingTopics, loading } = useHomeFeedData();
+  const { feedPosts, trendingTopics, loading, addPost } = useHomeFeedData();
   const isMobile = useIsMobile();
   const [searchExpanded, setSearchExpanded] = useState(false);
 
+  const handlePostCreated = (newPost) => {
+    // Add the new post to the feed
+    addPost(newPost);
+  };
+
   return (
-    <div>
-      <div className="sticky top-0 z-10 bg-background pb-4 pt-2">
+    <div className="max-w-4xl mx-auto">
+      <div className={`sticky top-0 z-10 bg-background pb-4 pt-2 ${isMobile ? 'px-0' : ''}`}>
         <GeminiSearch 
           expanded={searchExpanded} 
           onExpandToggle={setSearchExpanded}
@@ -30,14 +35,13 @@ const NewsPage = () => {
           {/* Left Content Area - 2/3 width on desktop */}
           <div className="lg:col-span-2 space-y-6">
             {/* Create Post Form - Top of the feed */}
-            <CreatePostForm compact={true} />
+            <CreatePostForm compact={true} onPostCreated={handlePostCreated} />
             
             {/* Unified Feed */}
             <Tabs defaultValue="all" className="w-full">
-              <TabsList className="grid grid-cols-3 h-auto mb-4">
+              <TabsList className="grid grid-cols-2 h-auto mb-4">
                 <TabsTrigger value="all" className="py-2">All</TabsTrigger>
                 <TabsTrigger value="trending" className="py-2">Trending</TabsTrigger>
-                <TabsTrigger value="community" className="py-2">Community</TabsTrigger>
               </TabsList>
               
               <TabsContent value="all" className="space-y-6">
@@ -50,10 +54,6 @@ const NewsPage = () => {
               
               <TabsContent value="trending" className="space-y-6">
                 <NewsSection />
-              </TabsContent>
-              
-              <TabsContent value="community" className="space-y-6">
-                <PostFeed feedPosts={feedPosts} />
               </TabsContent>
             </Tabs>
           </div>

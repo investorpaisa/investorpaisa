@@ -131,9 +131,16 @@ export const useHomeFeedData = () => {
     fetchData();
   }, []);
 
+  // Function to add a new post to the feed
+  const addPost = (newPost: Post) => {
+    // Add the new post at the top of the feed
+    setFeedPosts(prevPosts => [newPost, ...prevPosts]);
+  };
+
   return {
     feedPosts,
     trendingTopics,
-    loading
+    loading,
+    addPost
   };
 };

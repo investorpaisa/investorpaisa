@@ -89,11 +89,11 @@ const Home = () => {
           }}
         >
           <RefreshCw 
-            className={`h-6 w-6 text-ip-teal ${refreshing ? 'animate-spin' : 'animate-bounce'}`} 
+            className={`h-6 w-6 text-gold ${refreshing ? 'animate-spin' : 'animate-bounce'}`} 
           />
         </div>
       )}
-      <div ref={containerRef} className="max-w-2xl mx-auto">
+      <div ref={containerRef} className="w-full">
         <NewsPage />
         <CommentsDialog />
       </div>
