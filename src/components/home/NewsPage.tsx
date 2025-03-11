@@ -20,19 +20,13 @@ const NewsPage = () => {
     addPost(newPost);
   };
 
-  // Transform trendingTopics to the format expected by GeminiSearch
-  const formattedTrendingTopics = trendingTopics.map(topic => ({
-    id: topic.id.toString(),
-    name: topic.topic
-  }));
-
   return (
     <div className="max-w-4xl mx-auto">
       <div className={`sticky top-0 z-10 bg-background pb-4 pt-2 ${isMobile ? 'px-0' : ''}`}>
         <GeminiSearch 
           expanded={searchExpanded} 
           onExpandToggle={setSearchExpanded}
-          trendingTopics={formattedTrendingTopics}
+          trendingTopics={trendingTopics}
         />
       </div>
 

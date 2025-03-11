@@ -17,10 +17,16 @@ interface SearchResult {
   avatar?: string;
 }
 
+interface TrendingTopic {
+  id: number;
+  topic: string;
+  posts: number;
+}
+
 interface GeminiSearchProps {
   expanded: boolean;
   onExpandToggle: (expanded: boolean) => void;
-  trendingTopics?: { id: string; name: string }[];
+  trendingTopics: TrendingTopic[];
 }
 
 export const GeminiSearch = ({ expanded, onExpandToggle, trendingTopics = [] }: GeminiSearchProps) => {
@@ -159,7 +165,7 @@ export const GeminiSearch = ({ expanded, onExpandToggle, trendingTopics = [] }: 
                       key={topic.id}
                       className="px-2 py-1 bg-muted rounded-md text-xs cursor-pointer hover:bg-muted/70"
                     >
-                      {topic.name}
+                      {topic.topic}
                     </div>
                   ))}
                 </div>
