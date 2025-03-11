@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, X, Trending, Hash } from 'lucide-react';
+import { Search, X, TrendingUp, Hash } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -191,7 +191,7 @@ export const GeminiSearch = ({ expanded, onExpandToggle, trendingTopics = [] }: 
             ) : (
               <div className="px-3 py-2">
                 <h3 className="text-sm font-medium mb-3 text-purple-900 flex items-center gap-1.5">
-                  <Trending className="h-4 w-4 text-purple-600" />
+                  <TrendingUp className="h-4 w-4 text-purple-600" />
                   Trending Topics
                 </h3>
                 <div className="flex flex-wrap gap-2">
