@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import NewsSection from '@/components/news/NewsSection';
@@ -32,12 +31,9 @@ const NewsPage = () => {
 
       {!searchExpanded && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-2">
-          {/* Left Content Area - 2/3 width on desktop */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Create Post Form - Top of the feed */}
             <CreatePostForm compact={true} onPostCreated={handlePostCreated} />
             
-            {/* Unified Feed */}
             <Tabs defaultValue="all" className="w-full">
               <TabsList className="grid grid-cols-2 h-auto mb-4">
                 <TabsTrigger value="all" className="py-2">All</TabsTrigger>
@@ -45,10 +41,8 @@ const NewsPage = () => {
               </TabsList>
               
               <TabsContent value="all" className="space-y-6">
-                {/* News Section */}
                 <NewsSection />
                 
-                {/* User generated content */}
                 <PostFeed feedPosts={feedPosts} />
               </TabsContent>
               
@@ -58,7 +52,6 @@ const NewsPage = () => {
             </Tabs>
           </div>
           
-          {/* Right Sidebar - Hidden on mobile */}
           {!isMobile && (
             <div className="space-y-6">
               <Card>
