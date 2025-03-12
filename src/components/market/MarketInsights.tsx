@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +12,7 @@ import {
   MarketIndex
 } from '@/services/market';
 import { Badge } from '@/components/ui/badge';
-import { toast } from '@/components/ui/toast';
+import { toast } from 'sonner';
 
 interface MarketIndexProps {
   label: string;
@@ -64,11 +65,7 @@ const MarketInsights = () => {
     } catch (error) {
       console.error("Failed to fetch market data:", error);
       setError("Failed to load market data. Please try again later.");
-      toast({
-        title: "Error",
-        description: "Failed to fetch market data. Please try again later.",
-        variant: "destructive"
-      });
+      toast.error("Failed to fetch market data. Please try again later.");
     } finally {
       setLoading(false);
     }
