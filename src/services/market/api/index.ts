@@ -2,6 +2,7 @@
 // Export all API functionality
 import { fetchProxyData } from './proxy';
 import { getFallbackData } from './fallbacks';
+export { fetchProxyData }; // Export the fetchProxyData function
 
 // Public API for making requests to the market data service
 export async function fetchMarketData(endpoint: string, params: Record<string, string> = {}) {
