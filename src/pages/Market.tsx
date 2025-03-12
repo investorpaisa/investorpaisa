@@ -1,9 +1,6 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { StockSearch } from '@/components/market/StockSearch';
-import CryptoSearch from '@/components/market/CryptoSearch';
-import MarketInsights from '@/components/market/MarketInsights';
+import { StockSearch, CryptoSearch, MarketInsights } from '@/components/market';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Market = () => {
