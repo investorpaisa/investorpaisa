@@ -1,14 +1,14 @@
 
 import { StockQuote } from '@/services/messages/types';
 import { toast } from 'sonner';
-import { fetchProxyData } from '../apiProxy';
+import { fetchProxyData } from '../api';
 
 /**
  * Get top gainers of the day
  */
 export async function getTopGainers(): Promise<StockQuote[]> {
   try {
-    const data = await fetchProxyData('/marketData/topGainers') as Array<{
+    const data = await fetchProxyData('gainers') as Array<{
       symbol: string;
       lastPrice: number;
       change: number;
@@ -46,7 +46,7 @@ export async function getTopGainers(): Promise<StockQuote[]> {
  */
 export async function getTopLosers(): Promise<StockQuote[]> {
   try {
-    const data = await fetchProxyData('/marketData/topLosers') as Array<{
+    const data = await fetchProxyData('losers') as Array<{
       symbol: string;
       lastPrice: number;
       change: number;

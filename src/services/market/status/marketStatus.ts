@@ -1,14 +1,14 @@
 
 import { MarketStatus } from '@/services/messages/types';
 import { toast } from 'sonner';
-import { fetchProxyData } from '../apiProxy';
+import { fetchProxyData } from '../api';
 
 /**
  * Get current market status
  */
 export async function getMarketStatus(): Promise<MarketStatus> {
   try {
-    const data = await fetchProxyData('/marketStatus') as { 
+    const data = await fetchProxyData('marketStatus') as { 
       marketState: string; 
       marketStatus: string; 
     };

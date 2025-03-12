@@ -1,7 +1,7 @@
 
 import { MarketIndex } from '@/services/messages/types';
 import { toast } from 'sonner';
-import { fetchProxyData } from '../apiProxy';
+import { fetchProxyData } from '../api';
 
 // Market indices supported by NSE
 export const NSE_INDICES = {
@@ -18,7 +18,7 @@ export const NSE_INDICES = {
  */
 export async function getIndexData(indexName: string): Promise<MarketIndex> {
   try {
-    const data = await fetchProxyData('/indexData', { index: indexName }) as {
+    const data = await fetchProxyData('indices', { index: indexName }) as {
       indexInfo: { name: string };
       last: number;
       open: number;

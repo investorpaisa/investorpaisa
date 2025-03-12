@@ -1,14 +1,14 @@
 
 import { StockQuote } from '@/services/messages/types';
 import { toast } from 'sonner';
-import { fetchProxyData } from '../apiProxy';
+import { fetchProxyData } from '../api';
 
 /**
  * Search stocks by name or symbol
  */
 export async function searchStocks(query: string): Promise<StockQuote[]> {
   try {
-    const data = await fetchProxyData('/search', { q: query }) as Array<{
+    const data = await fetchProxyData('search', { q: query }) as Array<{
       symbol: string;
       name: string;
       type: string;
@@ -20,7 +20,7 @@ export async function searchStocks(query: string): Promise<StockQuote[]> {
         try {
           // In a real implementation, we would batch these requests
           // For the mock, we'll just simulate individual quotes
-          const quoteData = await fetchProxyData('/quote', { symbol: item.symbol }) as {
+          const quoteData = await fetchProxyData('stocks', { symbol: item.symbol }) as {
             priceInfo: { 
               lastPrice: number; change: number; pChange: number; open: number; close: number; 
               previousClose: number; intraDayHighLow: { min: number; max: number }

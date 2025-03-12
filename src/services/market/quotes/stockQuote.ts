@@ -1,14 +1,14 @@
 
 import { StockQuote } from '@/services/messages/types';
 import { toast } from 'sonner';
-import { fetchProxyData } from '../apiProxy';
+import { fetchProxyData } from '../api';
 
 /**
  * Get stock quote for a given symbol
  */
 export async function getStockQuote(symbol: string): Promise<StockQuote> {
   try {
-    const data = await fetchProxyData('/quote', { symbol }) as {
+    const data = await fetchProxyData('stocks', { symbol }) as {
       info: { symbol: string; companyName: string; industry: string; series: string };
       priceInfo: { 
         lastPrice: number; change: number; pChange: number; open: number; close: number; 
