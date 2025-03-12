@@ -11,40 +11,31 @@ export async function getIndices(req: Request, indexName: string = 'NIFTY 50') {
                   indexName === 'NIFTY BANK' ? '^NSEBANK' : 
                   indexName === 'NIFTY IT' ? '^CNXIT' : indexName;
     
-    // Check API key
-    if (!ALPHA_VANTAGE_API_KEY) {
-      console.error('ALPHA_VANTAGE_API_KEY is not configured');
-      throw new Error('ALPHA_VANTAGE_API_KEY is not configured');
-    }
+    // Using RapidAPI
+    console.log(`Using RapidAPI to fetch data for symbol: ${symbol}`);
     
-    // Direct Alpha Vantage API call
-    const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${ALPHA_VANTAGE_API_KEY}`;
-    console.log(`Requesting from URL: ${url}`);
+    const url = `https://alpha-vantage.p.rapidapi.com/query?function=GLOBAL_QUOTE&symbol=${symbol}`;
+    console.log(`Requesting from RapidAPI URL: ${url}`);
     
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: {
+        'x-rapidapi-host': RAPIDAPI_HOST,
+        'x-rapidapi-key': RAPIDAPI_KEY
+      }
+    });
 
     if (!response.ok) {
-      console.error(`API responded with status: ${response.status}`);
-      throw new Error(`API responded with status: ${response.status}`);
+      console.error(`RapidAPI responded with status: ${response.status}`);
+      throw new Error(`RapidAPI responded with status: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('Raw Alpha Vantage response:', JSON.stringify(data));
+    console.log('Raw RapidAPI response:', JSON.stringify(data));
 
-    // Check for rate limiting or error messages
-    if (data.Note) {
-      console.error('API rate limit reached:', data.Note);
-      throw new Error(`Alpha Vantage API rate limit: ${data.Note}`);
-    }
-    
-    if (data.Information) {
-      console.error('API information message:', data.Information);
-      throw new Error(`Alpha Vantage API information: ${data.Information}`);
-    }
-
-    if (data.Error) {
-      console.error('API error message:', data.Error);
-      throw new Error(`Alpha Vantage API error: ${data.Error}`);
+    // Check for error messages
+    if (data.Note || data.Information || data.Error) {
+      console.error('API error:', data.Note || data.Information || data.Error);
+      throw new Error(`API error: ${data.Note || data.Information || data.Error}`);
     }
 
     // Basic validation of the response structure

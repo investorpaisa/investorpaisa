@@ -3,33 +3,32 @@ import { corsHeaders } from "../utils/cors.ts";
 
 export async function getMarketStatus(req: Request) {
   try {
-    // For now, we'll return market status based on NYSE trading hours
-    // NYSE trading hours are 9:30 AM - 4:00 PM EST
-    // Converting to UTC (EST+5): 14:30 - 21:00 UTC
+    // NSE trading hours are 9:15 AM - 3:30 PM IST
+    // Converting to UTC (IST-5:30): 3:45 - 10:00 UTC
     const now = new Date();
     const hour = now.getUTCHours();
     const minute = now.getUTCMinutes();
     const day = now.getUTCDay();
 
-    const isWeekend = day === 0 || day === 6;
-    const isBeforeOpen = hour < 14 || (hour === 14 && minute < 30);
-    const isAfterClose = hour >= 21;
+    const isWeekend = day === 0 || day === 6; // Sunday or Saturday
+    const isBeforeOpen = hour < 3 || (hour === 3 && minute < 45);
+    const isAfterClose = hour > 10 || (hour === 10 && minute > 0);
 
     let status;
     let message;
 
     if (isWeekend) {
       status = 'closed';
-      message = 'Market is closed for the weekend';
+      message = 'NSE is closed for the weekend';
     } else if (isBeforeOpen) {
       status = 'pre-open';
-      message = 'Market will open at 9:30 AM EST';
+      message = 'NSE will open at 9:15 AM IST';
     } else if (isAfterClose) {
       status = 'post-close';
-      message = 'Market has closed for the day';
+      message = 'NSE has closed for the day';
     } else {
       status = 'open';
-      message = 'Market is open for trading';
+      message = 'NSE is open for trading';
     }
 
     return new Response(
