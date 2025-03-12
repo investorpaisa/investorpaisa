@@ -8,6 +8,23 @@ if (!RAPIDAPI_KEY || RAPIDAPI_KEY === "23ec2c7ac8mshca999ef26c89cebp1512c6jsne52
   console.log("Using provided RAPIDAPI_KEY for Alpha Vantage API");
 }
 
+// Alpha Vantage rate limits
+export const RATE_LIMITS = {
+  REQUESTS_PER_MIN: 5,
+  REQUESTS_PER_DAY: 500
+};
+
+// Request tracking to avoid hitting rate limits
+export const requestTracker = {
+  lastRequestTime: 0,
+  requestsThisMinute: 0,
+  requestsToday: 0,
+  reset() {
+    this.requestsThisMinute = 0;
+    this.lastRequestTime = Date.now();
+  }
+};
+
 // API function names for different data categories
 export const API_FUNCTIONS = {
   STOCK: {
