@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import NewsSection from '@/components/news/NewsSection';
-import TrendingTopics from '@/components/feed/TrendingTopics';
 import PostFeed from '@/components/feed/PostFeed';
 import { useHomeFeedData } from '@/hooks/useHomeFeedData';
 import { useIsMobile } from '@/hooks/use-mobile';

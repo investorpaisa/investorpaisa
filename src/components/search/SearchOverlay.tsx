@@ -52,11 +52,11 @@ const SearchOverlay = ({
 
   const getTrendingMarkets = () => {
     return [
-      { id: '1', name: 'NIFTY 50', value: '21,345.65', change: '+1.2%', status: 'up' },
-      { id: '2', name: 'Sensex', value: '70,123.45', change: '+0.8%', status: 'up' },
-      { id: '3', name: 'S&P 500', value: '5,064.23', change: '-0.3%', status: 'down' },
-      { id: '4', name: 'Bitcoin', value: '$66,789.12', change: '+2.4%', status: 'up' },
-      { id: '5', name: 'Ethereum', value: '$3,456.78', change: '+1.5%', status: 'up' },
+      { id: '1', name: 'NIFTY 50', value: '21,345.65', change: '+1.2%', status: 'up' as const },
+      { id: '2', name: 'Sensex', value: '70,123.45', change: '+0.8%', status: 'up' as const },
+      { id: '3', name: 'S&P 500', value: '5,064.23', change: '-0.3%', status: 'down' as const },
+      { id: '4', name: 'Bitcoin', value: '$66,789.12', change: '+2.4%', status: 'up' as const },
+      { id: '5', name: 'Ethereum', value: '$3,456.78', change: '+1.5%', status: 'up' as const },
     ];
   };
 
