@@ -1,3 +1,4 @@
+
 import { RAPIDAPI_HOST, RAPIDAPI_KEY, ALPHA_VANTAGE_API_KEY, API_FUNCTIONS } from "../utils/config.ts";
 import { corsHeaders } from "../utils/cors.ts";
 
@@ -7,7 +8,53 @@ export async function getCryptoRate(req: Request, params: any) {
     
     const { from_currency = 'BTC', to_currency = 'USD' } = params;
     
-    // Try direct Alpha Vantage API first with detailed error logging
+    // First try CoinGecko API for more reliable data
+    const geckoUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${from_currency.toLowerCase()}&vs_currencies=${to_currency.toLowerCase()}&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true`;
+    console.log(`Requesting from CoinGecko: ${geckoUrl}`);
+    
+    try {
+      const geckoResponse = await fetch(geckoUrl);
+      
+      if (geckoResponse.ok) {
+        const geckoData = await geckoResponse.json();
+        console.log('CoinGecko response:', JSON.stringify(geckoData));
+        
+        if (geckoData && Object.keys(geckoData).length > 0 && geckoData[from_currency.toLowerCase()]) {
+          const coinData = geckoData[from_currency.toLowerCase()];
+          const result = {
+            fromCurrency: from_currency.toUpperCase(),
+            toCurrency: to_currency.toUpperCase(),
+            exchangeRate: coinData[to_currency.toLowerCase()] || 0,
+            lastRefreshed: new Date().toISOString(),
+            timeZone: 'UTC',
+            bidPrice: 0,
+            askPrice: 0,
+            marketCap: coinData[`${to_currency.toLowerCase()}_market_cap`] || 0,
+            volume24h: coinData[`${to_currency.toLowerCase()}_24h_vol`] || 0,
+            change24h: coinData[`${to_currency.toLowerCase()}_24h_change`] || 0,
+            source: 'CoinGecko'
+          };
+          
+          console.log('Returning CoinGecko data:', result);
+          return new Response(
+            JSON.stringify(result),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      }
+    } catch (geckoError) {
+      console.error('CoinGecko API error:', geckoError);
+    }
+    
+    // If CoinGecko fails, try Alpha Vantage
+    console.log('CoinGecko failed, trying Alpha Vantage API');
+    
+    if (!ALPHA_VANTAGE_API_KEY) {
+      console.error('ALPHA_VANTAGE_API_KEY is not configured');
+      return createFallbackCryptoResponse(from_currency, to_currency);
+    }
+    
+    // Alpha Vantage API call
     const directUrl = `https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=${from_currency}&to_currency=${to_currency}&apikey=${ALPHA_VANTAGE_API_KEY}`;
     console.log(`Requesting from Alpha Vantage API (masked key): ${directUrl.replace(ALPHA_VANTAGE_API_KEY, '***')}`);
     
@@ -15,7 +62,7 @@ export async function getCryptoRate(req: Request, params: any) {
     
     if (!directResponse.ok) {
       console.error(`Alpha Vantage API responded with status: ${directResponse.status}`);
-      throw new Error(`Alpha Vantage API responded with status: ${directResponse.status}`);
+      return createFallbackCryptoResponse(from_currency, to_currency);
     }
 
     const directData = await directResponse.json();
@@ -24,6 +71,12 @@ export async function getCryptoRate(req: Request, params: any) {
     // Check for API rate limiting or other errors
     if (directData.Note || directData.Information || !directData['Realtime Currency Exchange Rate']) {
       console.log('Alpha Vantage API returned error or no data, falling back to RapidAPI');
+      
+      // Try RapidAPI as last resort
+      if (!RAPIDAPI_KEY) {
+        console.error('RAPIDAPI_KEY is not configured');
+        return createFallbackCryptoResponse(from_currency, to_currency);
+      }
       
       const rapidApiUrl = `https://alpha-vantage.p.rapidapi.com/query?function=CURRENCY_EXCHANGE_RATE&from_currency=${from_currency}&to_currency=${to_currency}`;
       console.log('Attempting RapidAPI fallback');
@@ -37,14 +90,14 @@ export async function getCryptoRate(req: Request, params: any) {
 
       if (!rapidApiResponse.ok) {
         console.error(`RapidAPI responded with status: ${rapidApiResponse.status}`);
-        throw new Error(`RapidAPI responded with status: ${rapidApiResponse.status}`);
+        return createFallbackCryptoResponse(from_currency, to_currency);
       }
 
       const rapidApiData = await rapidApiResponse.json();
       console.log('RapidAPI response:', JSON.stringify(rapidApiData));
       
       if (!rapidApiData['Realtime Currency Exchange Rate']) {
-        console.log('No valid data from either API, using fallback');
+        console.log('No valid data from any API, using fallback');
         return createFallbackCryptoResponse(from_currency, to_currency);
       }
       
@@ -65,7 +118,50 @@ export async function getCryptoTimeSeries(req: Request, params: any) {
     
     const { symbol = 'BTC', market = 'USD', function: func = 'DIGITAL_CURRENCY_DAILY' } = params;
     
-    // Try direct Alpha Vantage API first with detailed error logging
+    // Try CoinGecko first for time series data
+    const geckoUrl = `https://api.coingecko.com/api/v3/coins/${symbol.toLowerCase()}/market_chart?vs_currency=${market.toLowerCase()}&days=7&interval=daily`;
+    console.log('Attempting CoinGecko for time series');
+    
+    try {
+      const geckoResponse = await fetch(geckoUrl);
+      
+      if (geckoResponse.ok) {
+        const geckoData = await geckoResponse.json();
+        console.log('CoinGecko time series response:', JSON.stringify(geckoData));
+        
+        if (geckoData.prices && Array.isArray(geckoData.prices)) {
+          return new Response(
+            JSON.stringify({
+              symbol,
+              market,
+              prices: geckoData.prices.map(([timestamp, price]) => ({
+                timestamp: new Date(timestamp).toISOString(),
+                price
+              })),
+              metadata: {
+                information: "Data from CoinGecko API",
+                symbol,
+                refreshed: new Date().toISOString()
+              },
+              source: 'CoinGecko'
+            }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      }
+    } catch (geckoError) {
+      console.error('CoinGecko time series API error:', geckoError);
+    }
+    
+    // Fallback to Alpha Vantage if CoinGecko fails
+    console.log('CoinGecko failed, trying Alpha Vantage API for time series');
+    
+    if (!ALPHA_VANTAGE_API_KEY) {
+      console.error('ALPHA_VANTAGE_API_KEY is not configured for time series');
+      return createFallbackTimeSeriesResponse(symbol, market);
+    }
+    
+    // Alpha Vantage API call
     const directUrl = `https://www.alphavantage.co/query?function=${func}&symbol=${symbol}&market=${market}&apikey=${ALPHA_VANTAGE_API_KEY}`;
     console.log(`Requesting time series from Alpha Vantage API (masked key): ${directUrl.replace(ALPHA_VANTAGE_API_KEY, '***')}`);
     
@@ -73,48 +169,15 @@ export async function getCryptoTimeSeries(req: Request, params: any) {
     
     if (!directResponse.ok) {
       console.error(`Alpha Vantage API responded with status: ${directResponse.status}`);
-      throw new Error(`Alpha Vantage API responded with status: ${directResponse.status}`);
+      return createFallbackTimeSeriesResponse(symbol, market);
     }
 
     const directData = await directResponse.json();
     console.log('Raw time series response:', JSON.stringify(directData));
 
     if (Object.keys(directData).length === 0 || directData.Note || directData.Information) {
-      console.log('No valid time series data from Alpha Vantage, falling back to CoinGecko');
-      
-      // Fallback to CoinGecko for time series data
-      const geckoUrl = `https://api.coingecko.com/api/v3/coins/${symbol.toLowerCase()}/market_chart?vs_currency=usd&days=7&interval=daily`;
-      console.log('Attempting CoinGecko fallback for time series');
-      
-      const geckoResponse = await fetch(geckoUrl);
-      
-      if (!geckoResponse.ok) {
-        throw new Error('Failed to fetch time series from CoinGecko');
-      }
-      
-      const geckoData = await geckoResponse.json();
-      console.log('CoinGecko time series response:', JSON.stringify(geckoData));
-      
-      if (!geckoData.prices || !Array.isArray(geckoData.prices)) {
-        return createFallbackTimeSeriesResponse(symbol, market);
-      }
-      
-      return new Response(
-        JSON.stringify({
-          symbol,
-          market,
-          prices: geckoData.prices.map(([timestamp, price]) => ({
-            timestamp: new Date(timestamp).toISOString(),
-            price
-          })),
-          metadata: {
-            information: "Data from CoinGecko API",
-            symbol,
-            refreshed: new Date().toISOString()
-          }
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      console.log('No valid time series data from Alpha Vantage, using fallback');
+      return createFallbackTimeSeriesResponse(symbol, market);
     }
     
     return formatTimeSeriesResponse(directData, symbol, market);
@@ -141,7 +204,8 @@ function formatCryptoResponse(data: any) {
       lastRefreshed: exchangeData['6. Last Refreshed'],
       timeZone: exchangeData['7. Time Zone'],
       bidPrice: parseFloat(exchangeData['8. Bid Price'] || '0'),
-      askPrice: parseFloat(exchangeData['9. Ask Price'] || '0')
+      askPrice: parseFloat(exchangeData['9. Ask Price'] || '0'),
+      source: 'AlphaVantage'
     };
     
     return new Response(
@@ -188,7 +252,8 @@ function formatTimeSeriesResponse(data: any, symbol: string, market: string) {
       symbol,
       market,
       prices,
-      metadata: data['Meta Data'] || {}
+      metadata: data['Meta Data'] || {},
+      source: 'AlphaVantage'
     };
     
     return new Response(
@@ -220,7 +285,17 @@ function createFallbackCryptoResponse(fromCurrency = 'BTC', toCurrency = 'USD') 
     timeZone: 'UTC',
     bidPrice: exchangeRate * 0.995,
     askPrice: exchangeRate * 1.005,
-    isFallback: true
+    marketCap: fromCurrency === 'BTC' ? 1300000000000 : 
+              fromCurrency === 'ETH' ? 420000000000 : 
+              fromCurrency === 'BNB' ? 93000000000 : 
+              Math.random() * 100000000000,
+    volume24h: fromCurrency === 'BTC' ? 25000000000 : 
+              fromCurrency === 'ETH' ? 15000000000 : 
+              fromCurrency === 'BNB' ? 2000000000 : 
+              Math.random() * 5000000000,
+    change24h: (Math.random() * 6) - 3,
+    isFallback: true,
+    source: 'Fallback'
   };
   
   console.log('Returning fallback crypto exchange rate data:', fallbackData);
@@ -267,7 +342,8 @@ function createFallbackTimeSeriesResponse(symbol = 'BTC', market = 'USD') {
       symbol,
       refreshed: now.toISOString()
     },
-    isFallback: true
+    isFallback: true,
+    source: 'Fallback'
   };
   
   console.log('Returning fallback time series data');

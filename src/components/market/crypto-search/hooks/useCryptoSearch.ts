@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -9,7 +10,34 @@ const fetchCryptoData = async (symbol: string): Promise<CryptoData | null> => {
   try {
     console.log(`Fetching crypto data for ${symbol}`);
     
-    // First try using our proxy API
+    // Try CoinGecko first for comprehensive data
+    try {
+      const geckoResponse = await fetch(
+        `https://api.coingecko.com/api/v3/coins/${symbol.toLowerCase()}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=true`
+      );
+      
+      if (geckoResponse.ok) {
+        const geckoData = await geckoResponse.json();
+        console.log('CoinGecko response:', geckoData);
+        
+        return {
+          symbol: geckoData.symbol.toUpperCase(),
+          name: geckoData.name,
+          price: geckoData.market_data.current_price.usd,
+          marketCap: geckoData.market_data.market_cap.usd,
+          volume24h: geckoData.market_data.total_volume.usd,
+          change24h: geckoData.market_data.price_change_percentage_24h,
+          sparkline: { 
+            price: geckoData.market_data.sparkline_7d?.price || [] 
+          }
+        };
+      }
+    } catch (geckoError) {
+      console.error('Error with CoinGecko, falling back to our API:', geckoError);
+    }
+    
+    // If CoinGecko fails, use our proxy API
+    console.log('Using proxy API for crypto data');
     const data = await fetchMarketData('crypto-rate', {
       from_currency: symbol.toUpperCase(),
       to_currency: 'USD'
@@ -21,39 +49,16 @@ const fetchCryptoData = async (symbol: string): Promise<CryptoData | null> => {
       // Create response in the expected format
       return {
         symbol: data.fromCurrency,
-        name: data.fromCurrency, // We'll get the full name from CoinGecko
+        name: data.fromCurrency, // We may not have the full name
         price: data.exchangeRate,
-        marketCap: 0, // We'll get this from CoinGecko
-        volume24h: 0, // We'll get this from CoinGecko
-        change24h: 0, // We'll get this from CoinGecko
+        marketCap: data.marketCap || 0,
+        volume24h: data.volume24h || 0,
+        change24h: data.change24h || 0,
         sparkline: { price: [] } // Will be populated separately
       };
     }
     
-    // If proxy fails, fall back to CoinGecko
-    console.log('Falling back to CoinGecko API');
-    const response = await fetch(
-      `https://api.coingecko.com/api/v3/coins/${symbol.toLowerCase()}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=true`
-    );
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch crypto data');
-    }
-    
-    const geckoData = await response.json();
-    console.log('CoinGecko response:', geckoData);
-    
-    return {
-      symbol: geckoData.symbol.toUpperCase(),
-      name: geckoData.name,
-      price: geckoData.market_data.current_price.usd,
-      marketCap: geckoData.market_data.market_cap.usd,
-      volume24h: geckoData.market_data.total_volume.usd,
-      change24h: geckoData.market_data.price_change_percentage_24h,
-      sparkline: { 
-        price: geckoData.market_data.sparkline_7d?.price || [] 
-      }
-    };
+    throw new Error('Failed to fetch crypto data from all available sources');
   } catch (error) {
     console.error('Error fetching crypto data:', error);
     toast.error('Failed to fetch crypto data. Please try again.');
@@ -101,7 +106,22 @@ const fetchChartData = async (symbol: string): Promise<number[]> => {
   try {
     console.log(`Fetching chart data for ${symbol}`);
     
-    // First try using our proxy API
+    // Try CoinGecko first for chart data
+    try {
+      const geckoResponse = await fetch(
+        `https://api.coingecko.com/api/v3/coins/${symbol.toLowerCase()}/market_chart?vs_currency=usd&days=7&interval=daily`
+      );
+      
+      if (geckoResponse.ok) {
+        const chartData = await geckoResponse.json();
+        console.log('CoinGecko chart data:', chartData);
+        return chartData.prices.map((price: any) => price[1]);
+      }
+    } catch (geckoError) {
+      console.error('Error with CoinGecko chart data, falling back to our API:', geckoError);
+    }
+    
+    // If CoinGecko fails, try our proxy API
     const data = await fetchMarketData('crypto-timeseries', {
       symbol: symbol.toUpperCase(),
       market: 'USD',
@@ -113,19 +133,7 @@ const fetchChartData = async (symbol: string): Promise<number[]> => {
       return data.prices.map((p: any) => p.price);
     }
     
-    // Fallback to CoinGecko
-    console.log('Falling back to CoinGecko API for chart data');
-    const response = await fetch(
-      `https://api.coingecko.com/api/v3/coins/${symbol.toLowerCase()}/market_chart?vs_currency=usd&days=7&interval=daily`
-    );
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch chart data');
-    }
-    
-    const chartData = await response.json();
-    console.log('CoinGecko chart data:', chartData);
-    return chartData.prices.map((price: any) => price[1]);
+    throw new Error('Failed to fetch chart data from all available sources');
   } catch (error) {
     console.error('Error fetching chart data:', error);
     return [];
@@ -149,10 +157,11 @@ export const useCryptoSearch = () => {
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 2,
     meta: {
-      onError: (error: Error) => {
-        console.error('Error in crypto data query:', error);
-        toast.error('Failed to fetch crypto data. Please try again later.');
-      }
+      errorMessage: 'Failed to fetch crypto data. Please try again later.'
+    },
+    onError: (error: Error) => {
+      console.error('Error in crypto data query:', error);
+      toast.error('Failed to fetch crypto data. Please try again later.');
     }
   });
 
@@ -165,10 +174,8 @@ export const useCryptoSearch = () => {
     queryFn: fetchTrendingCryptos,
     staleTime: 30 * 60 * 1000, // 30 minutes
     retry: 1,
-    meta: {
-      onError: (error: Error) => {
-        console.error('Error in trending cryptos query:', error);
-      }
+    onError: (error: Error) => {
+      console.error('Error in trending cryptos query:', error);
     }
   });
   
@@ -225,4 +232,3 @@ export const useCryptoSearch = () => {
     handleTrendingClick,
   };
 };
-
