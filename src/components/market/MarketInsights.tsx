@@ -13,6 +13,9 @@ import {
 } from '@/services/market';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const MarketInsights = () => {
   const [status, setStatus] = useState<MarketStatusType | null>(null);
@@ -37,19 +40,32 @@ const MarketInsights = () => {
       // Fetch index data for both indices
       const niftyData = await getIndexData('NIFTY 50');
       console.log("Nifty 50 data:", niftyData);
-      setIndices([niftyData]);
+      
+      // Try to fetch Bank Nifty if Nifty 50 worked
+      try {
+        const bankNiftyData = await getIndexData('NIFTY BANK');
+        console.log("Bank Nifty data:", bankNiftyData);
+        setIndices([niftyData, bankNiftyData]);
+      } catch (bankNiftyError) {
+        console.error("Failed to fetch Bank Nifty data:", bankNiftyError);
+        setIndices([niftyData]);
+      }
 
       // Fetch top gainers and losers
-      const [topGainers, topLosers] = await Promise.all([
-        getTopGainers(),
-        getTopLosers()
-      ]);
-      
-      console.log("Top gainers:", topGainers);
-      console.log("Top losers:", topLosers);
-      
-      setGainers(topGainers);
-      setLosers(topLosers);
+      try {
+        const [topGainers, topLosers] = await Promise.all([
+          getTopGainers(),
+          getTopLosers()
+        ]);
+        
+        console.log("Top gainers:", topGainers);
+        console.log("Top losers:", topLosers);
+        
+        setGainers(topGainers);
+        setLosers(topLosers);
+      } catch (performersError) {
+        console.error("Failed to fetch market performers:", performersError);
+      }
     } catch (error) {
       console.error("Failed to fetch market data:", error);
       setError("Failed to load market data. Please try again later.");
@@ -71,17 +87,40 @@ const MarketInsights = () => {
     return () => clearInterval(intervalId);
   }, [status?.status]);
 
+  const handleRefresh = () => {
+    fetchData();
+    toast.success("Refreshing market data...");
+  };
+
   return (
     <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Market Insights</CardTitle>
-        <CardDescription>Real-time market status and insights.</CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <div>
+          <CardTitle>Market Insights</CardTitle>
+          <CardDescription>Real-time market status and insights.</CardDescription>
+        </div>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={handleRefresh} 
+          disabled={loading}
+          className="h-8 w-8 p-0"
+        >
+          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          <span className="sr-only">Refresh data</span>
+        </Button>
       </CardHeader>
       <CardContent className="pl-4 pb-4">
         {loading ? (
-          <div>Loading market data...</div>
+          <div className="flex items-center justify-center p-4">
+            <RefreshCw className="h-5 w-5 animate-spin mr-2" />
+            <span>Loading market data...</span>
+          </div>
         ) : error ? (
-          <div className="text-red-500">{error}</div>
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         ) : (
           <>
             {status && (
