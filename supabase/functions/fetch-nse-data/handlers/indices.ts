@@ -13,6 +13,7 @@ export async function getIndices(req: Request, indexName: string = 'NIFTY 50') {
     
     // Check API key
     if (!ALPHA_VANTAGE_API_KEY) {
+      console.error('ALPHA_VANTAGE_API_KEY is not configured');
       throw new Error('ALPHA_VANTAGE_API_KEY is not configured');
     }
     
@@ -23,6 +24,7 @@ export async function getIndices(req: Request, indexName: string = 'NIFTY 50') {
     const response = await fetch(url);
 
     if (!response.ok) {
+      console.error(`API responded with status: ${response.status}`);
       throw new Error(`API responded with status: ${response.status}`);
     }
 
@@ -45,12 +47,19 @@ export async function getIndices(req: Request, indexName: string = 'NIFTY 50') {
       throw new Error(`Alpha Vantage API error: ${data.Error}`);
     }
 
-    if (!data || !data['Global Quote'] || Object.keys(data['Global Quote']).length === 0) {
+    // Basic validation of the response structure
+    if (!data || !data['Global Quote']) {
       console.error('Invalid data format received, full response:', JSON.stringify(data));
       throw new Error('Invalid data format received from API');
     }
-
+    
     const quote = data['Global Quote'];
+    
+    // Check if the quote object contains the expected fields
+    if (!quote['05. price']) {
+      console.error('Missing price data in response:', JSON.stringify(quote));
+      throw new Error('Missing price data in API response');
+    }
     
     // Format response to match our application's structure
     const result = {
