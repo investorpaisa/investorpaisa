@@ -1,11 +1,10 @@
-
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { CryptoData } from '../types';
 import { fetchMarketData } from '@/services/market/api';
 
-// Function to fetch crypto data
+// Function to fetch crypto data with better error handling
 const fetchCryptoData = async (symbol: string): Promise<CryptoData | null> => {
   try {
     console.log(`Fetching crypto data for ${symbol}`);
@@ -16,17 +15,17 @@ const fetchCryptoData = async (symbol: string): Promise<CryptoData | null> => {
       to_currency: 'USD'
     });
     
+    console.log('Received data from proxy API:', data);
+    
     if (data && !data.error) {
-      console.log('Received data from proxy API:', data);
-      
       // Create response in the expected format
       return {
         symbol: data.fromCurrency,
-        name: data.fromCurrency, // Alpha Vantage doesn't provide full name
+        name: data.fromCurrency, // We'll get the full name from CoinGecko
         price: data.exchangeRate,
-        marketCap: 0, // Alpha Vantage doesn't provide this in the rate endpoint
-        volume24h: 0, // Alpha Vantage doesn't provide this in the rate endpoint
-        change24h: 0, // Placeholder for now
+        marketCap: 0, // We'll get this from CoinGecko
+        volume24h: 0, // We'll get this from CoinGecko
+        change24h: 0, // We'll get this from CoinGecko
         sparkline: { price: [] } // Will be populated separately
       };
     }
@@ -42,6 +41,7 @@ const fetchCryptoData = async (symbol: string): Promise<CryptoData | null> => {
     }
     
     const geckoData = await response.json();
+    console.log('CoinGecko response:', geckoData);
     
     return {
       symbol: geckoData.symbol.toUpperCase(),
@@ -96,9 +96,11 @@ const fetchTrendingCryptos = async (): Promise<CryptoData[]> => {
   }
 };
 
-// Function to fetch chart data
+// Function to fetch chart data with better error handling
 const fetchChartData = async (symbol: string): Promise<number[]> => {
   try {
+    console.log(`Fetching chart data for ${symbol}`);
+    
     // First try using our proxy API
     const data = await fetchMarketData('crypto-timeseries', {
       symbol: symbol.toUpperCase(),
@@ -107,7 +109,7 @@ const fetchChartData = async (symbol: string): Promise<number[]> => {
     });
     
     if (data && data.prices && data.prices.length > 0) {
-      console.log('Received chart data from proxy API');
+      console.log('Received chart data from proxy API:', data);
       return data.prices.map((p: any) => p.price);
     }
     
@@ -122,10 +124,10 @@ const fetchChartData = async (symbol: string): Promise<number[]> => {
     }
     
     const chartData = await response.json();
+    console.log('CoinGecko chart data:', chartData);
     return chartData.prices.map((price: any) => price[1]);
   } catch (error) {
     console.error('Error fetching chart data:', error);
-    // Return empty array on error
     return [];
   }
 };
@@ -223,3 +225,4 @@ export const useCryptoSearch = () => {
     handleTrendingClick,
   };
 };
+

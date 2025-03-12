@@ -1,4 +1,3 @@
-
 import { RAPIDAPI_HOST, RAPIDAPI_KEY, ALPHA_VANTAGE_API_KEY, API_FUNCTIONS } from "../utils/config.ts";
 import { corsHeaders } from "../utils/cors.ts";
 
@@ -8,25 +7,26 @@ export async function getCryptoRate(req: Request, params: any) {
     
     const { from_currency = 'BTC', to_currency = 'USD' } = params;
     
-    // Try direct Alpha Vantage API first
-    const directUrl = `https://www.alphavantage.co/query?function=${API_FUNCTIONS.CRYPTO.RATE}&from_currency=${from_currency}&to_currency=${to_currency}&apikey=${ALPHA_VANTAGE_API_KEY}`;
-    console.log(`Requesting from direct URL: ${directUrl.replace(ALPHA_VANTAGE_API_KEY, '***')}`);
+    // Try direct Alpha Vantage API first with detailed error logging
+    const directUrl = `https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=${from_currency}&to_currency=${to_currency}&apikey=${ALPHA_VANTAGE_API_KEY}`;
+    console.log(`Requesting from Alpha Vantage API (masked key): ${directUrl.replace(ALPHA_VANTAGE_API_KEY, '***')}`);
     
     const directResponse = await fetch(directUrl);
     
     if (!directResponse.ok) {
-      console.error(`Direct Alpha Vantage API responded with status: ${directResponse.status}`);
-      throw new Error(`Direct API responded with status: ${directResponse.status}`);
+      console.error(`Alpha Vantage API responded with status: ${directResponse.status}`);
+      throw new Error(`Alpha Vantage API responded with status: ${directResponse.status}`);
     }
 
     const directData = await directResponse.json();
-    console.log('Raw direct API response structure:', Object.keys(directData));
+    console.log('Raw Alpha Vantage response:', JSON.stringify(directData));
 
     // Check for API rate limiting or other errors
-    if (directData.Note || directData.Information || directData.Error) {
-      console.log('Direct API returned error, falling back to RapidAPI');
+    if (directData.Note || directData.Information || !directData['Realtime Currency Exchange Rate']) {
+      console.log('Alpha Vantage API returned error or no data, falling back to RapidAPI');
       
-      const rapidApiUrl = `https://alpha-vantage.p.rapidapi.com/query?function=${API_FUNCTIONS.CRYPTO.RATE}&from_currency=${from_currency}&to_currency=${to_currency}`;
+      const rapidApiUrl = `https://alpha-vantage.p.rapidapi.com/query?function=CURRENCY_EXCHANGE_RATE&from_currency=${from_currency}&to_currency=${to_currency}`;
+      console.log('Attempting RapidAPI fallback');
       
       const rapidApiResponse = await fetch(rapidApiUrl, {
         headers: {
@@ -41,19 +41,14 @@ export async function getCryptoRate(req: Request, params: any) {
       }
 
       const rapidApiData = await rapidApiResponse.json();
+      console.log('RapidAPI response:', JSON.stringify(rapidApiData));
       
-      // If we still got an error or no data, return fallback
-      if (rapidApiData.Note || rapidApiData.Information || rapidApiData.Error || !rapidApiData['Realtime Currency Exchange Rate']) {
+      if (!rapidApiData['Realtime Currency Exchange Rate']) {
+        console.log('No valid data from either API, using fallback');
         return createFallbackCryptoResponse(from_currency, to_currency);
       }
       
       return formatCryptoResponse(rapidApiData);
-    }
-    
-    // Process direct API response if it's valid
-    if (!directData['Realtime Currency Exchange Rate']) {
-      console.error('Missing exchange rate data from direct API');
-      return createFallbackCryptoResponse(from_currency, to_currency);
     }
     
     return formatCryptoResponse(directData);
@@ -68,48 +63,58 @@ export async function getCryptoTimeSeries(req: Request, params: any) {
   try {
     console.log(`Fetching crypto time series data for params:`, params);
     
-    const { symbol = 'BTC', market = 'USD', function: func = API_FUNCTIONS.CRYPTO.DAILY } = params;
+    const { symbol = 'BTC', market = 'USD', function: func = 'DIGITAL_CURRENCY_DAILY' } = params;
     
-    // Try direct Alpha Vantage API first
+    // Try direct Alpha Vantage API first with detailed error logging
     const directUrl = `https://www.alphavantage.co/query?function=${func}&symbol=${symbol}&market=${market}&apikey=${ALPHA_VANTAGE_API_KEY}`;
-    console.log(`Requesting from direct URL: ${directUrl.replace(ALPHA_VANTAGE_API_KEY, '***')}`);
+    console.log(`Requesting time series from Alpha Vantage API (masked key): ${directUrl.replace(ALPHA_VANTAGE_API_KEY, '***')}`);
     
     const directResponse = await fetch(directUrl);
     
     if (!directResponse.ok) {
-      console.error(`Direct Alpha Vantage API responded with status: ${directResponse.status}`);
-      throw new Error(`Direct API responded with status: ${directResponse.status}`);
+      console.error(`Alpha Vantage API responded with status: ${directResponse.status}`);
+      throw new Error(`Alpha Vantage API responded with status: ${directResponse.status}`);
     }
 
     const directData = await directResponse.json();
-    console.log('Raw direct API response structure:', Object.keys(directData));
+    console.log('Raw time series response:', JSON.stringify(directData));
 
-    // Check for API rate limiting or other errors
-    if (directData.Note || directData.Information || directData.Error) {
-      console.log('Direct API returned error, falling back to RapidAPI');
+    if (Object.keys(directData).length === 0 || directData.Note || directData.Information) {
+      console.log('No valid time series data from Alpha Vantage, falling back to CoinGecko');
       
-      const rapidApiUrl = `https://alpha-vantage.p.rapidapi.com/query?function=${func}&symbol=${symbol}&market=${market}`;
+      // Fallback to CoinGecko for time series data
+      const geckoUrl = `https://api.coingecko.com/api/v3/coins/${symbol.toLowerCase()}/market_chart?vs_currency=usd&days=7&interval=daily`;
+      console.log('Attempting CoinGecko fallback for time series');
       
-      const rapidApiResponse = await fetch(rapidApiUrl, {
-        headers: {
-          'x-rapidapi-host': RAPIDAPI_HOST,
-          'x-rapidapi-key': RAPIDAPI_KEY
-        }
-      });
-
-      if (!rapidApiResponse.ok) {
-        console.error(`RapidAPI responded with status: ${rapidApiResponse.status}`);
-        throw new Error(`RapidAPI responded with status: ${rapidApiResponse.status}`);
+      const geckoResponse = await fetch(geckoUrl);
+      
+      if (!geckoResponse.ok) {
+        throw new Error('Failed to fetch time series from CoinGecko');
       }
-
-      const rapidApiData = await rapidApiResponse.json();
       
-      // If we still got an error or no data, return fallback
-      if (rapidApiData.Note || rapidApiData.Information || rapidApiData.Error) {
+      const geckoData = await geckoResponse.json();
+      console.log('CoinGecko time series response:', JSON.stringify(geckoData));
+      
+      if (!geckoData.prices || !Array.isArray(geckoData.prices)) {
         return createFallbackTimeSeriesResponse(symbol, market);
       }
       
-      return formatTimeSeriesResponse(rapidApiData, symbol, market);
+      return new Response(
+        JSON.stringify({
+          symbol,
+          market,
+          prices: geckoData.prices.map(([timestamp, price]) => ({
+            timestamp: new Date(timestamp).toISOString(),
+            price
+          })),
+          metadata: {
+            information: "Data from CoinGecko API",
+            symbol,
+            refreshed: new Date().toISOString()
+          }
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
     
     return formatTimeSeriesResponse(directData, symbol, market);
