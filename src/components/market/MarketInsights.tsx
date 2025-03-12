@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +11,7 @@ import {
   MarketIndex
 } from '@/services/market';
 import { Badge } from '@/components/ui/badge';
+import { toast } from '@/components/ui/toast';
 
 interface MarketIndexProps {
   label: string;
@@ -38,28 +38,37 @@ const MarketInsights = () => {
     setLoading(true);
     setError(null);
     try {
+      console.log('Fetching market data...');
+      
       // Fetch market status
       const marketStatus = await getMarketStatus();
       console.log("Market status:", marketStatus);
       setStatus(marketStatus);
 
-      // Fetch index data
+      // Fetch index data for Nifty 50
       const indexData = await getIndexData('NIFTY 50');
       console.log("Index data:", indexData);
-      setIndices([indexData]); // Wrap in array since we're expecting an array
+      setIndices([indexData]);
 
-      // Fetch top gainers
-      const topGainers = await getTopGainers();
+      // Fetch top gainers and losers
+      const [topGainers, topLosers] = await Promise.all([
+        getTopGainers(),
+        getTopLosers()
+      ]);
+      
       console.log("Top gainers:", topGainers);
-      setGainers(topGainers);
-
-      // Fetch top losers
-      const topLosers = await getTopLosers();
       console.log("Top losers:", topLosers);
+      
+      setGainers(topGainers);
       setLosers(topLosers);
     } catch (error) {
       console.error("Failed to fetch market data:", error);
       setError("Failed to load market data. Please try again later.");
+      toast({
+        title: "Error",
+        description: "Failed to fetch market data. Please try again later.",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
@@ -67,10 +76,15 @@ const MarketInsights = () => {
 
   useEffect(() => {
     fetchData();
-    const intervalId = setInterval(fetchData, 60000); // Update every minute
+    // Fetch data every minute when the market is open
+    const intervalId = setInterval(() => {
+      if (status?.status === 'open') {
+        fetchData();
+      }
+    }, 60000);
 
-    return () => clearInterval(intervalId); // Clean up interval on unmount
-  }, []);
+    return () => clearInterval(intervalId);
+  }, [status?.status]);
 
   return (
     <Card className="w-full">

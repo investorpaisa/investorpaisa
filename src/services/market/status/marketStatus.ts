@@ -3,11 +3,9 @@ import { MarketStatus } from '@/services/messages/types';
 import { toast } from 'sonner';
 import { fetchProxyData } from '../api';
 
-/**
- * Get current market status
- */
 export async function getMarketStatus(): Promise<MarketStatus> {
   try {
+    console.log('Fetching market status...');
     const data = await fetchProxyData('marketStatus') as { 
       marketState: string; 
       marketStatus: string;
@@ -17,6 +15,8 @@ export async function getMarketStatus(): Promise<MarketStatus> {
     if (!data) {
       throw new Error('Failed to fetch market status');
     }
+    
+    console.log('Market status data:', data);
     
     return {
       status: data.marketState as 'open' | 'closed' | 'pre-open' | 'post-close',

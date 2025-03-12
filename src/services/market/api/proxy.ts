@@ -1,8 +1,6 @@
 
-// Base proxy functionality for fetching market data
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { ProxyParams } from './types';
 
 // Core proxy function to call the Supabase Edge Function
 export const fetchProxyData = async (endpoint: string, params: Record<string, string> = {}) => {
@@ -22,11 +20,11 @@ export const fetchProxyData = async (endpoint: string, params: Record<string, st
     
     if (!data) {
       console.warn(`No data returned for ${endpoint}`);
+      toast.error('No market data available');
       return null;
     }
     
     console.log(`Data received for ${endpoint}:`, data);
-    
     return data;
   } catch (error) {
     console.error(`Exception fetching ${endpoint}:`, error);
