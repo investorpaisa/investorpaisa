@@ -199,6 +199,16 @@
   .badge-premium {
     @apply bg-gold/30 text-black text-xs font-medium px-2.5 py-0.5 rounded-full;
   }
+
+  /* Market ticker */
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer utilities {
@@ -225,6 +235,10 @@
   
   .animate-pulse-gold {
     animation: pulseGold 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-marquee {
+    animation: marquee 60s linear infinite;
   }
   
   .shadow-glow {
@@ -288,4 +302,67 @@
       opacity: 0.7;
     }
   }
+
+  @keyframes marquee {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+}
+
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #36B37Eaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #E6B45Eaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+  background-color: white;
+  border: 1px solid rgba(230, 180, 94, 0.1);
+  border-radius: 1rem;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border-color: rgba(230, 180, 94, 0.3);
+}
+
+.read-the-docs {
+  color: #888;
 }

@@ -6,9 +6,9 @@ import TrendingTopics from '@/components/feed/TrendingTopics';
 import PostFeed from '@/components/feed/PostFeed';
 import { useHomeFeedData } from '@/hooks/useHomeFeedData';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { TabsList, TabsTrigger, Tabs, TabsContent } from '@/components/ui/tabs';
 import { CreatePostForm } from '@/components/posts/CreatePostForm';
 import { GeminiSearch } from '@/components/search/GeminiSearch';
+import MarketTicker from '@/components/market/MarketTicker';
 
 const NewsPage = () => {
   const { feedPosts, trendingTopics, loading, addPost } = useHomeFeedData();
@@ -35,22 +35,9 @@ const NewsPage = () => {
           <div className="lg:col-span-2 space-y-6">
             <CreatePostForm compact={true} onPostCreated={handlePostCreated} />
             
-            <Tabs defaultValue="all" className="w-full">
-              <TabsList className="grid grid-cols-2 h-auto mb-4">
-                <TabsTrigger value="all" className="py-2">All</TabsTrigger>
-                <TabsTrigger value="trending" className="py-2">Trending</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="all" className="space-y-6">
-                <NewsSection />
-                
-                <PostFeed feedPosts={feedPosts} />
-              </TabsContent>
-              
-              <TabsContent value="trending" className="space-y-6">
-                <NewsSection />
-              </TabsContent>
-            </Tabs>
+            <NewsSection />
+            
+            <PostFeed feedPosts={feedPosts} />
           </div>
           
           {!isMobile && (
@@ -90,6 +77,11 @@ const NewsPage = () => {
           )}
         </div>
       )}
+      
+      {/* Market Ticker Bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-10">
+        <MarketTicker />
+      </div>
     </div>
   );
 };
