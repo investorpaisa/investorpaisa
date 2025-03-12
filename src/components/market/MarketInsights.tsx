@@ -14,18 +14,6 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 
-interface MarketIndexProps {
-  label: string;
-  value: number;
-  change: number;
-}
-
-interface GainersLosersProps {
-  symbol: string;
-  price: number;
-  change: number;
-}
-
 const MarketInsights = () => {
   const [status, setStatus] = useState<MarketStatusType | null>(null);
   const [indices, setIndices] = useState<MarketIndex[]>([]);
