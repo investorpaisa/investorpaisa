@@ -1,5 +1,5 @@
 
-import { RAPIDAPI_HOST, RAPIDAPI_KEY, ALPHA_VANTAGE_API_KEY } from "../utils/config.ts";
+import { RAPIDAPI_HOST, RAPIDAPI_KEY, ALPHA_VANTAGE_API_KEY, API_FUNCTIONS } from "../utils/config.ts";
 import { corsHeaders } from "../utils/cors.ts";
 
 export async function getIndices(req: Request, indexName: string = 'NIFTY 50') {
@@ -14,7 +14,7 @@ export async function getIndices(req: Request, indexName: string = 'NIFTY 50') {
     // Using RapidAPI
     console.log(`Using RapidAPI to fetch data for symbol: ${symbol}`);
     
-    const url = `https://alpha-vantage.p.rapidapi.com/query?function=GLOBAL_QUOTE&symbol=${symbol}`;
+    const url = `https://alpha-vantage.p.rapidapi.com/query?function=${API_FUNCTIONS.STOCK.QUOTE}&symbol=${symbol}`;
     console.log(`Requesting from RapidAPI URL: ${url}`);
     
     const response = await fetch(url, {

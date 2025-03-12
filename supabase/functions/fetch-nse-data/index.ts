@@ -8,7 +8,12 @@ import {
   getStocks, 
   getTopGainers, 
   getTopLosers, 
-  searchStocks 
+  searchStocks,
+  getForexRate,
+  getForexTimeSeries,
+  getCryptoRate,
+  getCryptoTimeSeries,
+  getTechnicalIndicator
 } from "./handlers/index.ts";
 
 serve(async (req) => {
@@ -39,6 +44,16 @@ serve(async (req) => {
         return await getTopLosers(req);
       case 'search':
         return await searchStocks(req, params.q);
+      case 'forex-rate':
+        return await getForexRate(req, params);
+      case 'forex-timeseries':
+        return await getForexTimeSeries(req, params);
+      case 'crypto-rate':
+        return await getCryptoRate(req, params);
+      case 'crypto-timeseries':
+        return await getCryptoTimeSeries(req, params);
+      case 'technical-indicator':
+        return await getTechnicalIndicator(req, params);
       default:
         return new Response(
           JSON.stringify({ error: "Invalid endpoint specified" }),
