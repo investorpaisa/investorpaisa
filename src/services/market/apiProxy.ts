@@ -9,16 +9,7 @@ export const fetchProxyData = async (endpoint: string, params: Record<string, st
   try {
     console.log(`Fetching ${endpoint} with params:`, params);
     
-    // Build query parameters
-    const queryParams = new URLSearchParams();
-    queryParams.append('endpoint', endpoint);
-    
-    // Add any additional parameters
-    Object.entries(params).forEach(([key, value]) => {
-      queryParams.append(key, value);
-    });
-    
-    // Call the Supabase Edge Function
+    // Call the Supabase Edge Function with the endpoint and params
     const { data, error } = await supabase.functions.invoke('fetch-nse-data', {
       body: { endpoint, params },
     });

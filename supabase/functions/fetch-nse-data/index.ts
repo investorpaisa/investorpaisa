@@ -1,4 +1,3 @@
-
 // Follow Deno deployment best practices
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -7,9 +6,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// API URLs for free NSE data
-const API_BASE_URL = "https://latest-stock-price.p.rapidapi.com";
-const INDICES_URL = "https://api.niftyindices.com/eq_indices";
+// API URLs for real-time stock data
+const RAPIDAPI_HOST = "real-time-stock-finance-quote.p.rapidapi.com";
+const RAPIDAPI_KEY = Deno.env.get("RAPIDAPI_KEY") || "";
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -18,25 +17,27 @@ serve(async (req) => {
   }
 
   try {
-    const url = new URL(req.url);
-    const endpoint = url.searchParams.get('endpoint') || 'error';
+    const body = await req.json();
+    const endpoint = body.endpoint || 'error';
+    const params = body.params || {};
     
     console.log(`Processing request for endpoint: ${endpoint}`);
+    console.log(`With params:`, params);
     
     // Based on the endpoint parameter, call the appropriate function
     switch (endpoint) {
       case 'marketStatus':
         return await getMarketStatus(req);
       case 'indices':
-        return await getIndices(req);
+        return await getIndices(req, params.index);
       case 'stocks':
-        return await getStocks(req);
+        return await getStocks(req, params.symbol);
       case 'gainers':
         return await getTopGainers(req);
       case 'losers':
         return await getTopLosers(req);
       case 'search':
-        return await searchStocks(req);
+        return await searchStocks(req, params.q);
       default:
         return new Response(
           JSON.stringify({ error: "Invalid endpoint specified" }),
@@ -87,43 +88,40 @@ async function getMarketStatus(req: Request) {
   );
 }
 
-// Get NSE indices using rapidapi
-async function getIndices(req: Request) {
-  const url = new URL(req.url);
-  const indexName = url.searchParams.get('index') || 'NIFTY 50';
-  
+// Get indices data using the new RapidAPI endpoint
+async function getIndices(req: Request, indexName: string = 'NIFTY 50') {
   try {
-    // Using RapidAPI for free NSE data
-    const response = await fetch(`${API_BASE_URL}/price?Indices=${encodeURIComponent(indexName)}`, {
+    const response = await fetch(`https://${RAPIDAPI_HOST}/indices/India/${encodeURIComponent(indexName)}`, {
       headers: {
-        'X-RapidAPI-Key': 'demo-key-please-use-free-tier', // Users should replace with their own key
-        'X-RapidAPI-Host': 'latest-stock-price.p.rapidapi.com'
+        'X-RapidAPI-Key': RAPIDAPI_KEY,
+        'X-RapidAPI-Host': RAPIDAPI_HOST
       }
     });
     
     if (!response.ok) {
+      console.error(`API responded with status: ${response.status}`);
       throw new Error(`API responded with status: ${response.status}`);
     }
     
     const data = await response.json();
     
     // If no data found, return simulated data
-    if (!data || data.length === 0) {
+    if (!data || !data.indices || data.indices.length === 0) {
       return simulateIndexData(indexName);
     }
     
-    const indexData = data[0];
+    const indexData = data.indices[0];
     
     // Format to match our application's expected structure
     const result = {
-      name: indexData.indexName || indexName,
-      lastPrice: indexData.lastPrice || 0,
-      change: indexData.change || 0,
-      pChange: indexData.pChange || 0,
-      open: indexData.open || 0,
-      high: indexData.dayHigh || 0,
-      low: indexData.dayLow || 0,
-      previousClose: indexData.previousClose || 0,
+      name: indexName,
+      lastPrice: parseFloat(indexData.last || "0"),
+      change: parseFloat(indexData.netChange || "0"),
+      pChange: parseFloat(indexData.pChange || "0"),
+      open: parseFloat(indexData.open || "0"),
+      high: parseFloat(indexData.high || "0"),
+      low: parseFloat(indexData.low || "0"),
+      previousClose: parseFloat(indexData.previousClose || "0"),
       timestamp: new Date().toISOString()
     };
     
@@ -137,53 +135,49 @@ async function getIndices(req: Request) {
   }
 }
 
-// Get stock quotes
-async function getStocks(req: Request) {
-  const url = new URL(req.url);
-  const symbol = url.searchParams.get('symbol') || 'RELIANCE';
-  
+// Get stock quotes using the new API
+async function getStocks(req: Request, symbol: string = 'RELIANCE') {
   try {
-    const response = await fetch(`${API_BASE_URL}/price?Indices=${encodeURIComponent(symbol)}`, {
+    const response = await fetch(`https://${RAPIDAPI_HOST}/stock/India/${encodeURIComponent(symbol)}`, {
       headers: {
-        'X-RapidAPI-Key': 'demo-key-please-use-free-tier',
-        'X-RapidAPI-Host': 'latest-stock-price.p.rapidapi.com'
+        'X-RapidAPI-Key': RAPIDAPI_KEY,
+        'X-RapidAPI-Host': RAPIDAPI_HOST
       }
     });
     
     if (!response.ok) {
+      console.error(`API responded with status: ${response.status}`);
       throw new Error(`API responded with status: ${response.status}`);
     }
     
     const data = await response.json();
     
-    if (!data || data.length === 0) {
+    if (!data || Object.keys(data).length === 0) {
       return simulateStockQuote(symbol);
     }
-    
-    const stockData = data[0];
     
     // Format to match our application's expected structure
     const result = {
       info: {
-        symbol: stockData.symbol || symbol,
-        companyName: getCompanyName(stockData.symbol || symbol),
-        industry: 'Various',
-        series: stockData.series || 'EQ'
+        symbol: symbol,
+        companyName: data.longName || getCompanyName(symbol),
+        industry: data.sector || 'Various',
+        series: 'EQ'
       },
       priceInfo: {
-        lastPrice: stockData.lastPrice || 0,
-        change: stockData.change || 0,
-        pChange: stockData.pChange || 0,
-        open: stockData.open || 0,
-        close: stockData.close || 0,
-        previousClose: stockData.previousClose || 0,
+        lastPrice: parseFloat(data.price || "0"),
+        change: parseFloat(data.netChange || "0"),
+        pChange: parseFloat(data.pChange || "0"),
+        open: parseFloat(data.open || "0"),
+        close: parseFloat(data.previousClose || "0"),
+        previousClose: parseFloat(data.previousClose || "0"),
         intraDayHighLow: {
-          min: stockData.dayLow || 0,
-          max: stockData.dayHigh || 0
+          min: parseFloat(data.low || "0"),
+          max: parseFloat(data.high || "0")
         }
       },
       securityInfo: {
-        tradedVolume: stockData.totalTradedVolume || 0
+        tradedVolume: parseInt(data.volume || "0")
       }
     };
     
@@ -197,45 +191,42 @@ async function getStocks(req: Request) {
   }
 }
 
-// Get top gainers
+// Get top gainers using the new API
 async function getTopGainers(req: Request) {
   try {
-    const response = await fetch(`${API_BASE_URL}/price?Indices=NIFTY%20NEXT%2050`, {
+    const response = await fetch(`https://${RAPIDAPI_HOST}/market/India/gainers`, {
       headers: {
-        'X-RapidAPI-Key': 'demo-key-please-use-free-tier',
-        'X-RapidAPI-Host': 'latest-stock-price.p.rapidapi.com'
+        'X-RapidAPI-Key': RAPIDAPI_KEY,
+        'X-RapidAPI-Host': RAPIDAPI_HOST
       }
     });
     
     if (!response.ok) {
+      console.error(`API responded with status: ${response.status}`);
       throw new Error(`API responded with status: ${response.status}`);
     }
     
     const data = await response.json();
     
-    if (!data || data.length === 0) {
+    if (!data || !data.gainers || data.gainers.length === 0) {
       return simulateGainersLosers(true);
     }
     
-    // Sort by percent change to get top gainers
-    const gainers = data
-      .filter((stock: any) => stock.pChange > 0)
-      .sort((a: any, b: any) => b.pChange - a.pChange)
-      .slice(0, 5)
-      .map((stock: any) => ({
-        symbol: stock.symbol,
-        lastPrice: stock.lastPrice,
-        change: stock.change,
-        pChange: stock.pChange,
-        open: stock.open,
-        high: stock.dayHigh,
-        low: stock.dayLow,
-        previousClose: stock.previousClose,
-        tradedQuantity: stock.totalTradedVolume
-      }));
+    // Format the gainers data
+    const gainers = data.gainers.slice(0, 5).map((stock: any) => ({
+      symbol: stock.ticker,
+      lastPrice: parseFloat(stock.price || "0"),
+      change: parseFloat(stock.change || "0"),
+      pChange: parseFloat(stock.pchange.replace('%', '') || "0"),
+      open: parseFloat(stock.open || "0"),
+      high: parseFloat(stock.high || "0"),
+      low: parseFloat(stock.low || "0"),
+      previousClose: parseFloat(stock.previousClose || "0"),
+      tradedQuantity: parseInt(stock.volume || "0")
+    }));
     
     return new Response(
-      JSON.stringify(gainers.length > 0 ? gainers : simulateGainersLosers(true)),
+      JSON.stringify(gainers),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
@@ -244,45 +235,42 @@ async function getTopGainers(req: Request) {
   }
 }
 
-// Get top losers
+// Get top losers using the new API
 async function getTopLosers(req: Request) {
   try {
-    const response = await fetch(`${API_BASE_URL}/price?Indices=NIFTY%20NEXT%2050`, {
+    const response = await fetch(`https://${RAPIDAPI_HOST}/market/India/losers`, {
       headers: {
-        'X-RapidAPI-Key': 'demo-key-please-use-free-tier',
-        'X-RapidAPI-Host': 'latest-stock-price.p.rapidapi.com'
+        'X-RapidAPI-Key': RAPIDAPI_KEY,
+        'X-RapidAPI-Host': RAPIDAPI_HOST
       }
     });
     
     if (!response.ok) {
+      console.error(`API responded with status: ${response.status}`);
       throw new Error(`API responded with status: ${response.status}`);
     }
     
     const data = await response.json();
     
-    if (!data || data.length === 0) {
+    if (!data || !data.losers || data.losers.length === 0) {
       return simulateGainersLosers(false);
     }
     
-    // Sort by percent change to get top losers
-    const losers = data
-      .filter((stock: any) => stock.pChange < 0)
-      .sort((a: any, b: any) => a.pChange - b.pChange)
-      .slice(0, 5)
-      .map((stock: any) => ({
-        symbol: stock.symbol,
-        lastPrice: stock.lastPrice,
-        change: stock.change,
-        pChange: stock.pChange,
-        open: stock.open,
-        high: stock.dayHigh,
-        low: stock.dayLow,
-        previousClose: stock.previousClose,
-        tradedQuantity: stock.totalTradedVolume
-      }));
+    // Format the losers data
+    const losers = data.losers.slice(0, 5).map((stock: any) => ({
+      symbol: stock.ticker,
+      lastPrice: parseFloat(stock.price || "0"),
+      change: parseFloat(stock.change || "0"),
+      pChange: parseFloat(stock.pchange.replace('%', '') || "0"),
+      open: parseFloat(stock.open || "0"),
+      high: parseFloat(stock.high || "0"),
+      low: parseFloat(stock.low || "0"),
+      previousClose: parseFloat(stock.previousClose || "0"),
+      tradedQuantity: parseInt(stock.volume || "0")
+    }));
     
     return new Response(
-      JSON.stringify(losers.length > 0 ? losers : simulateGainersLosers(false)),
+      JSON.stringify(losers),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
@@ -291,40 +279,42 @@ async function getTopLosers(req: Request) {
   }
 }
 
-// Search stocks
-async function searchStocks(req: Request) {
-  const url = new URL(req.url);
-  const query = url.searchParams.get('q') || '';
+// Search stocks using the new API
+async function searchStocks(req: Request, query: string = '') {
+  if (!query) {
+    return new Response(
+      JSON.stringify([]),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
   
   try {
-    const response = await fetch(`${API_BASE_URL}/price?Indices=NIFTY%20500`, {
+    const response = await fetch(`https://${RAPIDAPI_HOST}/search/${encodeURIComponent(query)}?country=India`, {
       headers: {
-        'X-RapidAPI-Key': 'demo-key-please-use-free-tier',
-        'X-RapidAPI-Host': 'latest-stock-price.p.rapidapi.com'
+        'X-RapidAPI-Key': RAPIDAPI_KEY,
+        'X-RapidAPI-Host': RAPIDAPI_HOST
       }
     });
     
     if (!response.ok) {
+      console.error(`API responded with status: ${response.status}`);
       throw new Error(`API responded with status: ${response.status}`);
     }
     
     const data = await response.json();
     
-    if (!data || data.length === 0) {
+    if (!data || !data.instruments || data.instruments.length === 0) {
       return simulateSearchResults(query);
     }
     
-    // Filter stocks based on query
-    const results = data
-      .filter((stock: any) => 
-        stock.symbol.toLowerCase().includes(query.toLowerCase()) || 
-        getCompanyName(stock.symbol).toLowerCase().includes(query.toLowerCase())
-      )
+    // Format search results
+    const results = data.instruments
+      .filter((item: any) => item.country === "India" && item.type === "EQUITY")
       .slice(0, 10)
-      .map((stock: any) => ({
-        symbol: stock.symbol,
-        type: stock.series || 'EQ',
-        name: getCompanyName(stock.symbol)
+      .map((item: any) => ({
+        symbol: item.symbol,
+        type: 'EQ',
+        name: item.name
       }));
     
     return new Response(
@@ -337,7 +327,7 @@ async function searchStocks(req: Request) {
   }
 }
 
-// Fallback simulations when API fails
+// Fallback simulations - keeping the existing simulation functions
 function simulateIndexData(indexName: string) {
   const baseValue = indexName === 'NIFTY 50' ? 22500 : 
                   indexName === 'NIFTY BANK' ? 48000 : 
