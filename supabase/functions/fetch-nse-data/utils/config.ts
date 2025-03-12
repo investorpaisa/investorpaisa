@@ -3,9 +3,9 @@ export const RAPIDAPI_HOST = "alpha-vantage.p.rapidapi.com";
 export const RAPIDAPI_KEY = Deno.env.get("RAPIDAPI_KEY") || "23ec2c7ac8mshca999ef26c89cebp1512c6jsne5275655a950";
 export const ALPHA_VANTAGE_API_KEY = Deno.env.get("ALPHA_VANTAGE_API_KEY");
 
-// If we can't find the RapidAPI key in environment variables, log a warning
+// If we can't find the RapidAPI key in environment variables, use the provided key
 if (!RAPIDAPI_KEY || RAPIDAPI_KEY === "23ec2c7ac8mshca999ef26c89cebp1512c6jsne5275655a950") {
-  console.warn("Using default RAPIDAPI_KEY, consider setting your own in environment variables for better reliability");
+  console.log("Using provided RAPIDAPI_KEY for Alpha Vantage API");
 }
 
 // API function names for different data categories
