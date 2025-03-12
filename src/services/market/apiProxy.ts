@@ -1,49 +1,100 @@
 
-// This is a placeholder for a proxy service that would handle CORS issues with NSE APIs
-// In a production environment, you would implement a server-side proxy or use a service like Supabase Edge Functions
+// This service handles proxying data from our Supabase Edge Function to fetch NSE market data
 
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
-// Since we can't directly access NSE APIs from the browser due to CORS,
-// this mock implementation simulates API responses for demonstration purposes
+// Use the Supabase Edge Function to fetch market data
 export const fetchProxyData = async (endpoint: string, params: Record<string, string> = {}) => {
-  // In a real implementation, this would make a request to your backend proxy
-  // which would then forward the request to the NSE API
-  
-  // For now, we'll just simulate a successful response with mock data
-  console.log(`[MOCK] Fetching ${endpoint} with params:`, params);
-  
-  // Simulate network latency
-  await new Promise(resolve => setTimeout(resolve, 800));
-  
-  // Return mock data based on the endpoint
-  switch (endpoint) {
-    case '/marketStatus':
-      return mockMarketStatus();
-    case '/quote':
-      return mockStockQuote(params.symbol);
-    case '/indexData':
-      return mockIndexData(params.index);
-    case '/marketData/topGainers':
-      return mockTopGainers();
-    case '/marketData/topLosers':
-      return mockTopLosers();
-    case '/search':
-      return mockSearchResults(params.q);
-    default:
-      toast.error(`Unsupported endpoint: ${endpoint}`);
-      throw new Error(`Unsupported endpoint: ${endpoint}`);
+  try {
+    console.log(`Fetching ${endpoint} with params:`, params);
+    
+    // Build query parameters
+    const queryParams = new URLSearchParams();
+    queryParams.append('endpoint', endpoint);
+    
+    // Add any additional parameters
+    Object.entries(params).forEach(([key, value]) => {
+      queryParams.append(key, value);
+    });
+    
+    // Call the Supabase Edge Function
+    const { data, error } = await supabase.functions.invoke('fetch-nse-data', {
+      body: { endpoint, params },
+    });
+    
+    if (error) {
+      console.error(`Error fetching ${endpoint}:`, error);
+      toast.error(`Failed to fetch market data: ${error.message}`);
+      return fallbackData(endpoint, params);
+    }
+    
+    if (!data) {
+      console.warn(`No data returned for ${endpoint}`);
+      return fallbackData(endpoint, params);
+    }
+    
+    return data;
+  } catch (error) {
+    console.error(`Exception fetching ${endpoint}:`, error);
+    toast.error(`Failed to fetch market data: ${error.message}`);
+    return fallbackData(endpoint, params);
   }
 };
 
-// Mock data generators
+// Fallback data when the API fails
+function fallbackData(endpoint: string, params: Record<string, string> = {}) {
+  console.log(`Using fallback data for ${endpoint}`);
+  
+  switch (endpoint) {
+    case 'marketStatus':
+      return mockMarketStatus();
+    case 'indices':
+      return mockIndexData(params.index);
+    case 'stocks':
+      return mockStockQuote(params.symbol);
+    case 'gainers':
+      return mockTopGainers();
+    case 'losers':
+      return mockTopLosers();
+    case 'search':
+      return mockSearchResults(params.q);
+    default:
+      return { error: "Unsupported endpoint" };
+  }
+}
+
+// Mock data generators for fallback
 function mockMarketStatus() {
   const now = new Date();
   const marketOpen = now.getHours() >= 9 && now.getHours() < 16;
   
   return {
-    marketState: marketOpen ? 'open' : 'closed',
-    marketStatus: marketOpen ? 'The market is currently open' : 'The market is currently closed'
+    status: marketOpen ? "The market is currently open" : "The market is currently closed",
+    timestamp: new Date().toISOString()
+  };
+}
+
+function mockIndexData(indexName: string = 'NIFTY 50') {
+  const baseValue = indexName === 'NIFTY 50' ? 22500 : 
+                  indexName === 'NIFTY BANK' ? 48000 : 
+                  indexName === 'NIFTY IT' ? 33500 : 
+                  indexName === 'NIFTY PHARMA' ? 17800 : 
+                  Math.random() * 20000 + 15000;
+  
+  const change = (Math.random() * 400) - 200;
+  const percentChange = (change / baseValue) * 100;
+  
+  return {
+    name: indexName,
+    lastPrice: baseValue,
+    open: baseValue - (Math.random() * 100),
+    high: baseValue + (Math.random() * 200),
+    low: baseValue - (Math.random() * 200),
+    previousClose: baseValue - change,
+    change: change,
+    pChange: percentChange,
+    timestamp: new Date().toISOString()
   };
 }
 
@@ -79,30 +130,6 @@ function mockStockQuote(symbol: string = 'RELIANCE') {
     securityInfo: {
       tradedVolume: Math.floor(Math.random() * 1000000)
     }
-  };
-}
-
-function mockIndexData(indexName: string = 'NIFTY 50') {
-  const baseValue = indexName === 'NIFTY 50' ? 22500 : 
-                  indexName === 'NIFTY BANK' ? 48000 : 
-                  indexName === 'NIFTY IT' ? 33500 : 
-                  indexName === 'NIFTY PHARMA' ? 17800 : 
-                  Math.random() * 20000 + 15000;
-  
-  const change = (Math.random() * 400) - 200;
-  const percentChange = (change / baseValue) * 100;
-  
-  return {
-    indexInfo: {
-      name: indexName
-    },
-    last: baseValue,
-    open: baseValue - (Math.random() * 100),
-    high: baseValue + (Math.random() * 200),
-    low: baseValue - (Math.random() * 200),
-    previousClose: baseValue - change,
-    change: change,
-    percentChange: percentChange
   };
 }
 
