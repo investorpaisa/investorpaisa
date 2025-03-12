@@ -46,10 +46,10 @@ const MarketInsights = () => {
       console.log("Market status:", marketStatus);
       setStatus(marketStatus);
 
-      // Fetch index data for Nifty 50
-      const indexData = await getIndexData('NIFTY 50');
-      console.log("Index data:", indexData);
-      setIndices([indexData]);
+      // Fetch index data for both indices
+      const niftyData = await getIndexData('NIFTY 50');
+      console.log("Nifty 50 data:", niftyData);
+      setIndices([niftyData]);
 
       // Fetch top gainers and losers
       const [topGainers, topLosers] = await Promise.all([

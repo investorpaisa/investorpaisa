@@ -6,22 +6,23 @@ export async function getIndices(req: Request, indexName: string = 'NIFTY 50') {
   try {
     console.log(`Fetching index data for ${indexName}`);
     
-    // Format index name for API request
-    const symbol = indexName.replace(' ', '%20');
+    // Alpha Vantage API endpoint for real-time quote
+    const apiKey = Deno.env.get('ALPHA_VANTAGE_API_KEY');
+    if (!apiKey) {
+      throw new Error('ALPHA_VANTAGE_API_KEY not configured');
+    }
+
+    // Format symbol for API request (e.g., ^NSEI for Nifty 50)
+    const symbol = indexName === 'NIFTY 50' ? '^NSEI' : indexName;
     
-    const response = await fetch(`https://${RAPIDAPI_HOST}/query?function=GLOBAL_QUOTE&symbol=${symbol}`, {
-      headers: {
-        'X-RapidAPI-Key': RAPIDAPI_KEY,
-        'X-RapidAPI-Host': RAPIDAPI_HOST
-      }
-    });
+    const response = await fetch(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${apiKey}`);
 
     if (!response.ok) {
       throw new Error(`API responded with status: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('Raw API response:', data);
+    console.log('Raw Alpha Vantage response:', data);
 
     if (!data || !data['Global Quote']) {
       throw new Error('Invalid data format received from API');
@@ -42,7 +43,7 @@ export async function getIndices(req: Request, indexName: string = 'NIFTY 50') {
       timestamp: new Date().toISOString()
     };
 
-    console.log('Formatted response:', result);
+    console.log('Formatted result:', result);
 
     return new Response(
       JSON.stringify(result),
@@ -50,7 +51,6 @@ export async function getIndices(req: Request, indexName: string = 'NIFTY 50') {
     );
   } catch (error) {
     console.error(`Error in getIndices for ${indexName}:`, error);
-    // Return error response
     return new Response(
       JSON.stringify({ error: `Failed to fetch index data: ${error.message}` }),
       { 

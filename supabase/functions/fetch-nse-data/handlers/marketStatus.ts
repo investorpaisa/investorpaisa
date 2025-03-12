@@ -1,32 +1,53 @@
 
-// Handler for market status endpoint
 import { corsHeaders } from "../utils/cors.ts";
 
 export async function getMarketStatus(req: Request) {
-  // For demo purposes, we'll check current time (IST) to determine if market is open
-  // BSE/NSE market hours: 9:15 AM - 3:30 PM IST, Monday-Friday
-  const now = new Date();
-  const istOptions = { timeZone: 'Asia/Kolkata' };
-  const istTimeStr = now.toLocaleString('en-US', istOptions);
-  const ist = new Date(istTimeStr);
-  
-  const hour = ist.getHours();
-  const minute = ist.getMinutes();
-  const day = ist.getDay();
-  
-  // Check if within market hours (9:15 AM - 3:30 PM IST) and weekday (1-5)
-  const isWeekday = day >= 1 && day <= 5;
-  const isMarketHours = (hour > 9 || (hour === 9 && minute >= 15)) && (hour < 15 || (hour === 15 && minute <= 30));
-  const isOpen = isWeekday && isMarketHours;
+  try {
+    // For now, we'll return market status based on NYSE trading hours
+    const now = new Date();
+    const hour = now.getUTCHours();
+    const minute = now.getUTCMinutes();
+    const day = now.getUTCDay();
 
-  const status = {
-    marketState: isOpen ? "open" : "closed",
-    marketStatus: isOpen ? "The market is currently open" : "The market is currently closed",
-    timestamp: new Date().toISOString()
-  };
+    // NYSE trading hours (9:30 AM - 4:00 PM ET)
+    // Converting to UTC (ET+4): 13:30 - 20:00 UTC
+    const isWeekend = day === 0 || day === 6;
+    const isBeforeOpen = hour < 13 || (hour === 13 && minute < 30);
+    const isAfterClose = hour >= 20;
 
-  return new Response(
-    JSON.stringify(status),
-    { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-  );
+    let status;
+    let message;
+
+    if (isWeekend) {
+      status = 'closed';
+      message = 'Market is closed for the weekend';
+    } else if (isBeforeOpen) {
+      status = 'pre-open';
+      message = 'Market will open at 9:30 AM ET';
+    } else if (isAfterClose) {
+      status = 'post-close';
+      message = 'Market has closed for the day';
+    } else {
+      status = 'open';
+      message = 'Market is open for trading';
+    }
+
+    return new Response(
+      JSON.stringify({
+        marketState: status,
+        marketStatus: message,
+        timestamp: now.toISOString()
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error('Error in getMarketStatus:', error);
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { 
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500
+      }
+    );
+  }
 }
