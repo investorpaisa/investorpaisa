@@ -158,10 +158,6 @@ export const useCryptoSearch = () => {
     retry: 2,
     meta: {
       errorMessage: 'Failed to fetch crypto data. Please try again later.'
-    },
-    onError: (error: Error) => {
-      console.error('Error in crypto data query:', error);
-      toast.error('Failed to fetch crypto data. Please try again later.');
     }
   });
 
@@ -173,10 +169,7 @@ export const useCryptoSearch = () => {
     queryKey: ['trending-cryptos'],
     queryFn: fetchTrendingCryptos,
     staleTime: 30 * 60 * 1000, // 30 minutes
-    retry: 1,
-    onError: (error: Error) => {
-      console.error('Error in trending cryptos query:', error);
-    }
+    retry: 1
   });
   
   // Query for chart data
