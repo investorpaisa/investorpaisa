@@ -1,5 +1,5 @@
 
-import { RAPIDAPI_HOST, RAPIDAPI_KEY, ALPHA_VANTAGE_API_KEY, API_FUNCTIONS } from "../utils/config.ts";
+import { RAPIDAPI_HOST, RAPIDAPI_KEY, API_FUNCTIONS } from "../utils/config.ts";
 import { corsHeaders } from "../utils/cors.ts";
 
 export async function getIndices(req: Request, indexName: string = 'NIFTY 50') {
@@ -11,69 +11,42 @@ export async function getIndices(req: Request, indexName: string = 'NIFTY 50') {
                   indexName === 'NIFTY BANK' ? '^NSEBANK' : 
                   indexName === 'NIFTY IT' ? '^CNXIT' : indexName;
     
-    // Try direct Alpha Vantage API first (without RapidAPI)
-    console.log(`Using direct Alpha Vantage API to fetch data for symbol: ${symbol}`);
+    // Use RapidAPI exclusively for fetching index data
+    console.log(`Using RapidAPI to fetch data for symbol: ${symbol}`);
     
-    const directUrl = `https://www.alphavantage.co/query?function=${API_FUNCTIONS.STOCK.QUOTE}&symbol=${symbol}&apikey=${ALPHA_VANTAGE_API_KEY}`;
-    console.log(`Requesting from direct URL: ${directUrl.replace(ALPHA_VANTAGE_API_KEY, '***')}`);
+    const rapidApiUrl = `https://alpha-vantage.p.rapidapi.com/query?function=${API_FUNCTIONS.STOCK.QUOTE}&symbol=${symbol}`;
+    console.log(`Requesting from RapidAPI URL: ${rapidApiUrl}`);
     
-    const directResponse = await fetch(directUrl);
-    
-    if (!directResponse.ok) {
-      console.error(`Direct Alpha Vantage API responded with status: ${directResponse.status}`);
-      throw new Error(`Direct API responded with status: ${directResponse.status}`);
+    const rapidApiResponse = await fetch(rapidApiUrl, {
+      headers: {
+        'x-rapidapi-host': RAPIDAPI_HOST,
+        'x-rapidapi-key': RAPIDAPI_KEY
+      }
+    });
+
+    if (!rapidApiResponse.ok) {
+      console.error(`RapidAPI responded with status: ${rapidApiResponse.status}`);
+      throw new Error(`RapidAPI responded with status: ${rapidApiResponse.status}`);
     }
 
-    const directData = await directResponse.json();
-    console.log('Raw direct API response structure:', Object.keys(directData));
-
-    // Fallback to RapidAPI if direct API returns error or empty response
-    if (directData.Note || directData.Information || directData.Error || !directData['Global Quote'] || Object.keys(directData['Global Quote']).length === 0) {
-      console.log('Direct API returned error or empty data, falling back to RapidAPI');
-      
-      const rapidApiUrl = `https://alpha-vantage.p.rapidapi.com/query?function=${API_FUNCTIONS.STOCK.QUOTE}&symbol=${symbol}`;
-      console.log(`Requesting from RapidAPI URL: ${rapidApiUrl}`);
-      
-      const rapidApiResponse = await fetch(rapidApiUrl, {
-        headers: {
-          'x-rapidapi-host': RAPIDAPI_HOST,
-          'x-rapidapi-key': RAPIDAPI_KEY
-        }
-      });
-
-      if (!rapidApiResponse.ok) {
-        console.error(`RapidAPI responded with status: ${rapidApiResponse.status}`);
-        throw new Error(`RapidAPI responded with status: ${rapidApiResponse.status}`);
-      }
-
-      const rapidApiData = await rapidApiResponse.json();
-      console.log('Raw RapidAPI response structure:', Object.keys(rapidApiData));
-      
-      // Check for error messages in RapidAPI response
-      if (rapidApiData.Note || rapidApiData.Information || rapidApiData.Error) {
-        console.error('API error:', rapidApiData.Note || rapidApiData.Information || rapidApiData.Error);
-        throw new Error(`API error: ${rapidApiData.Note || rapidApiData.Information || rapidApiData.Error}`);
-      }
-
-      // Check if we got valid data from RapidAPI
-      if (!rapidApiData['Global Quote'] || Object.keys(rapidApiData['Global Quote']).length === 0) {
-        console.error('Empty quote data received from RapidAPI');
-        // Return fallback data instead of throwing an error
-        return createFallbackResponse(indexName);
-      }
-      
-      return formatResponse(rapidApiData['Global Quote'], indexName);
-    }
+    const rapidApiData = await rapidApiResponse.json();
+    console.log('Raw RapidAPI response structure:', Object.keys(rapidApiData));
     
-    // Process direct API response if it's valid
-    if (!directData['Global Quote'] || Object.keys(directData['Global Quote']).length === 0) {
-      console.error('Empty quote data received from direct API');
+    // Check for error messages in RapidAPI response
+    if (rapidApiData.Note || rapidApiData.Information || rapidApiData.Error) {
+      console.error('API error:', rapidApiData.Note || rapidApiData.Information || rapidApiData.Error);
+      console.error('Complete error response:', JSON.stringify(rapidApiData));
+      throw new Error(`API error: ${rapidApiData.Note || rapidApiData.Information || rapidApiData.Error}`);
+    }
+
+    // Check if we got valid data from RapidAPI
+    if (!rapidApiData['Global Quote'] || Object.keys(rapidApiData['Global Quote']).length === 0) {
+      console.error('Empty quote data received from RapidAPI');
       // Return fallback data instead of throwing an error
       return createFallbackResponse(indexName);
     }
     
-    return formatResponse(directData['Global Quote'], indexName);
-    
+    return formatResponse(rapidApiData['Global Quote'], indexName);
   } catch (error) {
     console.error(`Error in getIndices for ${indexName}:`, error);
     // Instead of throwing and causing a 500 error, return fallback data
