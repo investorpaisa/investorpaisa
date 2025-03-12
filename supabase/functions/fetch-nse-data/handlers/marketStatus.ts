@@ -20,7 +20,8 @@ export async function getMarketStatus(req: Request) {
   const isOpen = isWeekday && isMarketHours;
 
   const status = {
-    status: isOpen ? "The market is currently open" : "The market is currently closed",
+    marketState: isOpen ? "open" : "closed",
+    marketStatus: isOpen ? "The market is currently open" : "The market is currently closed",
     timestamp: new Date().toISOString()
   };
 
@@ -29,4 +30,3 @@ export async function getMarketStatus(req: Request) {
     { headers: { ...corsHeaders, "Content-Type": "application/json" } }
   );
 }
-

@@ -25,10 +25,12 @@ export const fetchProxyData = async (endpoint: string, params: Record<string, st
       return null;
     }
     
+    console.log(`Data received for ${endpoint}:`, data);
+    
     return data;
   } catch (error) {
     console.error(`Exception fetching ${endpoint}:`, error);
-    toast.error(`Failed to fetch market data: ${error.message}`);
+    toast.error(`Failed to fetch market data: ${(error as Error).message}`);
     return null;
   }
 };

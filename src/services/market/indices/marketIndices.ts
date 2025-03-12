@@ -18,27 +18,23 @@ export const NSE_INDICES = {
  */
 export async function getIndexData(indexName: string): Promise<MarketIndex> {
   try {
-    const data = await fetchProxyData('indices', { index: indexName }) as {
-      indexInfo: { name: string };
-      last: number;
-      open: number;
-      high: number;
-      low: number;
-      previousClose: number;
-      change: number;
-      percentChange: number;
-    };
+    const data = await fetchProxyData('indices', { index: indexName });
     
+    if (!data) {
+      throw new Error(`Failed to fetch data for ${indexName}`);
+    }
+    
+    // The data structure comes directly from our edge function now
     return {
-      name: data.indexInfo.name,
-      lastPrice: data.last,
+      name: data.name,
+      lastPrice: data.lastPrice,
       change: data.change,
-      pChange: data.percentChange,
+      pChange: data.pChange,
       open: data.open,
       high: data.high,
       low: data.low,
       previousClose: data.previousClose,
-      timestamp: new Date().toISOString()
+      timestamp: data.timestamp || new Date().toISOString()
     };
   } catch (error) {
     console.error(`Error fetching index data for ${indexName}:`, error);

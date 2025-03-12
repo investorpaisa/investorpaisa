@@ -10,13 +10,18 @@ export async function getMarketStatus(): Promise<MarketStatus> {
   try {
     const data = await fetchProxyData('marketStatus') as { 
       marketState: string; 
-      marketStatus: string; 
+      marketStatus: string;
+      timestamp: string;
     };
     
+    if (!data) {
+      throw new Error('Failed to fetch market status');
+    }
+    
     return {
-      status: data.marketState.toLowerCase() as 'open' | 'closed' | 'pre-open' | 'post-close',
+      status: data.marketState as 'open' | 'closed' | 'pre-open' | 'post-close',
       message: data.marketStatus || 'Status information not available',
-      timestamp: new Date().toISOString()
+      timestamp: data.timestamp || new Date().toISOString()
     };
   } catch (error) {
     console.error('Error fetching market status:', error);

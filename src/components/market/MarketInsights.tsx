@@ -32,23 +32,34 @@ const MarketInsights = () => {
   const [losers, setLosers] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState('indices');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
+    setError(null);
     try {
+      // Fetch market status
       const marketStatus = await getMarketStatus();
+      console.log("Market status:", marketStatus);
       setStatus(marketStatus);
 
+      // Fetch index data
       const indexData = await getIndexData('NIFTY 50');
+      console.log("Index data:", indexData);
       setIndices([indexData]); // Wrap in array since we're expecting an array
 
+      // Fetch top gainers
       const topGainers = await getTopGainers();
+      console.log("Top gainers:", topGainers);
       setGainers(topGainers);
 
+      // Fetch top losers
       const topLosers = await getTopLosers();
+      console.log("Top losers:", topLosers);
       setLosers(topLosers);
     } catch (error) {
       console.error("Failed to fetch market data:", error);
+      setError("Failed to load market data. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -70,6 +81,8 @@ const MarketInsights = () => {
       <CardContent className="pl-4 pb-4">
         {loading ? (
           <div>Loading market data...</div>
+        ) : error ? (
+          <div className="text-red-500">{error}</div>
         ) : (
           <>
             {status && (
@@ -81,7 +94,10 @@ const MarketInsights = () => {
                 >
                   {status.status.includes('open') ? "Open" : "Closed"}
                 </Badge>
-                <p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {status.message}
+                </p>
+                <p className="text-xs text-muted-foreground">
                   Last Updated: {new Date(status.timestamp).toLocaleTimeString()}
                 </p>
               </div>
@@ -94,47 +110,59 @@ const MarketInsights = () => {
               </TabsList>
               <TabsContent value="indices" className="space-y-2">
                 <ScrollArea className="h-[200px] w-full rounded-md border">
-                  {indices.map((index) => (
-                    <div key={index.name} className="flex items-center justify-between p-2">
-                      <span>{index.name}</span>
-                      <div className="text-right">
-                        <div>{index.lastPrice}</div>
-                        <div className={index.change >= 0 ? 'text-green-500' : 'text-red-500'}>
-                          {index.change.toFixed(2)} ({index.pChange.toFixed(2)}%)
+                  {indices.length > 0 ? (
+                    indices.map((index) => (
+                      <div key={index.name} className="flex items-center justify-between p-2">
+                        <span>{index.name}</span>
+                        <div className="text-right">
+                          <div>{index.lastPrice.toLocaleString()}</div>
+                          <div className={index.change >= 0 ? 'text-green-500' : 'text-red-500'}>
+                            {index.change.toFixed(2)} ({index.pChange.toFixed(2)}%)
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  ) : (
+                    <div className="p-4 text-center text-muted-foreground">No index data available</div>
+                  )}
                 </ScrollArea>
               </TabsContent>
               <TabsContent value="gainers" className="space-y-2">
                 <ScrollArea className="h-[200px] w-full rounded-md border">
-                  {gainers.map((gainer) => (
-                    <div key={gainer.symbol} className="flex items-center justify-between p-2">
-                      <span>{gainer.symbol}</span>
-                      <div className="text-right">
-                        <div>₹{gainer.lastPrice}</div>
-                        <div className="text-green-500">
-                          {gainer.change} ({gainer.pChange}%)
+                  {gainers.length > 0 ? (
+                    gainers.map((gainer) => (
+                      <div key={gainer.symbol} className="flex items-center justify-between p-2">
+                        <span>{gainer.symbol}</span>
+                        <div className="text-right">
+                          <div>₹{gainer.lastPrice.toLocaleString()}</div>
+                          <div className="text-green-500">
+                            {gainer.change.toFixed(2)} ({gainer.pChange.toFixed(2)}%)
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  ) : (
+                    <div className="p-4 text-center text-muted-foreground">No gainers data available</div>
+                  )}
                 </ScrollArea>
               </TabsContent>
               <TabsContent value="losers" className="space-y-2">
                 <ScrollArea className="h-[200px] w-full rounded-md border">
-                  {losers.map((loser) => (
-                    <div key={loser.symbol} className="flex items-center justify-between p-2">
-                      <span>{loser.symbol}</span>
-                      <div className="text-right">
-                        <div>₹{loser.lastPrice}</div>
-                        <div className="text-red-500">
-                          {loser.change} ({loser.pChange}%)
+                  {losers.length > 0 ? (
+                    losers.map((loser) => (
+                      <div key={loser.symbol} className="flex items-center justify-between p-2">
+                        <span>{loser.symbol}</span>
+                        <div className="text-right">
+                          <div>₹{loser.lastPrice.toLocaleString()}</div>
+                          <div className="text-red-500">
+                            {loser.change.toFixed(2)} ({loser.pChange.toFixed(2)}%)
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  ) : (
+                    <div className="p-4 text-center text-muted-foreground">No losers data available</div>
+                  )}
                 </ScrollArea>
               </TabsContent>
             </Tabs>
