@@ -4,7 +4,7 @@ import { corsHeaders } from "../utils/cors.ts";
 
 export async function getMarketStatus(req: Request) {
   // For demo purposes, we'll check current time (IST) to determine if market is open
-  // NSE market hours: 9:15 AM - 3:30 PM IST, Monday-Friday
+  // BSE/NSE market hours: 9:15 AM - 3:30 PM IST, Monday-Friday
   const now = new Date();
   const istOptions = { timeZone: 'Asia/Kolkata' };
   const istTimeStr = now.toLocaleString('en-US', istOptions);
@@ -29,3 +29,4 @@ export async function getMarketStatus(req: Request) {
     { headers: { ...corsHeaders, "Content-Type": "application/json" } }
   );
 }
+

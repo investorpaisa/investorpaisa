@@ -6,7 +6,17 @@ import { simulateIndexData } from "../utils/mockData.ts";
 
 export async function getIndices(req: Request, indexName: string = 'NIFTY 50') {
   try {
-    const response = await fetch(`https://${RAPIDAPI_HOST}/indices/India/${encodeURIComponent(indexName)}`, {
+    // Map index names to their symbols for Alpha Vantage
+    const indexMap: Record<string, string> = {
+      'NIFTY 50': '^NSEI',
+      'NIFTY BANK': '^NSEBANK',
+      'NIFTY IT': 'NIFTYIT.NS',
+      'SENSEX': '^BSESN'
+    };
+
+    const symbol = indexMap[indexName] || '^NSEI';
+    
+    const response = await fetch(`https://${RAPIDAPI_HOST}/query?function=TIME_SERIES_DAILY&symbol=${encodeURIComponent(symbol)}&outputsize=compact&datatype=json`, {
       headers: {
         'X-RapidAPI-Key': RAPIDAPI_KEY,
         'X-RapidAPI-Host': RAPIDAPI_HOST
@@ -20,23 +30,26 @@ export async function getIndices(req: Request, indexName: string = 'NIFTY 50') {
     
     const data = await response.json();
     
-    // If no data found, return simulated data
-    if (!data || !data.indices || data.indices.length === 0) {
+    if (!data || !data['Time Series (Daily)']) {
       return simulateIndexData(indexName);
     }
-    
-    const indexData = data.indices[0];
+
+    // Get the latest day's data
+    const dates = Object.keys(data['Time Series (Daily)']);
+    const latestDate = dates[0];
+    const latestData = data['Time Series (Daily)'][latestDate];
+    const previousData = data['Time Series (Daily)'][dates[1]];
     
     // Format to match our application's expected structure
     const result = {
       name: indexName,
-      lastPrice: parseFloat(indexData.last || "0"),
-      change: parseFloat(indexData.netChange || "0"),
-      pChange: parseFloat(indexData.pChange || "0"),
-      open: parseFloat(indexData.open || "0"),
-      high: parseFloat(indexData.high || "0"),
-      low: parseFloat(indexData.low || "0"),
-      previousClose: parseFloat(indexData.previousClose || "0"),
+      lastPrice: parseFloat(latestData['4. close']),
+      change: parseFloat(latestData['4. close']) - parseFloat(previousData['4. close']),
+      pChange: ((parseFloat(latestData['4. close']) - parseFloat(previousData['4. close'])) / parseFloat(previousData['4. close']) * 100),
+      open: parseFloat(latestData['1. open']),
+      high: parseFloat(latestData['2. high']),
+      low: parseFloat(latestData['3. low']),
+      previousClose: parseFloat(previousData['4. close']),
       timestamp: new Date().toISOString()
     };
     
@@ -49,3 +62,4 @@ export async function getIndices(req: Request, indexName: string = 'NIFTY 50') {
     return simulateIndexData(indexName);
   }
 }
+

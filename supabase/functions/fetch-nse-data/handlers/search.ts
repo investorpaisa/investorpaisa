@@ -13,7 +13,7 @@ export async function searchStocks(req: Request, query: string = '') {
   }
   
   try {
-    const response = await fetch(`https://${RAPIDAPI_HOST}/search/${encodeURIComponent(query)}?country=India`, {
+    const response = await fetch(`https://${RAPIDAPI_HOST}/query?function=SYMBOL_SEARCH&keywords=${encodeURIComponent(query)}&datatype=json`, {
       headers: {
         'X-RapidAPI-Key': RAPIDAPI_KEY,
         'X-RapidAPI-Host': RAPIDAPI_HOST
@@ -27,18 +27,18 @@ export async function searchStocks(req: Request, query: string = '') {
     
     const data = await response.json();
     
-    if (!data || !data.instruments || data.instruments.length === 0) {
+    if (!data || !data.bestMatches || data.bestMatches.length === 0) {
       return simulateSearchResults(query);
     }
     
     // Format search results
-    const results = data.instruments
-      .filter((item: any) => item.country === "India" && item.type === "EQUITY")
+    const results = data.bestMatches
+      .filter((item: any) => item['4. region'] === "India")
       .slice(0, 10)
       .map((item: any) => ({
-        symbol: item.symbol,
+        symbol: item['1. symbol'].replace('.BSE', ''),
         type: 'EQ',
-        name: item.name
+        name: item['2. name']
       }));
     
     return new Response(
@@ -50,3 +50,4 @@ export async function searchStocks(req: Request, query: string = '') {
     return simulateSearchResults(query);
   }
 }
+

@@ -4,38 +4,64 @@ import { RAPIDAPI_HOST, RAPIDAPI_KEY } from "../utils/config.ts";
 import { corsHeaders } from "../utils/cors.ts";
 import { simulateGainersLosers } from "../utils/mockData.ts";
 
+// Top stocks to track for market performance
+const TRACKED_STOCKS = [
+  'RELIANCE.BSE', 'TCS.BSE', 'HDFCBANK.BSE', 'INFY.BSE', 'ICICIBANK.BSE',
+  'ITC.BSE', 'KOTAKBANK.BSE', 'LT.BSE', 'AXISBANK.BSE', 'WIPRO.BSE'
+];
+
+async function fetchStockData(symbol: string) {
+  const response = await fetch(`https://${RAPIDAPI_HOST}/query?function=TIME_SERIES_DAILY&symbol=${encodeURIComponent(symbol)}&outputsize=compact&datatype=json`, {
+    headers: {
+      'X-RapidAPI-Key': RAPIDAPI_KEY,
+      'X-RapidAPI-Host': RAPIDAPI_HOST
+    }
+  });
+  
+  if (!response.ok) return null;
+  
+  const data = await response.json();
+  if (!data || !data['Time Series (Daily)']) return null;
+  
+  const dates = Object.keys(data['Time Series (Daily)']);
+  const latestDate = dates[0];
+  const latestData = data['Time Series (Daily)'][latestDate];
+  const previousData = data['Time Series (Daily)'][dates[1]];
+  
+  const close = parseFloat(latestData['4. close']);
+  const prevClose = parseFloat(previousData['4. close']);
+  const change = close - prevClose;
+  const pChange = (change / prevClose) * 100;
+  
+  return {
+    symbol: symbol.replace('.BSE', ''),
+    lastPrice: close,
+    change: change,
+    pChange: pChange,
+    open: parseFloat(latestData['1. open']),
+    high: parseFloat(latestData['2. high']),
+    low: parseFloat(latestData['3. low']),
+    previousClose: prevClose,
+    tradedQuantity: parseInt(latestData['6. volume'])
+  };
+}
+
 export async function getTopGainers(req: Request) {
   try {
-    const response = await fetch(`https://${RAPIDAPI_HOST}/market/India/gainers`, {
-      headers: {
-        'X-RapidAPI-Key': RAPIDAPI_KEY,
-        'X-RapidAPI-Host': RAPIDAPI_HOST
-      }
-    });
+    const stocksData = await Promise.all(
+      TRACKED_STOCKS.map(symbol => fetchStockData(symbol))
+    );
     
-    if (!response.ok) {
-      console.error(`API responded with status: ${response.status}`);
-      throw new Error(`API responded with status: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    
-    if (!data || !data.gainers || data.gainers.length === 0) {
+    const validData = stocksData.filter(data => data !== null);
+    if (validData.length === 0) {
       return simulateGainersLosers(true);
     }
     
-    // Format the gainers data
-    const gainers = data.gainers.slice(0, 5).map((stock: any) => ({
-      symbol: stock.ticker,
-      lastPrice: parseFloat(stock.price || "0"),
-      change: parseFloat(stock.change || "0"),
-      pChange: parseFloat(stock.pchange.replace('%', '') || "0"),
-      open: parseFloat(stock.open || "0"),
-      high: parseFloat(stock.high || "0"),
-      low: parseFloat(stock.low || "0"),
-      previousClose: parseFloat(stock.previousClose || "0"),
-      tradedQuantity: parseInt(stock.volume || "0")
-    }));
+    // Sort by percentage change to get top gainers
+    const gainers = validData
+      .filter(stock => stock.pChange > 0)
+      .sort((a, b) => b.pChange - a.pChange)
+      .slice(0, 5);
     
     return new Response(
       JSON.stringify(gainers),
@@ -49,36 +75,20 @@ export async function getTopGainers(req: Request) {
 
 export async function getTopLosers(req: Request) {
   try {
-    const response = await fetch(`https://${RAPIDAPI_HOST}/market/India/losers`, {
-      headers: {
-        'X-RapidAPI-Key': RAPIDAPI_KEY,
-        'X-RapidAPI-Host': RAPIDAPI_HOST
-      }
-    });
+    const stocksData = await Promise.all(
+      TRACKED_STOCKS.map(symbol => fetchStockData(symbol))
+    );
     
-    if (!response.ok) {
-      console.error(`API responded with status: ${response.status}`);
-      throw new Error(`API responded with status: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    
-    if (!data || !data.losers || data.losers.length === 0) {
+    const validData = stocksData.filter(data => data !== null);
+    if (validData.length === 0) {
       return simulateGainersLosers(false);
     }
     
-    // Format the losers data
-    const losers = data.losers.slice(0, 5).map((stock: any) => ({
-      symbol: stock.ticker,
-      lastPrice: parseFloat(stock.price || "0"),
-      change: parseFloat(stock.change || "0"),
-      pChange: parseFloat(stock.pchange.replace('%', '') || "0"),
-      open: parseFloat(stock.open || "0"),
-      high: parseFloat(stock.high || "0"),
-      low: parseFloat(stock.low || "0"),
-      previousClose: parseFloat(stock.previousClose || "0"),
-      tradedQuantity: parseInt(stock.volume || "0")
-    }));
+    // Sort by percentage change to get top losers
+    const losers = validData
+      .filter(stock => stock.pChange < 0)
+      .sort((a, b) => a.pChange - b.pChange)
+      .slice(0, 5);
     
     return new Response(
       JSON.stringify(losers),
@@ -89,3 +99,4 @@ export async function getTopLosers(req: Request) {
     return simulateGainersLosers(false);
   }
 }
+

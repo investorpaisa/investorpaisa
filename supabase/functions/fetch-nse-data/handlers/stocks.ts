@@ -7,7 +7,7 @@ import { simulateStockQuote } from "../utils/mockData.ts";
 
 export async function getStocks(req: Request, symbol: string = 'RELIANCE') {
   try {
-    const response = await fetch(`https://${RAPIDAPI_HOST}/stock/India/${encodeURIComponent(symbol)}`, {
+    const response = await fetch(`https://${RAPIDAPI_HOST}/query?function=TIME_SERIES_DAILY&symbol=${encodeURIComponent(symbol)}&outputsize=compact&datatype=json`, {
       headers: {
         'X-RapidAPI-Key': RAPIDAPI_KEY,
         'X-RapidAPI-Host': RAPIDAPI_HOST
@@ -21,32 +21,37 @@ export async function getStocks(req: Request, symbol: string = 'RELIANCE') {
     
     const data = await response.json();
     
-    if (!data || Object.keys(data).length === 0) {
+    if (!data || !data['Time Series (Daily)']) {
       return simulateStockQuote(symbol);
     }
+
+    // Get the latest day's data
+    const dates = Object.keys(data['Time Series (Daily)']);
+    const latestDate = dates[0];
+    const latestData = data['Time Series (Daily)'][latestDate];
     
     // Format to match our application's expected structure
     const result = {
       info: {
         symbol: symbol,
-        companyName: data.longName || getCompanyName(symbol),
-        industry: data.sector || 'Various',
+        companyName: getCompanyName(symbol),
+        industry: 'Various',
         series: 'EQ'
       },
       priceInfo: {
-        lastPrice: parseFloat(data.price || "0"),
-        change: parseFloat(data.netChange || "0"),
-        pChange: parseFloat(data.pChange || "0"),
-        open: parseFloat(data.open || "0"),
-        close: parseFloat(data.previousClose || "0"),
-        previousClose: parseFloat(data.previousClose || "0"),
+        lastPrice: parseFloat(latestData['4. close']),
+        change: parseFloat(latestData['4. close']) - parseFloat(latestData['1. open']),
+        pChange: ((parseFloat(latestData['4. close']) - parseFloat(latestData['1. open'])) / parseFloat(latestData['1. open']) * 100),
+        open: parseFloat(latestData['1. open']),
+        close: parseFloat(latestData['4. close']),
+        previousClose: parseFloat(data['Time Series (Daily)'][dates[1]]['4. close']),
         intraDayHighLow: {
-          min: parseFloat(data.low || "0"),
-          max: parseFloat(data.high || "0")
+          min: parseFloat(latestData['3. low']),
+          max: parseFloat(latestData['2. high'])
         }
       },
       securityInfo: {
-        tradedVolume: parseInt(data.volume || "0")
+        tradedVolume: parseInt(latestData['6. volume'])
       }
     };
     
@@ -59,3 +64,4 @@ export async function getStocks(req: Request, symbol: string = 'RELIANCE') {
     return simulateStockQuote(symbol);
   }
 }
+
