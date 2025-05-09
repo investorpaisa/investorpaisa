@@ -1,33 +1,39 @@
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Form } from '@/components/ui/form';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { 
+  Form, 
+  FormControl, 
+  FormField, 
+  FormItem, 
+  FormLabel, 
+  FormMessage 
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Mail, Lock, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/hooks/use-toast';
-import { LoginFormFields } from './LoginFormFields';
 import { LoginFooter } from './LoginFooter';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
-  password: z.string().min(8, { message: 'Password must be at least 8 characters' }),
+  password: z.string().min(1, { message: 'Password is required' }),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-export const LoginForm: React.FC = () => {
+export const LoginForm = () => {
+  const { login, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [emailError, setEmailError] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  
+  const from = location.state?.from?.pathname || '/home';
   
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -37,72 +43,72 @@ export const LoginForm: React.FC = () => {
     },
   });
 
-  // Get the intended destination from location state, or default to /feed
-  const from = location.state?.from?.pathname || '/feed';
-
   async function onSubmit(data: LoginFormValues) {
     setIsLoading(true);
-    setEmailError(false);
-    
     try {
       const user = await login(data.email, data.password);
       if (user) {
-        // Successful login
-        toast({
-          title: "Login successful",
-          description: "Welcome back to Investor Paisa!",
-        });
-        
-        // Use a short timeout to allow the toast to appear before redirecting
-        setTimeout(() => {
-          navigate(from);
-        }, 500);
-      } else {
-        // If error message contains "email", show the email verification alert
-        if (document.body.textContent?.includes('Email not verified')) {
-          setEmailError(true);
-        } else {
-          // Generic login error
-          toast({
-            title: "Login failed",
-            description: "Please check your credentials and try again.",
-            variant: "destructive"
-          });
-        }
+        navigate(from);
       }
-    } catch (error) {
-      console.error('Login error:', error);
-      // Error is already handled in authService
     } finally {
       setIsLoading(false);
     }
   }
 
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    try {
+      await signInWithGoogle();
+      // Auth state change listener will handle navigation
+    } catch (error) {
+      console.error("Google sign in error:", error);
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
+
   return (
-    <Card className="premium-card overflow-hidden">
+    <Card className="premium-card">
       <div className="h-2 bg-gradient-gold w-full"></div>
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-gold">Sign in</CardTitle>
-        <CardDescription className="text-muted-foreground">
-          Enter your email and password to access your account
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {emailError && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Email not verified. Please check your inbox and verify your email before logging in.
-            </AlertDescription>
-          </Alert>
-        )}
-        
+      <CardContent className="pt-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <LoginFormFields control={form.control} />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input placeholder="your.email@example.com" {...field} className="input-premium pl-10" />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input type="password" placeholder="••••••••" {...field} className="input-premium pl-10" />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
             <Button 
               type="submit" 
-              className="btn-premium w-full"
+              className="btn-premium w-full" 
               disabled={isLoading}
             >
               {isLoading ? (
@@ -114,22 +120,49 @@ export const LoginForm: React.FC = () => {
                 "Sign in"
               )}
             </Button>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-premium-dark-700/30"></span>
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-premium-dark-800 px-2 text-muted-foreground">Or continue with</span>
+              </div>
+            </div>
+            
+            <Button 
+              type="button"
+              variant="outline" 
+              className="w-full btn-outline flex items-center gap-2"
+              onClick={handleGoogleSignIn}
+              disabled={isGoogleLoading}
+            >
+              {isGoogleLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <svg className="h-4 w-4" viewBox="0 0 24 24">
+                  <path
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    fill="#4285F4"
+                  />
+                  <path
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    fill="#34A853"
+                  />
+                  <path
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                    fill="#FBBC05"
+                  />
+                  <path
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                    fill="#EA4335"
+                  />
+                </svg>
+              )}
+              <span>{isGoogleLoading ? "Connecting..." : "Sign in with Google"}</span>
+            </Button>
           </form>
         </Form>
-
-        <div className="mt-4">
-          <div className="flex items-center mt-2">
-            <Separator className="flex-1 bg-black/10" />
-            <span className="px-3 text-xs text-muted-foreground">OR</span>
-            <Separator className="flex-1 bg-black/10" />
-          </div>
-
-          <div className="grid gap-2 mt-4">
-            <Button variant="outline" className="w-full btn-outline">
-              Continue with Google
-            </Button>
-          </div>
-        </div>
       </CardContent>
       <LoginFooter />
     </Card>

@@ -1,9 +1,12 @@
 
-import { Outlet } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { Outlet, useLocation, Link } from 'react-router-dom';
 import { Sparkles } from 'lucide-react';
 
 const AuthLayout = () => {
+  const location = useLocation();
+  const isLoginPage = location.pathname.includes('login');
+  const pageTitle = isLoginPage ? "Sign In" : "Create Account";
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <header className="py-6 px-8 border-b border-black/5">
@@ -15,12 +18,15 @@ const AuthLayout = () => {
             <Link to="/" className="text-sm text-black/60 hover:text-black transition-colors">
               Home
             </Link>
-            <Link to="/auth/login" className="text-sm text-black/60 hover:text-black transition-colors">
-              Sign In
-            </Link>
-            <Link to="/auth/register" className="btn-premium text-sm py-2 px-4">
-              Sign Up
-            </Link>
+            {isLoginPage ? (
+              <Link to="/auth/register" className="btn-premium text-sm py-2 px-4">
+                Sign Up
+              </Link>
+            ) : (
+              <Link to="/auth/login" className="text-sm text-black/60 hover:text-black transition-colors">
+                Sign In
+              </Link>
+            )}
           </nav>
         </div>
       </header>

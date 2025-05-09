@@ -1,46 +1,43 @@
 
-import { toast } from "@/hooks/use-toast";
-import { User } from "../api";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from '@/hooks/use-toast';
 
-export const formatUser = (
-  userData: any, 
-  profileData?: any
-): User => {
+export const fetchUserProfile = async (userId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    return null;
+  }
+};
+
+export const formatUser = (authUser: any, profileData: any = null) => {
+  const role = profileData?.role || 'user';
+  
   return {
-    id: userData.id,
-    name: profileData?.full_name || userData.email?.split('@')[0] || 'User',
-    email: userData.email || '',
-    avatar: profileData?.avatar_url,
-    role: (profileData?.role as 'user' | 'expert') || 'user',
+    id: authUser.id,
+    name: profileData?.full_name || authUser.user_metadata?.full_name || authUser.user_metadata?.name || 'Anonymous User',
+    email: authUser.email,
+    role: role as 'user' | 'expert',
+    avatar: profileData?.avatar_url || authUser.user_metadata?.avatar_url,
     followers: profileData?.followers || 0,
     following: profileData?.following || 0,
-    joined: new Date(userData.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    joined: new Date(authUser.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+    username: profileData?.username || authUser.user_metadata?.username || authUser.email?.split('@')[0]
   };
 };
 
-export const fetchUserProfile = async (userId: string) => {
-  const { data: profileData, error: profileError } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .maybeSingle();
-
-  if (profileError) {
-    console.error("Error fetching profile:", profileError);
-  }
-  
-  return profileData;
-};
-
-export const showToast = (
-  title: string, 
-  description: string, 
-  variant: "default" | "destructive" = "default"
-) => {
+export const showToast = (title: string, message: string, type: 'default' | 'destructive' = 'default') => {
   toast({
     title,
-    description,
-    variant
+    description: message,
+    variant: type
   });
 };

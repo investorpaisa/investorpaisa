@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@/services/api';
 import { authService } from '@/services/auth';
@@ -9,6 +10,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<User | null>;
   register: (name: string, email: string, password: string) => Promise<User | null>;
+  signInWithGoogle: () => Promise<void>;
   logout: () => Promise<boolean>;
   updateUserProfile: (updatedProfile: Partial<User>) => void;
 }
@@ -89,6 +91,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const signInWithGoogle = async () => {
+    setIsLoading(true);
+    try {
+      await authService.signInWithGoogle();
+      // User will be set by the auth state change listener if successful
+    } catch (error) {
+      console.error("Google login error:", error);
+      toast({
+        title: "Google login failed",
+        description: error instanceof Error ? error.message : "Something went wrong",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = async () => {
     setIsLoading(true);
     try {
@@ -121,7 +140,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout, updateUserProfile }}>
+    <AuthContext.Provider value={{ user, isLoading, login, register, signInWithGoogle, logout, updateUserProfile }}>
       {children}
     </AuthContext.Provider>
   );
