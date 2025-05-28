@@ -4,6 +4,7 @@ import { User } from '@/services/api';
 import { authService } from '@/services/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface AuthContextType {
   user: User | null;
@@ -22,6 +23,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Handle OAuth errors from URL
+    const handleOAuthError = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const error = urlParams.get('error');
+      const errorDescription = urlParams.get('error_description');
+      
+      if (error) {
+        console.error('OAuth error:', error, errorDescription);
+        toast({
+          title: "Authentication failed",
+          description: "There was an issue with Google sign-in. Please try again or use email/password.",
+          variant: "destructive"
+        });
+        
+        // Clean up the URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    };
+
+    // Check for OAuth errors first
+    handleOAuthError();
+
     // Check if user is already logged in
     const checkUser = async () => {
       setIsLoading(true);
@@ -41,9 +64,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log("Auth state changed:", event, session?.user?.id);
+        
         if (event === 'SIGNED_IN' && session) {
           const currentUser = await authService.getCurrentUser();
           setUser(currentUser);
+          
+          // Show success message for OAuth login
+          if (session.user.app_metadata.provider === 'google') {
+            toast({
+              title: "Welcome!",
+              description: "Successfully signed in with Google"
+            });
+          }
         } else if (event === 'SIGNED_OUT') {
           setUser(null);
         }

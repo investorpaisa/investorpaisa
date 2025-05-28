@@ -51,7 +51,11 @@ export const signInWithGoogle = async () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin,
+        redirectTo: `${window.location.origin}/home`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        }
       }
     });
 
@@ -59,8 +63,6 @@ export const signInWithGoogle = async () => {
       throw error;
     }
 
-    // The OAuth flow will redirect the user, so we don't need to handle
-    // the successful login here as it will be caught by the onAuthStateChange listener
     console.log("Redirecting to Google auth:", data);
   } catch (error) {
     console.error("Google sign in error:", error);
