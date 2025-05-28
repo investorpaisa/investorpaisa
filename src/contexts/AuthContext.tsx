@@ -1,10 +1,8 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@/services/api';
 import { authService } from '@/services/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { useNavigate, useLocation } from 'react-router-dom';
 
 interface AuthContextType {
   user: User | null;
@@ -33,7 +31,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error('OAuth error:', error, errorDescription);
         toast({
           title: "Authentication failed",
-          description: "There was an issue with Google sign-in. Please try again or use email/password.",
+          description: "Google sign-in failed. Please check your configuration and try again.",
           variant: "destructive"
         });
         
