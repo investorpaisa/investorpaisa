@@ -21,6 +21,7 @@ export const crawlArticlesWithGemini = async (
     apiCallsUsed: number;
     duplicatesFiltered: number;
     recentArticlesFound: number;
+    sourcesUsed?: string[];
   };
 }> => {
   try {

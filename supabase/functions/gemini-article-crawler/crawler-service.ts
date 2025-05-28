@@ -37,7 +37,8 @@ export const crawlArticles = async (
         apiCallsUsed: 0,
         duplicatesFiltered: 0,
         recentArticlesFound: recentTitles.length,
-        sourcesAttempted: ['RSS Feeds', 'NewsAPI']
+        sourcesAttempted: ['RSS Feeds', 'NewsAPI'],
+        sourcesUsed: []
       }
     };
   }
@@ -72,6 +73,9 @@ export const crawlArticles = async (
   const filteredArticles = filterDuplicateArticles(articles, recentTitles);
   console.log(`${filteredArticles.length} articles remain after duplicate filtering`);
 
+  // Get unique sources used
+  const sourcesUsed = realArticles.map(a => a.source).filter((v, i, a) => a.indexOf(v) === i);
+
   // Batch insert to database for efficiency
   if (filteredArticles.length > 0) {
     console.log(`Attempting to insert ${filteredArticles.length} articles into database...`);
@@ -95,7 +99,7 @@ export const crawlArticles = async (
       apiCallsUsed: 0, // RSS feeds are free
       duplicatesFiltered: articles.length - filteredArticles.length,
       recentArticlesFound: recentTitles.length,
-      sourcesUsed: realArticles.map(a => a.source).filter((v, i, a) => a.indexOf(v) === i)
+      sourcesUsed: sourcesUsed
     }
   };
 };
