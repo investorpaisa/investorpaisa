@@ -2,6 +2,7 @@
 import { checkRecentArticles } from './utils.ts';
 import { insertArticles, filterDuplicateArticles } from './database.ts';
 import { fetchRealNewsArticles, fetchFromNewsAPI } from './real-news-fetcher.ts';
+import { summarizeContent } from './gemini-summarizer.ts';
 
 export const crawlArticles = async (
   topic: string = 'financial news',
@@ -45,17 +46,26 @@ export const crawlArticles = async (
 
   console.log(`Total real articles collected: ${realArticles.length}`);
 
-  // Convert real articles to our database format
-  const articles = realArticles.map((article, index) => {
+  // Convert real articles to our database format with Gemini summarization
+  const articles = [];
+  for (let index = 0; index < realArticles.length; index++) {
+    const article = realArticles[index];
     const articleId = `real-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`;
     
     console.log(`Processing article ${index + 1}/${realArticles.length}: "${article.title.substring(0, 50)}..."`);
     
-    return {
+    // Use Gemini to create a better summary if we have content
+    let enhancedSummary = article.summary;
+    if (article.summary && article.summary.length > 50) {
+      console.log(`Enhancing summary with Gemini for article: ${article.title.substring(0, 30)}...`);
+      enhancedSummary = await summarizeContent(article.title, article.summary, article.source);
+    }
+    
+    articles.push({
       id: articleId,
       title: article.title,
-      summary: article.summary,
-      content: article.summary, // Using summary as content for now
+      summary: enhancedSummary,
+      content: enhancedSummary, // Using enhanced summary as content
       url: article.url,
       source: article.source,
       category: category,
@@ -64,10 +74,10 @@ export const crawlArticles = async (
       relevance_score: 85 + Math.floor(Math.random() * 10), // Higher score for real articles
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
-    };
-  });
+    });
+  }
 
-  console.log(`Processed ${articles.length} real articles for database insertion`);
+  console.log(`Processed ${articles.length} real articles with Gemini-enhanced summaries`);
 
   // Filter out potential duplicates based on title similarity
   const filteredArticles = filterDuplicateArticles(articles, recentTitles);
@@ -94,9 +104,9 @@ export const crawlArticles = async (
   return {
     success: true,
     articles: filteredArticles,
-    message: `Successfully crawled ${filteredArticles.length} real articles from ${realArticles.length} sources`,
+    message: `Successfully crawled ${filteredArticles.length} real articles with Gemini-enhanced summaries from ${realArticles.length} sources`,
     costOptimizations: {
-      apiCallsUsed: 0, // RSS feeds are free
+      apiCallsUsed: filteredArticles.length, // Number of Gemini API calls for summarization
       duplicatesFiltered: articles.length - filteredArticles.length,
       recentArticlesFound: recentTitles.length,
       sourcesUsed: sourcesUsed

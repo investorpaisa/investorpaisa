@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { NewsArticle } from '@/types';
 
 /**
- * Trigger cost-optimized Gemini-powered article crawling
+ * Trigger RSS article crawling with Gemini-enhanced summarization
  * @param topic - Topic to search for articles
  * @param limit - Number of articles to crawl (capped for cost optimization)
  * @param category - Category for the articles
@@ -36,10 +36,10 @@ export const crawlArticlesWithGemini = async (
 
     return {
       ...data,
-      message: data.message + ` (Cost-optimized: max ${optimizedLimit} articles per request)`
+      message: data.message + ` (RSS feeds with Gemini summarization)`
     };
   } catch (error) {
-    console.error('Error crawling articles with Gemini:', error);
+    console.error('Error crawling articles:', error);
     return {
       success: false,
       articles: [],
@@ -49,28 +49,28 @@ export const crawlArticlesWithGemini = async (
 };
 
 /**
- * Crawl economic news using Gemini
+ * Crawl economic news using RSS feeds with Gemini summarization
  */
 export const crawlEconomicNews = async (limit: number = 10) => {
   return crawlArticlesWithGemini('economic news and market updates', limit, 'Economy');
 };
 
 /**
- * Crawl financial trends using Gemini
+ * Crawl financial trends using RSS feeds with Gemini summarization
  */
 export const crawlFinancialTrends = async (limit: number = 10) => {
   return crawlArticlesWithGemini('financial trends and investment insights', limit, 'Financial');
 };
 
 /**
- * Crawl business news using Gemini
+ * Crawl business news using RSS feeds with Gemini summarization
  */
 export const crawlBusinessNews = async (limit: number = 10) => {
   return crawlArticlesWithGemini('business news and corporate updates', limit, 'Business');
 };
 
 /**
- * Crawl cryptocurrency news using Gemini
+ * Crawl cryptocurrency news using RSS feeds with Gemini summarization
  */
 export const crawlCryptoNews = async (limit: number = 10) => {
   return crawlArticlesWithGemini('cryptocurrency and blockchain news', limit, 'Cryptocurrency');
