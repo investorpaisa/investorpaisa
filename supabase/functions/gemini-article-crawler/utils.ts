@@ -2,9 +2,10 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Use service role client for database operations
+export const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 export const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -13,6 +14,8 @@ export const corsHeaders = {
 
 export const checkRecentArticles = async (category: string): Promise<string[]> => {
   try {
+    console.log(`Checking recent articles for category: ${category}`);
+    
     const { data, error } = await supabase
       .from('news_articles')
       .select('title')
@@ -25,6 +28,7 @@ export const checkRecentArticles = async (category: string): Promise<string[]> =
       return [];
     }
 
+    console.log(`Found ${data?.length || 0} recent articles for ${category}`);
     return data?.map(article => article.title.toLowerCase()) || [];
   } catch (error) {
     console.error('Error in checkRecentArticles:', error);

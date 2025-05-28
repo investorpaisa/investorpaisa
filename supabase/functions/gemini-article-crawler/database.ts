@@ -11,32 +11,29 @@ export const insertArticles = async (articles: any[]) => {
   
   try {
     // Insert articles in smaller batches to avoid timeout issues
-    const batchSize = 5;
-    const batches = [];
+    const batchSize = 10;
+    let totalInserted = 0;
     
     for (let i = 0; i < articles.length; i += batchSize) {
-      batches.push(articles.slice(i, i + batchSize));
-    }
-    
-    console.log(`Splitting into ${batches.length} batches of ${batchSize} articles each`);
-    
-    for (let i = 0; i < batches.length; i++) {
-      const batch = batches[i];
-      console.log(`Inserting batch ${i + 1}/${batches.length} with ${batch.length} articles`);
+      const batch = articles.slice(i, i + batchSize);
+      console.log(`Inserting batch ${Math.floor(i / batchSize) + 1} with ${batch.length} articles`);
       
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('news_articles')
-        .insert(batch);
+        .insert(batch)
+        .select('id');
 
       if (error) {
-        console.error(`Error inserting batch ${i + 1}:`, error);
+        console.error(`Error inserting batch:`, error);
+        console.error('Error details:', JSON.stringify(error, null, 2));
         return { error };
       }
       
-      console.log(`Successfully inserted batch ${i + 1}/${batches.length}`);
+      totalInserted += data?.length || 0;
+      console.log(`Successfully inserted batch, total so far: ${totalInserted}`);
     }
     
-    console.log(`Successfully inserted all ${articles.length} articles`);
+    console.log(`Successfully inserted all ${totalInserted} articles`);
     return { error: null };
     
   } catch (error) {
