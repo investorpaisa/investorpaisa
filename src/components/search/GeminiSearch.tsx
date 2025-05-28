@@ -62,14 +62,9 @@ export const GeminiSearch = ({ expanded, onExpandToggle, trendingTopics = [] }: 
         inputRef={inputRef}
       />
       
-      {expanded && (
-        <SearchOverlay 
-          isMobile={isMobile}
-          searchResults={searchResults}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-        />
-      )}
+      <SearchOverlay 
+        isOpen={expanded}
+      />
     </div>
   );
 };
