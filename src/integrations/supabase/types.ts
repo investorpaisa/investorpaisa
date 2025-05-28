@@ -341,6 +341,51 @@ export type Database = {
           },
         ]
       }
+      news_articles: {
+        Row: {
+          category: string | null
+          content: string | null
+          created_at: string | null
+          id: string
+          published_at: string | null
+          relevance_score: number | null
+          source: string | null
+          summary: string | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string | null
+          url: string | null
+        }
+        Insert: {
+          category?: string | null
+          content?: string | null
+          created_at?: string | null
+          id: string
+          published_at?: string | null
+          relevance_score?: number | null
+          source?: string | null
+          summary?: string | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string | null
+          url?: string | null
+        }
+        Update: {
+          category?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          published_at?: string | null
+          relevance_score?: number | null
+          source?: string | null
+          summary?: string | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string | null
+          url?: string | null
+        }
+        Relationships: []
+      }
       post_shares: {
         Row: {
           commentary: string | null
