@@ -19,6 +19,11 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen }) => {
 
   if (!isOpen) return null;
 
+  // Mock data for components that expect props
+  const mockMarkets = [];
+  const mockUsers = [];
+  const mockCategories = [];
+
   return (
     <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
       <div className="container mx-auto px-4 py-6">
@@ -36,11 +41,15 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen }) => {
 
               <TabsContent value="for-you" className="mt-6">
                 {searchTerm ? (
-                  <SearchResults results={searchResults} />
+                  <SearchResults 
+                    results={searchResults} 
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
+                  />
                 ) : (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <SearchTrendingNews />
-                    <SearchMarketTrends />
+                    <SearchMarketTrends markets={mockMarkets} />
                   </div>
                 )}
               </TabsContent>
@@ -50,20 +59,24 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen }) => {
               </TabsContent>
 
               <TabsContent value="markets" className="mt-6">
-                <SearchMarketTrends />
+                <SearchMarketTrends markets={mockMarkets} />
               </TabsContent>
 
               <TabsContent value="people" className="mt-6">
-                <SearchTrendingUsers />
+                <SearchTrendingUsers users={mockUsers} />
               </TabsContent>
 
               <TabsContent value="categories" className="mt-6">
-                <SearchTrendingCategories />
+                <SearchTrendingCategories categories={mockCategories} />
               </TabsContent>
 
               <TabsContent value="search" className="mt-6">
                 {searchTerm ? (
-                  <SearchResults results={searchResults} />
+                  <SearchResults 
+                    results={searchResults}
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
+                  />
                 ) : (
                   <div className="text-center py-12 text-muted-foreground">
                     <p>Enter a search term to see results</p>
