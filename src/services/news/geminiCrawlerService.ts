@@ -3,29 +3,40 @@ import { supabase } from '@/integrations/supabase/client';
 import { NewsArticle } from '@/types';
 
 /**
- * Trigger Gemini-powered article crawling
+ * Trigger cost-optimized Gemini-powered article crawling
  * @param topic - Topic to search for articles
- * @param limit - Number of articles to crawl
+ * @param limit - Number of articles to crawl (capped for cost optimization)
  * @param category - Category for the articles
  * @returns Promise with crawling result
  */
 export const crawlArticlesWithGemini = async (
   topic: string = 'financial news',
-  limit: number = 10,
+  limit: number = 5,
   category: string = 'Business'
 ): Promise<{
   success: boolean;
   articles: NewsArticle[];
   message: string;
+  costOptimizations?: {
+    apiCallsUsed: number;
+    duplicatesFiltered: number;
+    recentArticlesFound: number;
+  };
 }> => {
   try {
+    // Cap limit to control costs
+    const optimizedLimit = Math.min(limit, 8);
+    
     const { data, error } = await supabase.functions.invoke('gemini-article-crawler', {
-      body: { topic, limit, category },
+      body: { topic, limit: optimizedLimit, category },
     });
 
     if (error) throw error;
 
-    return data;
+    return {
+      ...data,
+      message: data.message + ` (Cost-optimized: max ${optimizedLimit} articles per request)`
+    };
   } catch (error) {
     console.error('Error crawling articles with Gemini:', error);
     return {

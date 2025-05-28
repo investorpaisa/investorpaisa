@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Bot, Loader2, Sparkles } from 'lucide-react';
+import { Bot, Loader2, Sparkles, DollarSign } from 'lucide-react';
 import { crawlArticlesWithGemini } from '@/services/news/geminiCrawlerService';
 import { useToast } from '@/hooks/use-toast';
 
@@ -24,7 +24,18 @@ const GeminiCrawlerButton = () => {
       if (result.success) {
         toast({
           title: "Articles Crawled Successfully",
-          description: `${result.articles.length} new articles have been added using Gemini AI`,
+          description: (
+            <div className="space-y-1">
+              <p>{result.message}</p>
+              {result.costOptimizations && (
+                <div className="text-xs text-muted-foreground">
+                  <p>• API calls used: {result.costOptimizations.apiCallsUsed}</p>
+                  <p>• Duplicates filtered: {result.costOptimizations.duplicatesFiltered}</p>
+                  <p>• Recent articles found: {result.costOptimizations.recentArticlesFound}</p>
+                </div>
+              )}
+            </div>
+          ),
         });
       } else {
         toast({
@@ -49,10 +60,11 @@ const GeminiCrawlerButton = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Bot className="h-5 w-5 text-blue-500" />
-          Gemini Article Crawler
+          Cost-Optimized Gemini Crawler
+          <DollarSign className="h-4 w-4 text-green-500" />
         </CardTitle>
         <CardDescription>
-          Use AI to discover and crawl relevant articles from across the web
+          AI-powered article discovery with intelligent cost optimization and duplicate detection
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -85,7 +97,7 @@ const GeminiCrawlerButton = () => {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="limit">Number of Articles</Label>
+            <Label htmlFor="limit">Articles (Max 8)</Label>
             <Select value={limit.toString()} onValueChange={(value) => setLimit(parseInt(value))}>
               <SelectTrigger>
                 <SelectValue />
@@ -93,11 +105,20 @@ const GeminiCrawlerButton = () => {
               <SelectContent>
                 <SelectItem value="3">3 articles</SelectItem>
                 <SelectItem value="5">5 articles</SelectItem>
-                <SelectItem value="10">10 articles</SelectItem>
-                <SelectItem value="15">15 articles</SelectItem>
+                <SelectItem value="8">8 articles (max)</SelectItem>
               </SelectContent>
             </Select>
           </div>
+        </div>
+        
+        <div className="text-xs text-muted-foreground bg-green-50 p-2 rounded">
+          <p className="font-medium text-green-700">Cost Optimizations Active:</p>
+          <ul className="list-disc list-inside space-y-1 text-green-600">
+            <li>Single API call generates multiple articles</li>
+            <li>Automatic duplicate detection (6-hour window)</li>
+            <li>Intelligent rate limiting</li>
+            <li>Batch database operations</li>
+          </ul>
         </div>
         
         <Button 
@@ -108,12 +129,12 @@ const GeminiCrawlerButton = () => {
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Crawling Articles...
+              Optimizing & Crawling...
             </>
           ) : (
             <>
               <Sparkles className="mr-2 h-4 w-4" />
-              Crawl Articles with AI
+              Crawl Articles (Cost-Optimized)
             </>
           )}
         </Button>
