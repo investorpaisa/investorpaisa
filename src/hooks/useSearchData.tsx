@@ -1,6 +1,8 @@
 
 import { useState, useEffect } from 'react';
 import { SearchResult } from '@/components/search/SearchResults';
+import { getLatestNews } from '@/services/news/newsService';
+import { NewsArticle } from '@/types';
 
 export const useSearchData = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -8,22 +10,48 @@ export const useSearchData = () => {
   const [activeTab, setActiveTab] = useState('for-you');
 
   useEffect(() => {
-    if (searchTerm.trim()) {
-      // Mock search results - in a real app, would fetch from API
-      const results: SearchResult[] = [
-        { id: '1', type: 'circle', title: 'Investment Circle', subtitle: '1.2k members', category: 'Investment' },
-        { id: '2', type: 'category', title: 'Tax Planning', subtitle: '245 posts', category: 'Finance' },
-        { id: '3', type: 'post', title: 'How to minimize tax liability', subtitle: 'by John Smith', category: 'Tax' },
-        { id: '4', type: 'influencer', title: 'Jane Doe', subtitle: 'Financial Advisor', avatar: 'https://i.pravatar.cc/150?u=jane', category: 'Expert' },
-        { id: '5', type: 'circle', title: 'Retirement Planning', subtitle: '3.4k members', category: 'Planning' },
-        { id: '6', type: 'influencer', title: 'Mike Wilson', subtitle: 'Tax Expert', avatar: 'https://i.pravatar.cc/150?u=mike', category: 'Expert' },
-        { id: '7', type: 'news', title: 'Budget 2023: Key Highlights', subtitle: 'Economic Times', category: 'Economy' },
-        { id: '8', type: 'market', title: 'NIFTY 50', subtitle: '21,345.65 (+1.2%)', category: 'Index' },
-      ];
-      setSearchResults(results);
-    } else {
-      setSearchResults([]);
-    }
+    const performSearch = async () => {
+      if (searchTerm.trim()) {
+        try {
+          // Search across different content types
+          const newsResults = await getLatestNews(5);
+          
+          // Convert news articles to search results
+          const newsSearchResults: SearchResult[] = newsResults.map(article => ({
+            id: article.id,
+            type: 'news' as const,
+            title: article.title,
+            subtitle: article.source || 'News',
+            category: article.category || 'General'
+          }));
+
+          // Mock other search results for demonstration
+          const mockResults: SearchResult[] = [
+            { id: '1', type: 'circle', title: 'Investment Circle', subtitle: '1.2k members', category: 'Investment' },
+            { id: '2', type: 'category', title: 'Tax Planning', subtitle: '245 posts', category: 'Finance' },
+            { id: '3', type: 'post', title: 'How to minimize tax liability', subtitle: 'by John Smith', category: 'Tax' },
+            { id: '4', type: 'influencer', title: 'Jane Doe', subtitle: 'Financial Advisor', avatar: 'https://i.pravatar.cc/150?u=jane', category: 'Expert' },
+            { id: '5', type: 'market', title: 'NIFTY 50', subtitle: '21,345.65 (+1.2%)', category: 'Index' },
+          ];
+
+          // Filter results based on search term
+          const filteredMockResults = mockResults.filter(result => 
+            result.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            result.category?.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+
+          setSearchResults([...newsSearchResults, ...filteredMockResults]);
+        } catch (error) {
+          console.error('Search error:', error);
+          setSearchResults([]);
+        }
+      } else {
+        setSearchResults([]);
+      }
+    };
+
+    const debounceTimer = setTimeout(performSearch, 300);
+    return () => clearTimeout(debounceTimer);
   }, [searchTerm]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {

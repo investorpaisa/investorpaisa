@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Bot, Loader2, Sparkles, DollarSign } from 'lucide-react';
+import { Bot, Loader2, Sparkles, Globe } from 'lucide-react';
 import { crawlArticlesWithGemini } from '@/services/news/geminiCrawlerService';
 import { useToast } from '@/hooks/use-toast';
 
@@ -23,17 +23,15 @@ const GeminiCrawlerButton = () => {
       
       if (result.success) {
         toast({
-          title: "Articles Crawled Successfully",
+          title: "Web Crawling Successful",
           description: (
             <div className="space-y-1">
-              <p>{result.message}</p>
-              {result.costOptimizations && (
-                <div className="text-xs text-muted-foreground">
-                  <p>• API calls used: {result.costOptimizations.apiCallsUsed}</p>
-                  <p>• Duplicates filtered: {result.costOptimizations.duplicatesFiltered}</p>
-                  <p>• Recent articles found: {result.costOptimizations.recentArticlesFound}</p>
-                </div>
-              )}
+              <p>Successfully crawled {result.articles.length} articles from the web</p>
+              <div className="text-xs text-muted-foreground">
+                <p>• Articles with unique IDs for tracking interactions</p>
+                <p>• Source URLs for redirection</p>
+                <p>• Images and summaries included</p>
+              </div>
             </div>
           ),
         });
@@ -47,7 +45,7 @@ const GeminiCrawlerButton = () => {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to crawl articles. Please try again.",
+        description: "Failed to crawl articles from the web. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -59,22 +57,22 @@ const GeminiCrawlerButton = () => {
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Bot className="h-5 w-5 text-blue-500" />
-          Cost-Optimized Gemini Crawler
-          <DollarSign className="h-4 w-4 text-green-500" />
+          <Globe className="h-5 w-5 text-blue-500" />
+          Web Article Crawler
+          <Bot className="h-4 w-4 text-green-500" />
         </CardTitle>
         <CardDescription>
-          AI-powered article discovery with intelligent cost optimization and duplicate detection
+          Crawl the web for articles with titles, summaries, images, and source URLs. Each article gets a unique ID for tracking user interactions.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="topic">Topic</Label>
+          <Label htmlFor="topic">Search Topic/Tag</Label>
           <Input
             id="topic"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            placeholder="Enter topic to search for..."
+            placeholder="Enter topic to crawl articles for..."
           />
         </div>
         
@@ -97,7 +95,7 @@ const GeminiCrawlerButton = () => {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="limit">Articles (Max 8)</Label>
+            <Label htmlFor="limit">Articles to Crawl</Label>
             <Select value={limit.toString()} onValueChange={(value) => setLimit(parseInt(value))}>
               <SelectTrigger>
                 <SelectValue />
@@ -105,19 +103,20 @@ const GeminiCrawlerButton = () => {
               <SelectContent>
                 <SelectItem value="3">3 articles</SelectItem>
                 <SelectItem value="5">5 articles</SelectItem>
-                <SelectItem value="8">8 articles (max)</SelectItem>
+                <SelectItem value="8">8 articles</SelectItem>
+                <SelectItem value="10">10 articles</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
         
-        <div className="text-xs text-muted-foreground bg-green-50 p-2 rounded">
-          <p className="font-medium text-green-700">Cost Optimizations Active:</p>
-          <ul className="list-disc list-inside space-y-1 text-green-600">
-            <li>Single API call generates multiple articles</li>
-            <li>Automatic duplicate detection (6-hour window)</li>
-            <li>Intelligent rate limiting</li>
-            <li>Batch database operations</li>
+        <div className="text-xs text-muted-foreground bg-blue-50 p-2 rounded">
+          <p className="font-medium text-blue-700">Crawler Features:</p>
+          <ul className="list-disc list-inside space-y-1 text-blue-600">
+            <li>Extracts title, summary, and source URL</li>
+            <li>Includes relevant images for each article</li>
+            <li>Assigns unique IDs for user interaction tracking</li>
+            <li>Ready for likes, comments, and shares</li>
           </ul>
         </div>
         
@@ -129,12 +128,12 @@ const GeminiCrawlerButton = () => {
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Optimizing & Crawling...
+              Crawling Web...
             </>
           ) : (
             <>
-              <Sparkles className="mr-2 h-4 w-4" />
-              Crawl Articles (Cost-Optimized)
+              <Globe className="mr-2 h-4 w-4" />
+              Crawl Articles from Web
             </>
           )}
         </Button>
