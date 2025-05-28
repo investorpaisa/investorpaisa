@@ -20,8 +20,8 @@ interface NewsCardProps {
 const NewsCard = ({ article, onBookmark, onShare, isBookmarked = false }: NewsCardProps) => {
   const [bookmarked, setBookmarked] = useState(isBookmarked);
   const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 20)); // Mock like count
-  const [commentCount, setCommentCount] = useState(Math.floor(Math.random() * 10)); // Mock comment count
+  const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 20));
+  const [commentCount, setCommentCount] = useState(Math.floor(Math.random() * 10));
   const [repostDialogOpen, setRepostDialogOpen] = useState(false);
   const { openComments } = useCommentsDialog();
 
@@ -97,37 +97,44 @@ const NewsCard = ({ article, onBookmark, onShare, isBookmarked = false }: NewsCa
   };
 
   return (
-    <Card className="border shadow-sm animate-hover-rise h-full flex flex-col">
+    <Card className="w-full border shadow-sm hover:shadow-md transition-shadow duration-200">
       <CardHeader className="p-4 pb-2">
-        <div className="flex justify-between items-start">
-          <div className="flex-1">
-            <Badge variant="outline" className="bg-ip-blue-50 text-ip-blue-800 mb-2 hover:bg-ip-blue-100 transition-colors">
+        <div className="flex flex-col space-y-2">
+          <div className="flex items-center justify-between">
+            <Badge variant="outline" className="w-fit bg-blue-50 text-blue-800 hover:bg-blue-100 transition-colors">
               {article.category}
             </Badge>
-            <div className="flex items-center text-xs text-muted-foreground mb-2">
+            <div className="flex items-center text-xs text-muted-foreground">
               <Clock className="h-3 w-3 mr-1" />
               <span>{getPublishedTime()}</span>
-              <span className="mx-2">•</span>
-              <span>{article.source}</span>
             </div>
+          </div>
+          <div className="text-xs text-muted-foreground">
+            {article.source}
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-4 pt-0 flex-1">
-        <CardTitle className="text-lg font-medium mb-2 line-clamp-2 hover:text-ip-teal cursor-pointer" onClick={handleOpenArticle}>
+      
+      <CardContent className="p-4 pt-0 space-y-3">
+        <CardTitle 
+          className="text-base font-medium leading-tight cursor-pointer hover:text-blue-600 transition-colors line-clamp-2" 
+          onClick={handleOpenArticle}
+        >
           {article.title}
         </CardTitle>
+        
         {article.summary && (
-          <CardDescription className="text-muted-foreground text-sm line-clamp-3">
+          <CardDescription className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
             {article.summary}
           </CardDescription>
         )}
+        
         {article.thumbnail_url && (
-          <div className="mt-3 w-full h-32 overflow-hidden rounded-md">
+          <div className="w-full h-32 overflow-hidden rounded-md bg-gray-100">
             <img 
               src={article.thumbnail_url} 
               alt={article.title} 
-              className="w-full h-full object-cover" 
+              className="w-full h-full object-cover transition-transform duration-200 hover:scale-105" 
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = 'none';
               }}
@@ -135,41 +142,44 @@ const NewsCard = ({ article, onBookmark, onShare, isBookmarked = false }: NewsCa
           </div>
         )}
       </CardContent>
-      <CardFooter className="p-4 pt-2 flex justify-between">
-        <div className="flex items-center space-x-1">
-          <Button variant="ghost" size="sm" className="gap-1" onClick={handleLike}>
-            <Heart className="h-4 w-4" fill={liked ? "currentColor" : "none"} color={liked ? "#10b981" : "currentColor"} />
-            <span>{likeCount}</span>
-          </Button>
-          <Button variant="ghost" size="sm" className="gap-1" onClick={handleComment}>
-            <MessageSquare className="h-4 w-4" />
-            <span>{commentCount}</span>
-          </Button>
-          <Button variant="ghost" size="sm" className="gap-1" onClick={handleRepost}>
-            <Repeat2 className="h-4 w-4" />
-            <span>Repost</span>
-          </Button>
-        </div>
-        <div className="flex space-x-1">
-          <Button variant="outline" size="sm" className="gap-1" onClick={handleOpenArticle}>
-            <ExternalLink className="h-4 w-4" />
-            <span className="hidden sm:inline">Read Article</span>
-          </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleShare}>
-            <Share2 className="h-4 w-4" />
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className={`h-8 w-8 ${bookmarked ? 'text-ip-teal' : ''}`}
-            onClick={handleBookmark}
-          >
-            <Bookmark className="h-4 w-4" fill={bookmarked ? "currentColor" : "none"} />
-          </Button>
+      
+      <CardFooter className="p-4 pt-2 flex flex-col space-y-3">
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center space-x-1">
+            <Button variant="ghost" size="sm" className="h-8 px-2 gap-1" onClick={handleLike}>
+              <Heart className="h-3 w-3" fill={liked ? "currentColor" : "none"} color={liked ? "#10b981" : "currentColor"} />
+              <span className="text-xs">{likeCount}</span>
+            </Button>
+            <Button variant="ghost" size="sm" className="h-8 px-2 gap-1" onClick={handleComment}>
+              <MessageSquare className="h-3 w-3" />
+              <span className="text-xs">{commentCount}</span>
+            </Button>
+            <Button variant="ghost" size="sm" className="h-8 px-2 gap-1" onClick={handleRepost}>
+              <Repeat2 className="h-3 w-3" />
+              <span className="text-xs hidden sm:inline">Repost</span>
+            </Button>
+          </div>
+          
+          <div className="flex items-center space-x-1">
+            <Button variant="outline" size="sm" className="h-8 px-3 gap-1" onClick={handleOpenArticle}>
+              <ExternalLink className="h-3 w-3" />
+              <span className="text-xs hidden sm:inline">Read</span>
+            </Button>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={handleShare}>
+              <Share2 className="h-3 w-3" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className={`h-8 w-8 p-0 ${bookmarked ? 'text-blue-600' : ''}`}
+              onClick={handleBookmark}
+            >
+              <Bookmark className="h-3 w-3" fill={bookmarked ? "currentColor" : "none"} />
+            </Button>
+          </div>
         </div>
       </CardFooter>
       
-      {/* Repost Dialog */}
       <RepostDialog 
         open={repostDialogOpen} 
         onOpenChange={setRepostDialogOpen} 

@@ -2,8 +2,8 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Bot, Sparkles } from 'lucide-react';
-import { useGeminiContent } from '@/hooks/useGeminiContent';
+import { RefreshCw, Rss } from 'lucide-react';
+import { useNews } from '@/hooks/useNews';
 import NewsCard from './NewsCard';
 import { useToast } from '@/hooks/use-toast';
 
@@ -21,23 +21,16 @@ const CategoryNewsSection = ({
   topic,
   category,
   limit = 5,
-  autoRefresh = false,
-  showCrawlButton = true
+  autoRefresh = false
 }: CategoryNewsSectionProps) => {
   const { toast } = useToast();
   const {
-    articles,
+    news: articles,
     isLoading,
-    isCrawling,
     error,
-    refreshContent,
-    crawlNewContent
-  } = useGeminiContent({
-    topic,
-    category,
-    limit,
-    autoRefresh
-  });
+    refreshNews,
+    isRefreshing
+  } = useNews(category, limit, autoRefresh);
 
   const handleBookmark = (articleId: string) => {
     console.log('Bookmark article:', articleId);
@@ -59,29 +52,18 @@ const CategoryNewsSection = ({
     }
   };
 
-  const handleCrawl = async () => {
-    try {
-      await crawlNewContent();
-      toast({
-        title: 'New Content Generated',
-        description: `Fresh ${category.toLowerCase()} articles have been generated using AI.`,
-      });
-    } catch (error) {
-      toast({
-        title: 'Generation Failed',
-        description: 'Failed to generate new content. Please try again.',
-        variant: 'destructive',
-      });
-    }
-  };
-
   if (isLoading) {
     return (
-      <Card>
-        <CardContent className="p-6 flex justify-center items-center min-h-[200px]">
-          <div className="flex flex-col items-center space-y-4">
-            <RefreshCw className="h-8 w-8 animate-spin text-blue-500" />
-            <p className="text-sm text-muted-foreground">Loading {title.toLowerCase()}...</p>
+      <Card className="w-full">
+        <CardContent className="p-6">
+          <div className="space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="animate-pulse space-y-2">
+                <div className="bg-gray-200 h-4 w-3/4 rounded"></div>
+                <div className="bg-gray-200 h-3 w-1/2 rounded"></div>
+                <div className="bg-gray-200 h-20 w-full rounded"></div>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
@@ -89,47 +71,25 @@ const CategoryNewsSection = ({
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="w-full">
+      <CardHeader className="pb-4">
         <div className="flex justify-between items-center">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              {title}
-              <Bot className="h-4 w-4 text-blue-500" />
-            </CardTitle>
-            <CardDescription>AI-powered content from across the web</CardDescription>
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-lg">{title}</CardTitle>
+            <Rss className="h-4 w-4 text-blue-500" />
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={refreshContent}
-              disabled={isLoading}
-            >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-            </Button>
-            {showCrawlButton && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleCrawl}
-                disabled={isCrawling}
-              >
-                {isCrawling ? (
-                  <>
-                    <RefreshCw className="h-4 w-4 animate-spin mr-1" />
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-4 w-4 mr-1" />
-                    Generate
-                  </>
-                )}
-              </Button>
-            )}
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={refreshNews}
+            disabled={isRefreshing}
+            className="gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            {isRefreshing ? 'Loading...' : 'Refresh'}
+          </Button>
         </div>
+        <CardDescription>Real-time news from RSS feeds</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {error && (
@@ -140,19 +100,17 @@ const CategoryNewsSection = ({
         
         {articles.length === 0 && !isLoading && !error && (
           <div className="text-center py-8 text-muted-foreground">
-            <Bot className="h-12 w-12 mx-auto mb-3 opacity-50" />
+            <Rss className="h-12 w-12 mx-auto mb-3 opacity-50" />
             <p>No articles available yet.</p>
-            {showCrawlButton && (
-              <Button
-                variant="outline"
-                className="mt-3"
-                onClick={handleCrawl}
-                disabled={isCrawling}
-              >
-                <Sparkles className="h-4 w-4 mr-2" />
-                Generate Content
-              </Button>
-            )}
+            <Button
+              variant="outline"
+              className="mt-3"
+              onClick={refreshNews}
+              disabled={isRefreshing}
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Load Articles
+            </Button>
           </div>
         )}
         

@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { NewsArticle } from '@/types';
-import { getLatestNews, getTrendingNews, getNewsByCategory, getEconomicNews, getFinancialTrends } from '@/services/news/newsService';
+import { getLatestNews, triggerNewsFetch } from '@/services/news/newsService';
 import NewsCard from './NewsCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -21,9 +21,8 @@ const NewsSection = ({ limit = 5 }: NewsSectionProps) => {
   const fetchNews = async () => {
     setIsLoading(true);
     try {
-      // Update to use getTrendingNews instead of getLatestNews
-      const trending = await getTrendingNews(limit);
-      setLatestNews(trending);
+      const latest = await getLatestNews(limit);
+      setLatestNews(latest);
     } catch (error) {
       console.error('Error fetching news:', error);
     } finally {
@@ -34,10 +33,13 @@ const NewsSection = ({ limit = 5 }: NewsSectionProps) => {
   const refreshNews = async () => {
     setIsRefreshing(true);
     try {
+      // Trigger the crawler to fetch new content
+      await triggerNewsFetch();
+      // Then fetch the updated news
       await fetchNews();
       toast({
         title: 'News Refreshed',
-        description: 'Trending financial news has been loaded.',
+        description: 'Latest financial news has been loaded.',
       });
     } catch (error) {
       toast({
@@ -53,16 +55,15 @@ const NewsSection = ({ limit = 5 }: NewsSectionProps) => {
   useEffect(() => {
     fetchNews();
     
-    // Refresh the news every 5 minutes
+    // Refresh the news every 10 minutes
     const refreshInterval = setInterval(() => {
       fetchNews();
-    }, 5 * 60 * 1000);
+    }, 10 * 60 * 1000);
     
     return () => clearInterval(refreshInterval);
   }, [limit]);
 
   const handleBookmark = (articleId: string) => {
-    // Bookmark functionality would go here
     console.log('Bookmark article:', articleId);
     toast({
       title: 'Article Bookmarked',
@@ -71,7 +72,6 @@ const NewsSection = ({ limit = 5 }: NewsSectionProps) => {
   };
 
   const handleShare = (articleId: string) => {
-    // Share functionality would go here
     console.log('Share article:', articleId);
     navigator.clipboard.writeText(
       latestNews.find(article => article.id === articleId)?.url || ''
@@ -84,60 +84,64 @@ const NewsSection = ({ limit = 5 }: NewsSectionProps) => {
 
   if (isLoading) {
     return (
-      <Card className="border shadow-sm">
-        <CardContent className="p-4 flex justify-center items-center min-h-[200px]">
-          <div className="flex flex-col items-center space-y-4">
-            <RefreshCw className="h-8 w-8 animate-spin text-ip-teal" />
-            <p className="text-sm text-muted-foreground">Loading trending news...</p>
+      <div className="space-y-4">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="animate-pulse">
+            <div className="bg-gray-200 h-4 w-3/4 mb-2 rounded"></div>
+            <div className="bg-gray-200 h-3 w-1/2 mb-2 rounded"></div>
+            <div className="bg-gray-200 h-20 w-full rounded"></div>
           </div>
-        </CardContent>
-      </Card>
+        ))}
+      </div>
     );
   }
 
   if (latestNews.length === 0) {
     return (
-      <Card className="border shadow-sm">
-        <CardContent className="p-4 flex justify-center items-center min-h-[200px]">
-          <div className="flex flex-col items-center space-y-4">
-            <AlertCircle className="h-8 w-8 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">No trending news available at the moment.</p>
-            <Button variant="outline" size="sm" onClick={refreshNews} disabled={isRefreshing}>
-              {isRefreshing ? (
-                <>
-                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                  Refreshing...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  Try Again
-                </>
-              )}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="text-center py-8 space-y-4">
+        <AlertCircle className="h-12 w-12 mx-auto text-muted-foreground" />
+        <div>
+          <p className="text-muted-foreground mb-4">No news articles available at the moment.</p>
+          <Button 
+            variant="outline" 
+            onClick={refreshNews} 
+            disabled={isRefreshing}
+            className="gap-2"
+          >
+            {isRefreshing ? (
+              <>
+                <RefreshCw className="h-4 w-4 animate-spin" />
+                Loading News...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="h-4 w-4" />
+                Load News
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card className="border shadow-sm">
-      <CardContent className="p-4 space-y-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold">Trending</h2>
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1"
-            onClick={refreshNews}
-            disabled={isRefreshing}
-          >
-            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
-          </Button>
-        </div>
-        
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-semibold">Latest Financial News</h2>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1"
+          onClick={refreshNews}
+          disabled={isRefreshing}
+        >
+          <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
+        </Button>
+      </div>
+      
+      <div className="space-y-4">
         {latestNews.map((article) => (
           <NewsCard
             key={article.id}
@@ -146,8 +150,8 @@ const NewsSection = ({ limit = 5 }: NewsSectionProps) => {
             onShare={handleShare}
           />
         ))}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
