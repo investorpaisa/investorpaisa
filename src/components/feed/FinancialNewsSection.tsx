@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 import NewsSection from '@/components/news/NewsSection';
+import GeminiCrawlerButton from '@/components/news/GeminiCrawlerButton';
 import { triggerNewsFetch } from '@/services/news/newsService';
 import { useToast } from '@/hooks/use-toast';
 
@@ -35,26 +36,32 @@ const FinancialNewsSection = ({ limit = 5 }: FinancialNewsSectionProps) => {
   };
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-center">
-          <CardTitle className="text-lg">Financial News</CardTitle>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="h-8 gap-1"
-            onClick={refreshNewsData}
-            disabled={isRefreshingNews}
-          >
-            <RefreshCw className={`h-4 w-4 ${isRefreshingNews ? 'animate-spin' : ''}`} />
-          </Button>
-        </div>
-        <CardDescription>Latest financial updates</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <NewsSection limit={limit} />
-      </CardContent>
-    </Card>
+    <div className="space-y-6">
+      {/* Gemini Crawler Card */}
+      <GeminiCrawlerButton />
+      
+      {/* Financial News Card */}
+      <Card>
+        <CardHeader className="pb-2">
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-lg">Financial News</CardTitle>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 gap-1"
+              onClick={refreshNewsData}
+              disabled={isRefreshingNews}
+            >
+              <RefreshCw className={`h-4 w-4 ${isRefreshingNews ? 'animate-spin' : ''}`} />
+            </Button>
+          </div>
+          <CardDescription>Latest financial updates</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <NewsSection limit={limit} />
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
