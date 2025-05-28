@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Globe, Loader2, Rss, ExternalLink } from 'lucide-react';
+import { Globe, Loader2, Rss, ExternalLink, CheckCircle, AlertCircle } from 'lucide-react';
 import { crawlArticlesWithGemini } from '@/services/news/geminiCrawlerService';
 import { useToast } from '@/hooks/use-toast';
 
@@ -19,33 +19,56 @@ const GeminiCrawlerButton = () => {
   const handleCrawl = async () => {
     setIsLoading(true);
     try {
+      console.log(`Starting crawl with topic: "${topic}", category: "${category}", limit: ${limit}`);
+      
       const result = await crawlArticlesWithGemini(topic, limit, category);
+      console.log('Crawl result:', result);
       
       if (result.success) {
         toast({
-          title: "Real News Crawling Successful",
+          title: "Real News Crawling Successful!",
           description: (
-            <div className="space-y-1">
-              <p>Successfully crawled {result.articles.length} real articles from RSS feeds and news sources</p>
-              <div className="text-xs text-muted-foreground">
-                <p>• Real articles with source URLs</p>
-                <p>• Unique IDs for tracking interactions</p>
-                <p>• Images and summaries included</p>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                <span className="font-medium">
+                  Successfully crawled {result.articles.length} real articles
+                </span>
+              </div>
+              <div className="text-xs text-muted-foreground space-y-1">
+                <p>• Sources: {result.costOptimizations?.sourcesUsed?.join(', ') || 'Multiple RSS feeds'}</p>
+                <p>• All articles have real URLs and content</p>
+                <p>• Ready for user interactions (likes, comments, shares)</p>
+                {result.costOptimizations?.duplicatesFiltered > 0 && (
+                  <p>• Filtered out {result.costOptimizations.duplicatesFiltered} duplicate articles</p>
+                )}
               </div>
             </div>
           ),
         });
       } else {
+        console.error('Crawl failed:', result.message);
         toast({
           title: "Crawling Failed",
-          description: result.message,
+          description: (
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 text-red-500" />
+                <span>{result.message}</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Please check your internet connection and try again
+              </p>
+            </div>
+          ),
           variant: "destructive"
         });
       }
     } catch (error) {
+      console.error('Error during crawling:', error);
       toast({
-        title: "Error",
-        description: "Failed to crawl real articles. Please try again.",
+        title: "Crawling Error",
+        description: "Failed to crawl real articles. Please check your connection and try again.",
         variant: "destructive"
       });
     } finally {
@@ -62,7 +85,7 @@ const GeminiCrawlerButton = () => {
           <Rss className="h-4 w-4 text-green-500" />
         </CardTitle>
         <CardDescription>
-          Crawl real articles from RSS feeds and news sources. Each article includes title, summary, image, and direct link to the original source.
+          Crawl real articles from RSS feeds and news sources including Bloomberg, Reuters, CNN, CNBC, Wall Street Journal, and more.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -88,6 +111,7 @@ const GeminiCrawlerButton = () => {
                 <SelectItem value="Economy">Economy</SelectItem>
                 <SelectItem value="Markets">Markets</SelectItem>
                 <SelectItem value="Cryptocurrency">Cryptocurrency</SelectItem>
+                <SelectItem value="Technology">Technology</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -103,19 +127,37 @@ const GeminiCrawlerButton = () => {
                 <SelectItem value="5">5 articles</SelectItem>
                 <SelectItem value="8">8 articles</SelectItem>
                 <SelectItem value="10">10 articles</SelectItem>
+                <SelectItem value="15">15 articles</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
         
-        <div className="text-xs text-muted-foreground bg-green-50 p-2 rounded">
-          <p className="font-medium text-green-700">Real News Sources:</p>
-          <ul className="list-disc list-inside space-y-1 text-green-600">
-            <li>RSS feeds from Bloomberg, Reuters, CNN Money</li>
-            <li>Real article titles, summaries, and source URLs</li>
-            <li>Original publication images when available</li>
-            <li>Direct links to read full articles on source websites</li>
-          </ul>
+        <div className="text-xs text-muted-foreground bg-green-50 p-3 rounded-lg">
+          <p className="font-medium text-green-700 mb-2">Real News Sources Include:</p>
+          <div className="grid grid-cols-2 gap-1 text-green-600">
+            <ul className="list-disc list-inside space-y-1">
+              <li>Bloomberg Markets</li>
+              <li>Reuters Business</li>
+              <li>CNN Money</li>
+              <li>Wall Street Journal</li>
+              <li>CNBC</li>
+            </ul>
+            <ul className="list-disc list-inside space-y-1">
+              <li>MarketWatch</li>
+              <li>Fortune</li>
+              <li>Forbes</li>
+              <li>CoinDesk (Crypto)</li>
+              <li>TechCrunch (Tech)</li>
+            </ul>
+          </div>
+          <p className="mt-2 text-green-600">
+            ✓ Real article titles, summaries, and source URLs
+            <br />
+            ✓ Direct links to read full articles on source websites
+            <br />
+            ✓ Unique IDs for tracking user interactions
+          </p>
         </div>
         
         <Button 
@@ -126,7 +168,7 @@ const GeminiCrawlerButton = () => {
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Crawling Real Articles...
+              Crawling Real Articles from {category} Sources...
             </>
           ) : (
             <>
