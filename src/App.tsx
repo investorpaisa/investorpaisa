@@ -18,49 +18,58 @@ import Circle from '@/pages/Circle';
 import Circles from '@/pages/Circles';
 import Dashboard from '@/pages/Dashboard';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { useGoogleAnalytics } from '@/hooks/useGoogleAnalytics';
 
 const queryClient = new QueryClient();
+
+function AppContent() {
+  useGoogleAnalytics();
+
+  return (
+    <Routes>
+      <Route path="/" element={<Index />} />
+      <Route path="/landing" element={<Landing />} />
+      
+      <Route path="/auth" element={<AuthLayout />}>
+        <Route path="login" element={<Login />} />
+        <Route path="register" element={<Register />} />
+      </Route>
+      
+      <Route 
+        path="/" 
+        element={
+          <ProtectedRoute>
+            <MainLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="home" element={<Home />} />
+        <Route path="market" element={<Market />} />
+        <Route path="mycircle" element={<Circles />} />
+        <Route path="notifications" element={<Home />} />
+        <Route path="profile" element={<ProfileNew />} />
+        <Route path="profile/:id" element={<ProfileNew />} />
+        <Route path="edit-profile" element={<EditProfile />} />
+        <Route path="circles/:id" element={<Circle />} />
+        <Route path="communities/:id" element={<Circle />} />
+        <Route path="app/dashboard" element={<Dashboard />} />
+        
+        {/* Redirect routes for old paths */}
+        <Route path="feed" element={<Home />} />
+        <Route path="discover" element={<Home />} />
+      </Route>
+
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+}
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/landing" element={<Landing />} />
-        
-        <Route path="/auth" element={<AuthLayout />}>
-          <Route path="login" element={<Login />} />
-          <Route path="register" element={<Register />} />
-        </Route>
-        
-        <Route 
-          path="/" 
-          element={
-            <ProtectedRoute>
-              <MainLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route path="home" element={<Home />} />
-          <Route path="market" element={<Market />} />
-          <Route path="mycircle" element={<Circles />} />
-          <Route path="notifications" element={<Home />} /> {/* Temporarily redirecting to Home */}
-          <Route path="profile" element={<ProfileNew />} />
-          <Route path="profile/:id" element={<ProfileNew />} />
-          <Route path="edit-profile" element={<EditProfile />} />
-          <Route path="circles/:id" element={<Circle />} />
-          <Route path="communities/:id" element={<Circle />} /> {/* Added for backward compatibility */}
-          <Route path="app/dashboard" element={<Dashboard />} />
-          
-          {/* Redirect routes for old paths */}
-          <Route path="feed" element={<Home />} />
-          <Route path="discover" element={<Home />} />
-        </Route>
-
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      <Toaster />
+        <AppContent />
+        <Toaster />
       </AuthProvider>
     </QueryClientProvider>
   );

@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { User } from "../api";
 import { showToast } from "./utils";
 import { login } from "./loginService";
+import { trackUserEvent } from "@/services/analytics/googleAnalytics";
 
 export const register = async (name: string, email: string, password: string) => {
   try {
@@ -25,6 +26,9 @@ export const register = async (name: string, email: string, password: string) =>
     if (!authData.user) {
       throw new Error("Failed to create user account");
     }
+
+    // Track successful signup
+    trackUserEvent.signup('email');
 
     // Auto-login the user after registration (without waiting for email confirmation)
     await login(email, password);

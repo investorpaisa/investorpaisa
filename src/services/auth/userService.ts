@@ -1,7 +1,7 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "../api";
 import { fetchUserProfile, formatUser, showToast } from "./utils";
+import { trackUserEvent } from "@/services/analytics/googleAnalytics";
 
 export const logout = async () => {
   try {
@@ -10,6 +10,9 @@ export const logout = async () => {
     if (error) {
       throw error;
     }
+    
+    // Track logout event
+    trackUserEvent.logout();
     
     showToast(
       "Logged out",
@@ -62,6 +65,9 @@ export const signInWithGoogle = async () => {
     if (error) {
       throw error;
     }
+
+    // Track Google signin attempt
+    trackUserEvent.login('google');
 
     console.log("Redirecting to Google auth:", data);
   } catch (error) {

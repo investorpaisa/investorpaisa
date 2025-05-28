@@ -2,6 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "../api";
 import { fetchUserProfile, formatUser, showToast } from "./utils";
+import { trackUserEvent } from "@/services/analytics/googleAnalytics";
 
 export const login = async (email: string, password: string) => {
   try {
@@ -32,6 +33,9 @@ export const login = async (email: string, password: string) => {
 
     // Get user profile data
     const profileData = await fetchUserProfile(authData.user.id);
+
+    // Track successful login
+    trackUserEvent.login('email');
 
     showToast(
       "Login successful",
