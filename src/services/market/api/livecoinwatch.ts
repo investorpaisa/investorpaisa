@@ -1,5 +1,5 @@
 
-// LiveCoinWatch API integration with robust error handling
+// LiveCoinWatch API integration with correct endpoints and structure
 const LIVECOINWATCH_API_KEY = '27eb01ec-4283-4458-a0b3-372bf28a5bfb';
 const LIVECOINWATCH_BASE_URL = 'https://api.livecoinwatch.com';
 
@@ -27,11 +27,7 @@ interface LiveCoinWatchCoin {
   webp64: string;
 }
 
-interface LiveCoinWatchResponse {
-  data: LiveCoinWatchCoin[];
-}
-
-// Get comprehensive coin data
+// Get comprehensive coin data using correct /coins/map endpoint
 export const getLiveCoinWatchData = async (
   codes?: string[], 
   limit: number = 50,
@@ -67,26 +63,28 @@ export const getLiveCoinWatchData = async (
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-KEY': LIVECOINWATCH_API_KEY
+        'x-api-key': LIVECOINWATCH_API_KEY
       },
       body: JSON.stringify(requestBody)
     });
     
     if (!response.ok) {
-      console.error(`LiveCoinWatch API error: ${response.status}`);
-      // Return mock data on error to ensure UI works
+      console.error(`LiveCoinWatch API error: ${response.status} ${response.statusText}`);
+      const errorText = await response.text();
+      console.error('Error response:', errorText);
       return generateMockCryptoData(limit);
     }
     
-    const data: LiveCoinWatchResponse = await response.json();
+    const result = await response.json();
+    console.log('LiveCoinWatch API response:', result);
     
-    if (!data.data || data.data.length === 0) {
+    if (!result.data || result.data.length === 0) {
       console.warn('No data from LiveCoinWatch, using mock data');
       return generateMockCryptoData(limit);
     }
     
     // Transform data
-    const transformedData = data.data.map((coin: LiveCoinWatchCoin) => ({
+    const transformedData = result.data.map((coin: LiveCoinWatchCoin) => ({
       symbol: coin.code,
       name: coin.name,
       price: coin.rate || 0,
@@ -108,12 +106,11 @@ export const getLiveCoinWatchData = async (
     
   } catch (error) {
     console.error('Error fetching LiveCoinWatch data:', error);
-    // Return mock data to ensure UI functionality
     return generateMockCryptoData(limit);
   }
 };
 
-// Get single coin data
+// Get single coin data using correct /coins/single endpoint
 export const getLiveCoinWatchCoin = async (code: string): Promise<any | null> => {
   try {
     console.log(`Fetching data for ${code}`);
@@ -124,21 +121,59 @@ export const getLiveCoinWatchCoin = async (code: string): Promise<any | null> =>
       return cachedItem.data;
     }
     
-    const coins = await getLiveCoinWatchData([code], 1);
-    const coinData = coins.length > 0 ? coins[0] : null;
+    const requestBody = {
+      currency: 'USD',
+      code: code.toUpperCase(),
+      meta: true
+    };
     
-    if (coinData) {
-      cache.set(cacheKey, { data: coinData, timestamp: Date.now() });
+    const response = await fetch(`${LIVECOINWATCH_BASE_URL}/coins/single`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': LIVECOINWATCH_API_KEY
+      },
+      body: JSON.stringify(requestBody)
+    });
+    
+    if (!response.ok) {
+      console.error(`Single coin API failed: ${response.status}`);
+      return generateMockCoinData(code);
     }
     
-    return coinData;
+    const result = await response.json();
+    
+    if (!result.data) {
+      console.warn(`No data for ${code}, using mock data`);
+      return generateMockCoinData(code);
+    }
+    
+    const coin = result.data;
+    const transformedData = {
+      symbol: coin.code,
+      name: coin.name,
+      price: coin.rate || 0,
+      marketCap: coin.cap || 0,
+      volume24h: coin.volume || 0,
+      change24h: coin.delta?.day || 0,
+      change1h: coin.delta?.hour || 0,
+      change7d: coin.delta?.week || 0,
+      change30d: coin.delta?.month || 0,
+      change1y: coin.delta?.year || 0,
+      iconUrl: coin.png64 || coin.png32,
+      source: 'LiveCoinWatch'
+    };
+    
+    cache.set(cacheKey, { data: transformedData, timestamp: Date.now() });
+    return transformedData;
+    
   } catch (error) {
     console.error(`Error searching for ${code}:`, error);
     return generateMockCoinData(code);
   }
 };
 
-// Get historical price data
+// Get historical price data using correct /coins/single/history endpoint
 export const getLiveCoinWatchHistory = async (
   code: string, 
   start: number, 
@@ -165,7 +200,7 @@ export const getLiveCoinWatchHistory = async (
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-KEY': LIVECOINWATCH_API_KEY
+        'x-api-key': LIVECOINWATCH_API_KEY
       },
       body: JSON.stringify(requestBody)
     });
@@ -175,8 +210,8 @@ export const getLiveCoinWatchHistory = async (
       return generateMockHistoryData(code, start, end);
     }
     
-    const data = await response.json();
-    const historyData = data.data?.history || [];
+    const result = await response.json();
+    const historyData = result.data?.history || [];
     
     // Cache history data
     cache.set(cacheKey, { data: historyData, timestamp: Date.now() });
@@ -188,7 +223,7 @@ export const getLiveCoinWatchHistory = async (
   }
 };
 
-// Get market overview
+// Get market overview using correct /overview endpoint
 export const getLiveCoinWatchOverview = async (): Promise<any> => {
   try {
     console.log('Fetching market overview');
@@ -199,13 +234,17 @@ export const getLiveCoinWatchOverview = async (): Promise<any> => {
       return cachedItem.data;
     }
     
+    const requestBody = {
+      currency: 'USD'
+    };
+    
     const response = await fetch(`${LIVECOINWATCH_BASE_URL}/overview`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-KEY': LIVECOINWATCH_API_KEY
+        'x-api-key': LIVECOINWATCH_API_KEY
       },
-      body: JSON.stringify({ currency: 'USD' })
+      body: JSON.stringify(requestBody)
     });
     
     if (!response.ok) {
@@ -213,19 +252,19 @@ export const getLiveCoinWatchOverview = async (): Promise<any> => {
       return generateMockOverviewData();
     }
     
-    const data = await response.json();
+    const result = await response.json();
     
     // Cache overview data
-    cache.set(cacheKey, { data: data.data, timestamp: Date.now() });
+    cache.set(cacheKey, { data: result.data, timestamp: Date.now() });
     
-    return data.data || generateMockOverviewData();
+    return result.data || generateMockOverviewData();
   } catch (error) {
     console.error('Error fetching market overview:', error);
     return generateMockOverviewData();
   }
 };
 
-// Get exchange data
+// Get exchange data using correct /exchanges/single endpoint
 export const getLiveCoinWatchExchanges = async (): Promise<any[]> => {
   try {
     console.log('Fetching exchanges');
@@ -236,19 +275,21 @@ export const getLiveCoinWatchExchanges = async (): Promise<any[]> => {
       return cachedItem.data;
     }
     
+    const requestBody = {
+      currency: 'USD',
+      sort: 'volume',
+      order: 'descending',
+      offset: 0,
+      limit: 20
+    };
+    
     const response = await fetch(`${LIVECOINWATCH_BASE_URL}/exchanges/single`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-KEY': LIVECOINWATCH_API_KEY
+        'x-api-key': LIVECOINWATCH_API_KEY
       },
-      body: JSON.stringify({ 
-        currency: 'USD',
-        sort: 'volume',
-        order: 'descending',
-        offset: 0,
-        limit: 20
-      })
+      body: JSON.stringify(requestBody)
     });
     
     if (!response.ok) {
@@ -256,8 +297,8 @@ export const getLiveCoinWatchExchanges = async (): Promise<any[]> => {
       return generateMockExchangeData();
     }
     
-    const data = await response.json();
-    const exchangesData = data.data || [];
+    const result = await response.json();
+    const exchangesData = result.data || [];
     
     // Cache exchanges data
     cache.set(cacheKey, { data: exchangesData, timestamp: Date.now() });
