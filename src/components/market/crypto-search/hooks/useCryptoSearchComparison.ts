@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { getCoinrankingData, getCoinrankingCoin } from '@/services/market/api/coinranking';
+import { getCoinrankingData, searchCoin } from '@/services/market/api/coinranking';
 
 // Add livecoinwatch to the API selection type
 type APISelection = 'current' | 'coinranking' | 'livecoinwatch';
@@ -19,7 +19,7 @@ export const useCryptoSearchComparison = () => {
     refetch: refetchCoinranking
   } = useQuery({
     queryKey: ['coinranking-test', searchQuery],
-    queryFn: () => getCoinrankingCoin(searchQuery),
+    queryFn: () => searchCoin(searchQuery),
     enabled: selectedAPI === 'coinranking',
     staleTime: 5 * 60 * 1000,
     retry: 2
