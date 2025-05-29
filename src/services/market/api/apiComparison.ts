@@ -1,13 +1,15 @@
 
 // API comparison service for cryptocurrency data sources
 import { COINRANKING_API_INFO } from './coinranking';
+import { LIVECOINWATCH_API_INFO } from './livecoinwatch';
 
 export interface APIComparisonData {
   name: string;
   cost: 'Free' | 'Paid' | 'Freemium';
   monthlyRequests: number;
+  dailyRequests?: number;
   rateLimit: string;
-  dataQuality: 'Low' | 'Medium' | 'High';
+  dataQuality: 'Low' | 'Medium' | 'High' | 'Excellent';
   realTimeData: boolean;
   features: string[];
   advantages: string[];
@@ -19,7 +21,7 @@ export const API_COMPARISON: Record<string, APIComparisonData> = {
   current: {
     name: 'Current Multi-Source (CoinGecko + Alpha Vantage + Fallback)',
     cost: 'Free',
-    monthlyRequests: 1000, // Very limited due to rate limiting
+    monthlyRequests: 1000,
     rateLimit: '5 requests/minute',
     dataQuality: 'Medium',
     realTimeData: false,
@@ -57,15 +59,29 @@ export const API_COMPARISON: Record<string, APIComparisonData> = {
     advantages: COINRANKING_API_INFO.advantages,
     limitations: COINRANKING_API_INFO.limitations,
     score: 8.5
+  },
+  livecoinwatch: {
+    name: 'LiveCoinWatch API',
+    cost: 'Freemium',
+    monthlyRequests: LIVECOINWATCH_API_INFO.freePlanLimits.requestsPerMonth,
+    dailyRequests: LIVECOINWATCH_API_INFO.freePlanLimits.requestsPerDay,
+    rateLimit: '500 requests/day',
+    dataQuality: 'Excellent',
+    realTimeData: true,
+    features: LIVECOINWATCH_API_INFO.freePlanLimits.features,
+    advantages: LIVECOINWATCH_API_INFO.advantages,
+    limitations: LIVECOINWATCH_API_INFO.limitations,
+    score: 9.2
   }
 };
 
 export const generateComparisonReport = (): string => {
   const current = API_COMPARISON.current;
   const coinranking = API_COMPARISON.coinranking;
+  const livecoinwatch = API_COMPARISON.livecoinwatch;
   
   return `
-🔍 CRYPTOCURRENCY API COMPARISON REPORT
+🔍 COMPREHENSIVE CRYPTOCURRENCY API COMPARISON REPORT
 
 📊 CURRENT SOLUTION (Multi-Source):
 • Monthly Requests: ${current.monthlyRequests.toLocaleString()}
@@ -84,26 +100,58 @@ ${current.limitations.map(item => `  ❌ ${item}`).join('\n')}
 • Real-time: ${coinranking.realTimeData ? '✅' : '❌'}
 • Reliability Score: ${coinranking.score}/10
 
-Key Advantages:
-${coinranking.advantages.map(item => `  ✅ ${item}`).join('\n')}
+🚀 LIVECOINWATCH API (NEW):
+• Monthly Requests: ${livecoinwatch.monthlyRequests.toLocaleString()}
+• Daily Requests: ${livecoinwatch.dailyRequests?.toLocaleString()}
+• Rate Limit: ${livecoinwatch.rateLimit}
+• Data Quality: ${livecoinwatch.dataQuality}
+• Real-time: ${livecoinwatch.realTimeData ? '✅' : '❌'}
+• Reliability Score: ${livecoinwatch.score}/10
 
-🏆 RECOMMENDATION:
-Coinranking API is significantly better:
-• 10x more monthly requests (${coinranking.monthlyRequests} vs ${current.monthlyRequests})
-• 200x better rate limiting (${coinranking.rateLimit} vs ${current.rateLimit})
-• Real-time accurate data vs frequent fallback data
-• Higher reliability and data quality
-• Better user experience with fewer errors
+Key Advantages:
+${livecoinwatch.advantages.map(item => `  ✅ ${item}`).join('\n')}
+
+🏆 RECOMMENDATION RANKING:
+1. 🥇 LiveCoinWatch API (Score: ${livecoinwatch.score}/10)
+   • Best monthly limit: ${livecoinwatch.monthlyRequests} requests
+   • Excellent data quality with comprehensive metrics
+   • Multiple timeframe deltas (1h, 24h, 7d, 30d, 1y)
+   • Historical data and exchange information
+
+2. 🥈 Coinranking API (Score: ${coinranking.score}/10)
+   • Good monthly limit: ${coinranking.monthlyRequests} requests
+   • High-quality real-time data
+   • Better rate limiting than current solution
+
+3. 🥉 Current Multi-Source (Score: ${current.score}/10)
+   • Unreliable and limited
+   • Frequent fallback data usage
 
 💰 COST ANALYSIS:
-• Current: Free but unreliable
-• Coinranking: Free tier with excellent limits, paid tiers available for scaling
+• Current: Free but unreliable and limited
+• Coinranking: Free tier (10k requests/month), paid tiers available
+• LiveCoinWatch: Free tier (16k requests/month), excellent value
 
-🎯 IMPLEMENTATION IMPACT:
-• Users will see real crypto prices instead of estimated fallback data
-• Faster loading times with better caching strategy
-• Reduced error rates and better user experience
+🎯 IMPLEMENTATION IMPACT WITH LIVECOINWATCH:
+• 16x more monthly requests than current solution
+• Multiple timeframe price changes (1h, 24h, 7d, 30d, 1y)
+• Historical price data for advanced charting
+• Exchange data for comprehensive market analysis
+• High-quality coin images for better UI
+• Market overview and statistics
+• Real-time accurate data with excellent reliability
+
+📋 FEATURE COMPARISON:
+Current Solution: Basic price, market cap, 24h volume
+Coinranking: + Real-time data, sparklines, ranking
+LiveCoinWatch: + All above + Historical data + Exchange info + Multi-timeframe deltas + Market overview
+
+🔧 TECHNICAL BENEFITS:
+• Better caching strategy with longer cache times
+• Reduced error rates and improved user experience
+• Comprehensive data for advanced analytics
 • Scalable solution for future growth
+• Professional-grade API with excellent documentation
 `;
 };
 

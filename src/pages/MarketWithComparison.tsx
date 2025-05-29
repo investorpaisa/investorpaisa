@@ -4,14 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { StockSearch, MarketInsights } from '@/components/market';
 import { CryptoAPIComparison } from '@/components/market/crypto-search/CryptoAPIComparison';
+import { LiveCoinWatchResearch } from '@/components/market/crypto-search/LiveCoinWatchResearch';
 import CategoryNewsSection from '@/components/news/CategoryNewsSection';
 
 const MarketWithComparison = () => {
   return (
     <div className="container mx-auto py-10 space-y-6">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Market Research & API Testing</h1>
-        <p className="text-muted-foreground">Research investments and test new cryptocurrency data sources</p>
+        <h1 className="text-3xl font-bold mb-2">Advanced Market Research & API Testing</h1>
+        <p className="text-muted-foreground">Research investments with comprehensive cryptocurrency data and test multiple API sources</p>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -27,16 +28,21 @@ const MarketWithComparison = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Investment Research</CardTitle>
+              <CardTitle>Investment Research & API Testing</CardTitle>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="crypto-test" className="w-full">
-                <TabsList className="grid grid-cols-4 h-auto mb-4">
-                  <TabsTrigger value="crypto-test" className="py-2">🧪 Crypto API Test</TabsTrigger>
-                  <TabsTrigger value="stocks" className="py-2">Stocks</TabsTrigger>
-                  <TabsTrigger value="mutual-funds" className="py-2">Mutual Funds</TabsTrigger>
-                  <TabsTrigger value="bonds" className="py-2">Bonds</TabsTrigger>
+              <Tabs defaultValue="livecoinwatch" className="w-full">
+                <TabsList className="grid grid-cols-5 h-auto mb-4">
+                  <TabsTrigger value="livecoinwatch" className="py-2">🚀 LiveCoinWatch</TabsTrigger>
+                  <TabsTrigger value="crypto-test" className="py-2">🧪 API Comparison</TabsTrigger>
+                  <TabsTrigger value="stocks" className="py-2">📈 Stocks</TabsTrigger>
+                  <TabsTrigger value="mutual-funds" className="py-2">💼 Mutual Funds</TabsTrigger>
+                  <TabsTrigger value="bonds" className="py-2">📊 Bonds</TabsTrigger>
                 </TabsList>
+                
+                <TabsContent value="livecoinwatch" className="mt-4">
+                  <LiveCoinWatchResearch />
+                </TabsContent>
                 
                 <TabsContent value="crypto-test" className="mt-4">
                   <CryptoAPIComparison />
@@ -64,16 +70,23 @@ const MarketWithComparison = () => {
         
         <div className="space-y-6">
           <CategoryNewsSection
-            title="Market News"
-            topic="cryptocurrency market analysis bitcoin ethereum price trends"
+            title="Crypto Market News"
+            topic="cryptocurrency market analysis bitcoin ethereum price trends LiveCoinWatch"
             category="Crypto"
             limit={4}
           />
           
           <CategoryNewsSection
             title="API & Tech News"
-            topic="API integration cryptocurrency data sources financial technology"
+            topic="API integration cryptocurrency data sources financial technology LiveCoinWatch"
             category="Technology"
+            limit={3}
+          />
+          
+          <CategoryNewsSection
+            title="Exchange News"
+            topic="cryptocurrency exchanges trading platforms market data"
+            category="Finance"
             limit={3}
           />
         </div>
