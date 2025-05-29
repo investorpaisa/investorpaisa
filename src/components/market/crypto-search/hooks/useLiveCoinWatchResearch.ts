@@ -28,19 +28,21 @@ export const useLiveCoinWatchResearch = () => {
     queryFn: () => getLiveCoinWatchCoin(searchQuery),
     enabled: !!searchQuery,
     staleTime: 5 * 60 * 1000,
-    retry: 2
+    retry: 1,
+    refetchOnWindowFocus: false
   });
 
-  // Get top cryptocurrencies with advanced sorting
+  // Get top cryptocurrencies
   const { 
     data: topCryptos = [], 
     isLoading: topCryptosLoading,
     refetch: refetchTopCryptos
   } = useQuery({
     queryKey: ['livecoinwatch-top', sortBy, sortOrder],
-    queryFn: () => getLiveCoinWatchData(undefined, 50, sortBy, sortOrder),
+    queryFn: () => getLiveCoinWatchData(undefined, 20, sortBy, sortOrder),
     staleTime: 10 * 60 * 1000,
-    retry: 2
+    retry: 1,
+    refetchOnWindowFocus: false
   });
 
   // Get market overview
@@ -51,7 +53,8 @@ export const useLiveCoinWatchResearch = () => {
     queryKey: ['livecoinwatch-overview'],
     queryFn: getLiveCoinWatchOverview,
     staleTime: 15 * 60 * 1000,
-    retry: 1
+    retry: 1,
+    refetchOnWindowFocus: false
   });
 
   // Get exchange data
@@ -62,10 +65,11 @@ export const useLiveCoinWatchResearch = () => {
     queryKey: ['livecoinwatch-exchanges'],
     queryFn: getLiveCoinWatchExchanges,
     staleTime: 30 * 60 * 1000,
-    retry: 1
+    retry: 1,
+    refetchOnWindowFocus: false
   });
 
-  // Get historical data for selected coin
+  // Get historical data
   const { 
     data: historicalData = [],
     isLoading: historyLoading
@@ -98,51 +102,11 @@ export const useLiveCoinWatchResearch = () => {
     },
     enabled: !!searchQuery,
     staleTime: 15 * 60 * 1000,
-    retry: 1
+    retry: 1,
+    refetchOnWindowFocus: false
   });
 
-  // Performance test with multiple coins
-  const { data: performanceTest } = useQuery({
-    queryKey: ['livecoinwatch-performance'],
-    queryFn: async () => {
-      console.log('Running LiveCoinWatch performance test...');
-      const testSymbols = ['BTC', 'ETH', 'BNB', 'ADA', 'SOL', 'DOT', 'MATIC', 'AVAX'];
-      const startTime = Date.now();
-      
-      try {
-        const results = await getLiveCoinWatchData(testSymbols, 8);
-        const endTime = Date.now();
-        const duration = endTime - startTime;
-        
-        console.log(`LiveCoinWatch performance test completed in ${duration}ms`);
-        console.log(`Retrieved ${results.length} coins successfully`);
-        
-        return {
-          success: true,
-          duration,
-          coinsRetrieved: results.length,
-          coinsRequested: testSymbols.length,
-          data: results,
-          apiName: 'LiveCoinWatch'
-        };
-      } catch (error) {
-        const endTime = Date.now();
-        const duration = endTime - startTime;
-        
-        console.error(`LiveCoinWatch performance test failed after ${duration}ms:`, error);
-        return {
-          success: false,
-          duration,
-          error: error instanceof Error ? error.message : 'Unknown error',
-          apiName: 'LiveCoinWatch'
-        };
-      }
-    },
-    staleTime: 15 * 60 * 1000,
-    retry: 1
-  });
-
-  // Prepare chart data from historical data
+  // Prepare chart data
   const chartData = historicalData.map((point: number[], index: number) => ({
     time: point[0] || index,
     price: point[1] || 0,
@@ -163,7 +127,7 @@ export const useLiveCoinWatchResearch = () => {
   const handleRefresh = () => {
     refetchCoin();
     refetchTopCryptos();
-    toast.success("Refreshing LiveCoinWatch data");
+    toast.success("Refreshing market data");
   };
 
   const handleCoinClick = (symbol: string) => {
@@ -195,7 +159,6 @@ export const useLiveCoinWatchResearch = () => {
     exchanges,
     historicalData,
     chartData,
-    performanceTest,
     
     // Loading states
     coinLoading,
