@@ -1,19 +1,17 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { CryptoData } from '../types';
-import { getCoinrankingData, searchCoin, getTrendingCoins } from '@/services/market/api/coinranking';
-import { generateComparisonReport, logComparisonReport } from '@/services/market/api/apiComparison';
+import { getCoinrankingData, getCoinrankingCoin } from '@/services/market/api/coinranking';
 
-// Hook to test and compare both APIs
+// Add livecoinwatch to the API selection type
+type APISelection = 'current' | 'coinranking' | 'livecoinwatch';
+
 export const useCryptoSearchComparison = () => {
-  const [selectedAPI, setSelectedAPI] = useState<'current' | 'coinranking'>('coinranking');
-  const [searchQuery, setSearchQuery] = useState<string>('bitcoin');
-  const [searchInput, setSearchInput] = useState<string>('');
-  const [comparisonData, setComparisonData] = useState<any>(null);
+  const [selectedAPI, setSelectedAPI] = useState<APISelection>('livecoinwatch');
+  const [searchQuery, setSearchQuery] = useState<string>('BTC');
 
-  // Test Coinranking API
+  // Coinranking API test
   const { 
     data: coinrankingData, 
     isLoading: coinrankingLoading,
@@ -21,40 +19,27 @@ export const useCryptoSearchComparison = () => {
     refetch: refetchCoinranking
   } = useQuery({
     queryKey: ['coinranking-test', searchQuery],
-    queryFn: async () => {
-      console.log('Testing Coinranking API...');
-      const result = await searchCoin(searchQuery);
-      console.log('Coinranking result:', result);
-      return result;
-    },
-    enabled: selectedAPI === 'coinranking' && !!searchQuery,
+    queryFn: () => getCoinrankingCoin(searchQuery),
+    enabled: selectedAPI === 'coinranking',
     staleTime: 5 * 60 * 1000,
     retry: 2
   });
 
-  // Get trending coins from Coinranking
-  const { 
-    data: trendingCoinranking = [], 
-    isLoading: trendingLoading 
-  } = useQuery({
+  // Get trending cryptocurrencies from Coinranking
+  const { data: trendingCoinranking = [] } = useQuery({
     queryKey: ['coinranking-trending'],
-    queryFn: getTrendingCoins,
+    queryFn: () => getCoinrankingData(['BTC', 'ETH', 'BNB', 'ADA', 'SOL', 'DOT'], 10),
+    enabled: selectedAPI === 'coinranking',
     staleTime: 10 * 60 * 1000,
     retry: 1
   });
 
-  // Log API comparison on mount
-  useEffect(() => {
-    logComparisonReport();
-    setComparisonData(generateComparisonReport());
-  }, []);
-
-  // Test multiple coins to show API performance
-  const { data: performanceTest } = useQuery({
-    queryKey: ['coinranking-performance'],
+  // Performance test for multiple APIs
+  const { data: performanceTest, refetch: refetchPerformanceTest } = useQuery({
+    queryKey: ['api-performance-test'],
     queryFn: async () => {
-      console.log('Running performance test with multiple coins...');
-      const testSymbols = ['BTC', 'ETH', 'BNB', 'ADA', 'DOT'];
+      console.log('Running API performance comparison test...');
+      const testSymbols = ['BTC', 'ETH', 'BNB', 'ADA', 'SOL'];
       const startTime = Date.now();
       
       try {
@@ -62,7 +47,7 @@ export const useCryptoSearchComparison = () => {
         const endTime = Date.now();
         const duration = endTime - startTime;
         
-        console.log(`Performance test completed in ${duration}ms`);
+        console.log(`Coinranking API test completed in ${duration}ms`);
         console.log(`Retrieved ${results.length} coins successfully`);
         
         return {
@@ -70,74 +55,79 @@ export const useCryptoSearchComparison = () => {
           duration,
           coinsRetrieved: results.length,
           coinsRequested: testSymbols.length,
-          data: results
+          data: results,
+          apiName: 'Coinranking'
         };
       } catch (error) {
         const endTime = Date.now();
         const duration = endTime - startTime;
         
-        console.error(`Performance test failed after ${duration}ms:`, error);
+        console.error(`Coinranking API test failed after ${duration}ms:`, error);
         return {
           success: false,
           duration,
-          error: error instanceof Error ? error.message : 'Unknown error'
+          error: error instanceof Error ? error.message : 'Unknown error',
+          apiName: 'Coinranking'
         };
       }
     },
-    staleTime: 15 * 60 * 1000,
+    enabled: false, // Only run when manually triggered
     retry: 1
   });
 
-  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchInput(e.target.value);
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchInput.trim()) {
-      setSearchQuery(searchInput.trim().toLowerCase());
+  // Get comparison data for different APIs
+  const comparisonData = {
+    current: {
+      name: 'Current Multi-Source',
+      monthlyLimit: 1000,
+      dataQuality: 'Poor',
+      realTime: false,
+      reliability: 'Low'
+    },
+    coinranking: {
+      name: 'Coinranking API',
+      monthlyLimit: 10000,
+      dataQuality: 'High',
+      realTime: true,
+      reliability: 'High'
+    },
+    livecoinwatch: {
+      name: 'LiveCoinWatch API',
+      monthlyLimit: 16000,
+      dataQuality: 'Excellent',
+      realTime: true,
+      reliability: 'Excellent'
     }
   };
 
-  const handleRefresh = () => {
-    refetchCoinranking();
-    toast.success("Refreshing cryptocurrency data");
-  };
-
-  const handleTrendingClick = (symbol: string) => {
-    setSearchInput(symbol);
-    setSearchQuery(symbol.toLowerCase());
-  };
-
-  const handleAPISwitch = (api: 'current' | 'coinranking') => {
+  const handleAPISwitch = (api: APISelection) => {
     setSelectedAPI(api);
-    toast.info(`Switched to ${api === 'current' ? 'Current Multi-Source' : 'Coinranking'} API`);
+    toast.success(`Switched to ${api} API testing`);
+  };
+
+  const handleRefresh = () => {
+    if (selectedAPI === 'coinranking') {
+      refetchCoinranking();
+    }
+    refetchPerformanceTest();
+    toast.success("Refreshing API comparison data");
+  };
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query.toUpperCase());
   };
 
   return {
-    // State
     selectedAPI,
-    searchInput,
     searchQuery,
-    comparisonData,
-    
-    // Coinranking data
     coinrankingData,
     trendingCoinranking,
     performanceTest,
-    
-    // Loading states
     coinrankingLoading,
-    trendingLoading,
-    
-    // Error states
     coinrankingError,
-    
-    // Actions
-    handleSearchInputChange,
-    handleSearch,
-    handleRefresh,
-    handleTrendingClick,
+    comparisonData,
     handleAPISwitch,
+    handleRefresh,
+    handleSearch
   };
 };
