@@ -1,11 +1,11 @@
 
-// LiveCoinWatch API integration with optimized caching for free plan
+// LiveCoinWatch API integration with optimized caching for professional platform
 const LIVECOINWATCH_API_KEY = '27eb01ec-4283-4458-a0b3-372bf28a5bfb';
 const LIVECOINWATCH_BASE_URL = 'https://api.livecoinwatch.com';
 
-// Enhanced caching with longer duration for free plan optimization
+// Professional caching strategy
 const cache = new Map<string, { data: any, timestamp: number }>();
-const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes for free plan optimization
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes for professional real-time data
 
 interface LiveCoinWatchCoin {
   code: string;
@@ -31,7 +31,7 @@ interface LiveCoinWatchResponse {
   data: LiveCoinWatchCoin[];
 }
 
-// Get comprehensive coin data with all available metrics
+// Get comprehensive coin data with professional error handling
 export const getLiveCoinWatchData = async (
   codes?: string[], 
   limit: number = 50,
@@ -39,11 +39,11 @@ export const getLiveCoinWatchData = async (
   order: string = 'ascending'
 ): Promise<any[]> => {
   try {
-    console.log('Fetching crypto data from LiveCoinWatch API');
+    console.log('Fetching cryptocurrency data from LiveCoinWatch API');
     
     const cacheKey = `livecoinwatch:coins:${codes?.join(',') || 'all'}:${limit}:${sort}:${order}`;
     
-    // Check cache first to minimize API calls
+    // Check cache for recent data
     const cachedItem = cache.get(cacheKey);
     if (cachedItem && (Date.now() - cachedItem.timestamp < CACHE_DURATION)) {
       console.log('Using cached LiveCoinWatch data');
@@ -55,7 +55,7 @@ export const getLiveCoinWatchData = async (
       sort,
       order,
       offset: 0,
-      limit: Math.min(limit, 100), // Free plan limit
+      limit: Math.min(limit, 100),
       meta: true
     };
     
@@ -63,7 +63,7 @@ export const getLiveCoinWatchData = async (
       requestBody.codes = codes.map(c => c.toUpperCase());
     }
     
-    console.log(`Making LiveCoinWatch API request with body:`, requestBody);
+    console.log(`Making LiveCoinWatch API request for ${limit} coins`);
     
     const response = await fetch(`${LIVECOINWATCH_BASE_URL}/coins/map`, {
       method: 'POST',
@@ -76,20 +76,18 @@ export const getLiveCoinWatchData = async (
     
     if (!response.ok) {
       console.error(`LiveCoinWatch API error: ${response.status} ${response.statusText}`);
-      const errorText = await response.text();
-      console.error('Error response:', errorText);
-      throw new Error(`API request failed: ${response.status} - ${errorText}`);
+      throw new Error(`API request failed: ${response.status}`);
     }
     
     const data: LiveCoinWatchResponse = await response.json();
-    console.log('LiveCoinWatch API response received');
-    console.log(`Retrieved ${data.data?.length || 0} coins from LiveCoinWatch`);
+    console.log(`Successfully retrieved ${data.data?.length || 0} coins from LiveCoinWatch`);
     
-    if (!data.data) {
-      throw new Error('Invalid response from LiveCoinWatch API');
+    if (!data.data || data.data.length === 0) {
+      console.warn('No data received from LiveCoinWatch API');
+      return [];
     }
     
-    // Transform data to our format
+    // Transform data to standardized format
     const transformedData = data.data.map((coin: LiveCoinWatchCoin) => ({
       symbol: coin.code,
       name: coin.name,
@@ -105,22 +103,22 @@ export const getLiveCoinWatchData = async (
       source: 'LiveCoinWatch'
     }));
     
-    // Cache the successful result
+    // Cache successful results
     cache.set(cacheKey, { data: transformedData, timestamp: Date.now() });
     
-    console.log('Successfully fetched and cached LiveCoinWatch data');
     return transformedData;
     
   } catch (error) {
     console.error('Error fetching LiveCoinWatch data:', error);
-    throw error;
+    // Return empty array instead of throwing to prevent UI crashes
+    return [];
   }
 };
 
-// Get single coin data with comprehensive metrics
+// Get single coin data with enhanced error handling
 export const getLiveCoinWatchCoin = async (code: string): Promise<any | null> => {
   try {
-    console.log(`Fetching ${code} from LiveCoinWatch`);
+    console.log(`Fetching data for ${code} from LiveCoinWatch`);
     
     const cacheKey = `livecoinwatch:coin:${code.toUpperCase()}`;
     const cachedItem = cache.get(cacheKey);
@@ -134,6 +132,9 @@ export const getLiveCoinWatchCoin = async (code: string): Promise<any | null> =>
     
     if (coinData) {
       cache.set(cacheKey, { data: coinData, timestamp: Date.now() });
+      console.log(`Successfully retrieved data for ${code}`);
+    } else {
+      console.warn(`No data found for ${code}`);
     }
     
     return coinData;
@@ -143,14 +144,14 @@ export const getLiveCoinWatchCoin = async (code: string): Promise<any | null> =>
   }
 };
 
-// Get historical price data
+// Get historical price data with professional error handling
 export const getLiveCoinWatchHistory = async (
   code: string, 
   start: number, 
   end: number
 ): Promise<number[][]> => {
   try {
-    console.log(`Fetching history for ${code} from ${start} to ${end}`);
+    console.log(`Fetching price history for ${code}`);
     
     const cacheKey = `livecoinwatch:history:${code}:${start}:${end}`;
     const cachedItem = cache.get(cacheKey);
@@ -177,7 +178,8 @@ export const getLiveCoinWatchHistory = async (
     });
     
     if (!response.ok) {
-      throw new Error(`History API request failed: ${response.status}`);
+      console.error(`History API request failed: ${response.status}`);
+      return [];
     }
     
     const data = await response.json();
@@ -185,6 +187,7 @@ export const getLiveCoinWatchHistory = async (
     
     // Cache history data
     cache.set(cacheKey, { data: historyData, timestamp: Date.now() });
+    console.log(`Retrieved ${historyData.length} historical data points for ${code}`);
     
     return historyData;
   } catch (error) {
@@ -193,7 +196,7 @@ export const getLiveCoinWatchHistory = async (
   }
 };
 
-// Get comprehensive market overview
+// Get market overview with enhanced error handling
 export const getLiveCoinWatchOverview = async (): Promise<any> => {
   try {
     console.log('Fetching market overview from LiveCoinWatch');
@@ -215,13 +218,15 @@ export const getLiveCoinWatchOverview = async (): Promise<any> => {
     });
     
     if (!response.ok) {
-      throw new Error(`Overview API request failed: ${response.status}`);
+      console.error(`Overview API request failed: ${response.status}`);
+      return null;
     }
     
     const data = await response.json();
     
     // Cache overview data
     cache.set(cacheKey, { data: data.data, timestamp: Date.now() });
+    console.log('Successfully retrieved market overview');
     
     return data.data;
   } catch (error) {
@@ -230,7 +235,7 @@ export const getLiveCoinWatchOverview = async (): Promise<any> => {
   }
 };
 
-// Get exchange data
+// Get exchange data with professional error handling
 export const getLiveCoinWatchExchanges = async (): Promise<any[]> => {
   try {
     console.log('Fetching exchanges from LiveCoinWatch');
@@ -258,7 +263,8 @@ export const getLiveCoinWatchExchanges = async (): Promise<any[]> => {
     });
     
     if (!response.ok) {
-      throw new Error(`Exchanges API request failed: ${response.status}`);
+      console.error(`Exchanges API request failed: ${response.status}`);
+      return [];
     }
     
     const data = await response.json();
@@ -266,44 +272,11 @@ export const getLiveCoinWatchExchanges = async (): Promise<any[]> => {
     
     // Cache exchanges data
     cache.set(cacheKey, { data: exchangesData, timestamp: Date.now() });
+    console.log(`Retrieved ${exchangesData.length} exchanges`);
     
     return exchangesData;
   } catch (error) {
     console.error('Error fetching exchanges:', error);
     return [];
   }
-};
-
-// API information for comparison
-export const LIVECOINWATCH_API_INFO = {
-  name: 'LiveCoinWatch',
-  freePlanLimits: {
-    requestsPerMonth: 16000,
-    requestsPerDay: 500,
-    coinsLimit: 100,
-    features: [
-      'Real-time prices',
-      'Historical data',
-      'Market overview',
-      'Exchange data',
-      'Multiple timeframes (1h, 24h, 7d, 30d, 1y)',
-      'High-quality images',
-      'Comprehensive delta data',
-      'Volume and market cap'
-    ]
-  },
-  advantages: [
-    'Higher monthly limit (16,000 requests)',
-    'Comprehensive delta timeframes',
-    'High-quality coin images',
-    'Exchange data included',
-    'Historical price data',
-    'Market overview statistics',
-    'Good documentation'
-  ],
-  limitations: [
-    'Daily limit of 500 requests',
-    'Limited to 100 coins per request',
-    'Requires API key management'
-  ]
 };
