@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -99,12 +98,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           avatar_url: data.avatar_url,
           role: (data.role as UserRole) || 'user',
           verification_status: 'unverified',
-          financial_goals: data.financial_goals || {},
-          risk_profile: data.risk_profile,
-          onboarding_completed: data.onboarding_completed || false,
-          financial_literacy_score: data.financial_literacy_score,
+          financial_goals: {}, // Default empty object since not in DB
+          risk_profile: undefined, // Default undefined since not in DB
+          onboarding_completed: false, // Default false since not in DB
+          financial_literacy_score: undefined, // Default undefined since not in DB
           bio: data.bio,
-          credentials: data.credentials || {},
+          credentials: {}, // Default empty object since not in DB
           followers: data.followers || 0,
           following: data.following || 0,
           is_verified: data.is_verified || false,
@@ -130,8 +129,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           id: userId,
           username: user?.email?.split('@')[0] || '',
           full_name: user?.user_metadata?.full_name || user?.user_metadata?.name || '',
-          email: user?.email || '',
-          onboarding_completed: false
+          avatar_url: user?.user_metadata?.avatar_url || null,
+          role: 'user'
         })
         .select()
         .single();
@@ -262,20 +261,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const completeOnboarding = async (data: OnboardingData) => {
     if (!user) throw new Error('No user logged in');
 
-    const { error } = await supabase
-      .from('profiles')
-      .update({
+    // For now, just mark onboarding as complete in the profile state
+    // In the future, you might want to add these fields to the database
+    if (profile) {
+      setProfile({
+        ...profile,
         onboarding_completed: true,
         financial_goals: data.financial_goals,
-        risk_profile: data.risk_profile,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', user.id);
-
-    if (error) throw error;
-    
-    // Refresh profile
-    await fetchProfile(user.id);
+        risk_profile: data.risk_profile
+      });
+    }
   };
 
   const signInWithGoogle = async () => {
