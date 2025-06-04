@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
-import { getStockQuote, searchStocks, StockQuote } from '@/services/market';
+import { getStockQuote, searchStocks } from '@/services/market';
+import type { StockQuote } from '@/services/market';
 import { useToast } from '@/hooks/use-toast';
 
 export function useStockSearch() {
@@ -79,7 +80,7 @@ export function useStockSearch() {
         setRecentSearches(prev => [stockSymbol, ...prev.slice(0, 3)]);
       }
 
-      // Generate historical data based on time range
+      // Generate historical data based on time range - use lastPrice instead of lastPrice
       generateChartData(stockSymbol, timeRange, data?.lastPrice || 0);
       
       toast({

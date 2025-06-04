@@ -1,39 +1,34 @@
 
 import { MarketIndex } from '@/services/messages/types';
-import { toast } from 'sonner';
 import { fetchProxyData } from '../api';
-
-// Market indices supported by NSE
-export const NSE_INDICES = {
-  NIFTY_50: 'NIFTY 50',
-  NIFTY_BANK: 'NIFTY BANK',
-  NIFTY_IT: 'NIFTY IT',
-  NIFTY_AUTO: 'NIFTY AUTO',
-  NIFTY_PHARMA: 'NIFTY PHARMA',
-  NIFTY_FMCG: 'NIFTY FMCG'
-};
+import { toast } from 'sonner';
 
 /**
- * Get index data for a given index
+ * Get index data for a given index name
  */
 export async function getIndexData(indexName: string): Promise<MarketIndex> {
   try {
-    const data = await fetchProxyData('indices', { index: indexName });
+    const data = await fetchProxyData('indices', { index: indexName }) as {
+      name: string;
+      lastPrice: number;
+      change: number;
+      pChange: number;
+      open: number;
+      high: number;
+      low: number;
+      previousClose: number;
+      timestamp: string;
+    };
     
-    if (!data) {
-      throw new Error(`Failed to fetch data for ${indexName}`);
-    }
-    
-    // The data structure comes directly from our edge function now
     return {
-      name: data.name,
-      lastPrice: data.lastPrice,
-      change: data.change,
-      pChange: data.pChange,
-      open: data.open,
-      high: data.high,
-      low: data.low,
-      previousClose: data.previousClose,
+      name: data.name || indexName,
+      lastPrice: data.lastPrice || 0,
+      change: data.change || 0,
+      pChange: data.pChange || 0,
+      open: data.open || 0,
+      high: data.high || 0,
+      low: data.low || 0,
+      previousClose: data.previousClose || 0,
       timestamp: data.timestamp || new Date().toISOString()
     };
   } catch (error) {

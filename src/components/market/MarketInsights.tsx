@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useCallback } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,10 +6,9 @@ import {
   getMarketStatus, 
   getIndexData, 
   getTopGainers, 
-  getTopLosers,
-  MarketStatus as MarketStatusType,
-  MarketIndex
+  getTopLosers
 } from '@/services/market';
+import type { MarketStatus, MarketIndex, MarketPerformer } from '@/services/market';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -18,10 +16,10 @@ import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const MarketInsights = () => {
-  const [status, setStatus] = useState<MarketStatusType | null>(null);
+  const [status, setStatus] = useState<MarketStatus | null>(null);
   const [indices, setIndices] = useState<MarketIndex[]>([]);
-  const [gainers, setGainers] = useState<any[]>([]);
-  const [losers, setLosers] = useState<any[]>([]);
+  const [gainers, setGainers] = useState<MarketPerformer[]>([]);
+  const [losers, setLosers] = useState<MarketPerformer[]>([]);
   const [activeTab, setActiveTab] = useState('indices');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -1,5 +1,7 @@
-
 import { fetchMarketData } from './api';
+
+// Re-export types from messages service for backward compatibility
+export type { StockQuote, MarketStatus, MarketIndex } from '@/services/messages/types';
 
 export interface MarketData {
   symbol: string;
@@ -13,6 +15,9 @@ export interface MarketData {
   low: number;
   open: number;
   previousClose: number;
+  // Add properties that components expect
+  lastPrice: number;
+  companyName: string;
 }
 
 export interface IndexData {
@@ -49,7 +54,9 @@ class MarketService {
         high: data.priceInfo?.intraDayHighLow?.max || 0,
         low: data.priceInfo?.intraDayHighLow?.min || 0,
         open: data.priceInfo?.open || 0,
-        previousClose: data.priceInfo?.previousClose || 0
+        previousClose: data.priceInfo?.previousClose || 0,
+        lastPrice: data.priceInfo?.lastPrice || 0,
+        companyName: data.info?.companyName || symbol
       };
     } catch (error) {
       console.error('Error fetching stock quote:', error);
@@ -122,3 +129,8 @@ export const marketService = new MarketService();
 export const getStockQuote = (symbol: string) => marketService.getStockQuote(symbol);
 export const getIndexData = (indexName: string) => marketService.getIndexData(indexName);
 export const searchStocks = (query: string) => marketService.searchStocks(query);
+
+// Export additional functions that components expect
+export { getMarketStatus } from './status/marketStatus';
+export { getTopGainers, getTopLosers } from './market-data/topPerformers';
+export type { MarketPerformer } from './market-data/topPerformers';

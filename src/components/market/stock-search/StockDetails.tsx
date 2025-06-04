@@ -5,7 +5,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart, XAxis, YAxis } from 'recharts';
-import { StockQuote } from '@/services/market';
+import type { StockQuote } from '@/services/market';
 
 const timeRanges = ['1D', '1W', '1M', '3M', '6M', '1Y', '5Y', 'MAX'];
 
