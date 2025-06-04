@@ -1,55 +1,25 @@
 
-import { Outlet, useLocation, Link } from 'react-router-dom';
-import { Sparkles } from 'lucide-react';
+import { Outlet } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 
 const AuthLayout = () => {
   const location = useLocation();
-  const isLoginPage = location.pathname.includes('login');
-  const pageTitle = isLoginPage ? "Sign In" : "Create Account";
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      <header className="py-6 px-8 border-b border-black/5">
-        <div className="flex justify-between items-center max-w-7xl mx-auto w-full">
-          <Link to="/" className="flex items-center space-x-2">
-            <span className="font-bold text-xl">Investor<span className="text-gold">Paisa</span></span>
-          </Link>
-          <nav className="flex items-center space-x-6">
-            <Link to="/" className="text-sm text-black/60 hover:text-black transition-colors">
-              Home
-            </Link>
-            {isLoginPage ? (
-              <Link to="/auth/register" className="btn-premium text-sm py-2 px-4">
-                Sign Up
-              </Link>
-            ) : (
-              <Link to="/auth/login" className="text-sm text-black/60 hover:text-black transition-colors">
-                Sign In
-              </Link>
-            )}
-          </nav>
-        </div>
-      </header>
-      <main className="flex-1 flex items-center justify-center p-6">
-        <div className="w-full max-w-md">
+    <div className="min-h-screen bg-cred-dark">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={location.pathname}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 1.05 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="h-full"
+        >
           <Outlet />
-        </div>
-      </main>
-      <footer className="py-6 px-8 border-t border-black/5">
-        <div className="max-w-7xl mx-auto w-full flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-sm text-black/60">
-            © {new Date().getFullYear()} Investor Paisa. All rights reserved.
-          </div>
-          <div className="flex items-center gap-4">
-            <Link to="#" className="text-xs text-black/60 hover:text-black">Privacy Policy</Link>
-            <Link to="#" className="text-xs text-black/60 hover:text-black">Terms of Service</Link>
-            <Link to="#" className="text-xs flex items-center gap-1 text-gold">
-              <Sparkles className="h-3 w-3" />
-              Premium
-            </Link>
-          </div>
-        </div>
-      </footer>
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 };

@@ -1,7 +1,8 @@
 
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "@/components/ui/toaster";
+import { usePerformanceOptimization } from "@/hooks/usePerformanceOptimization";
 import Landing from "@/pages/Landing";
 import Index from "@/pages/Index";
 import Login from "@/pages/auth/Login";
@@ -27,6 +28,8 @@ import MainLayout from "@/layouts/MainLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 function App() {
+  usePerformanceOptimization();
+
   return (
     <Router>
       <AuthProvider>
