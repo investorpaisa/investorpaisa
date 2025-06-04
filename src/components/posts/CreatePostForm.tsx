@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { useUserCircles } from '@/hooks/useCircles';
 import { usePostForm } from '@/hooks/usePostForm';
+import { useUserData } from '@/hooks/useUserData';
 import PostFormHeader from './PostFormHeader';
 import CircleSelector from './CircleSelector';
 import UserSelector from './UserSelector';
@@ -21,9 +22,9 @@ interface CreatePostFormProps {
 }
 
 export function CreatePostForm({ onSuccess, onCancel, circleId, compact = false, onPostCreated }: CreatePostFormProps) {
+  const userData = useUserData();
   const {
     formData,
-    user,
     isExpanded,
     loading,
     handleImageUpload,
@@ -46,22 +47,22 @@ export function CreatePostForm({ onSuccess, onCancel, circleId, compact = false,
     onPostCreated,
   });
 
-  const { data: userCircles = [] } = useUserCircles(user?.id);
+  const { data: userCircles = [] } = useUserCircles(userData?.id);
 
   return (
     <Card className={`border ${!isExpanded ? 'hover:border-muted-foreground/50 transition-colors' : ''}`}>
       <CardContent className="p-4">
         {!isExpanded ? (
           <CompactPostForm 
-            userAvatar={user?.avatar}
-            userName={user?.name}
+            userAvatar={userData?.avatar}
+            userName={userData?.name}
             onExpand={handleExpand}
           />
         ) : (
           <div className="space-y-4">
             <PostFormHeader 
-              userName={user?.name}
-              userAvatar={user?.avatar}
+              userName={userData?.name}
+              userAvatar={userData?.avatar}
               shareMode={formData.shareMode}
               onShareModeChange={handleShareModeChange}
             />

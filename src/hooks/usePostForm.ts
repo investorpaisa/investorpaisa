@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useUserData } from '@/hooks/useUserData';
 import { useProfileData } from '@/hooks/useProfileData';
 import { toast } from 'sonner';
 import { mockUsers, categories } from '@/data/mockData';
@@ -23,7 +24,7 @@ interface UsePostFormProps {
 }
 
 export const usePostForm = ({ onSuccess, onCancel, circleId, onPostCreated }: UsePostFormProps) => {
-  const { user } = useAuth();
+  const userData = useUserData();
   const { addPostToProfile } = useProfileData();
   const [formData, setFormData] = useState<PostFormData>({
     title: '',
@@ -160,10 +161,10 @@ export const usePostForm = ({ onSuccess, onCancel, circleId, onPostCreated }: Us
         const newPost = {
           id: Math.floor(Math.random() * 1000).toString(),
           author: {
-            name: user?.name || 'User',
-            username: user?.username || 'user',
-            avatar: user?.avatar || '/placeholder.svg',
-            role: user?.role || 'user',
+            name: userData?.name || 'User',
+            username: userData?.username || 'user',
+            avatar: userData?.avatar || '/placeholder.svg',
+            role: userData?.role || 'user',
             verified: false,
           },
           category: categoryName,
@@ -224,7 +225,7 @@ export const usePostForm = ({ onSuccess, onCancel, circleId, onPostCreated }: Us
 
   return {
     formData,
-    user,
+    userData,
     isExpanded,
     loading,
     handleImageUpload,

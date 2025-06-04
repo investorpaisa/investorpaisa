@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { Save } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUserData } from '@/hooks/useUserData';
 import { ProfileData } from '@/types/profile';
 
 import { ProfilePictureSection } from './ProfilePictureSection';
@@ -21,7 +21,8 @@ interface EditProfileFormProps {
 
 export const EditProfileForm = ({ profileData, refreshProfile }: EditProfileFormProps) => {
   const navigate = useNavigate();
-  const { user, updateUserProfile } = useAuth();
+  const { updateProfile } = useAuth();
+  const userData = useUserData();
   
   // Form state
   const [name, setName] = useState('');
@@ -64,40 +65,33 @@ export const EditProfileForm = ({ profileData, refreshProfile }: EditProfileForm
       
       // Create updated profile object
       const updatedProfile = {
-        name,
+        full_name: name,
         bio,
-        username,
-        career,
-        education,
-        certifications,
-        achievements,
-        location,
-        interests
+        username
       };
       
-      // In a real app, this would be an API call to update the profile
-      // For now, we'll update locally and show a success message
-      setTimeout(() => {
-        // Update auth context with new profile data
-        if (updateUserProfile) {
-          updateUserProfile({
-            ...user,
-            name,
-            username,
-            bio
-          });
-        }
-        
-        toast.success('Profile updated successfully');
-        
-        // Refresh profile data
-        if (refreshProfile) {
-          refreshProfile(updatedProfile);
-        }
-        
-        setIsSubmitting(false);
-        navigate('/profile');
-      }, 1000);
+      // Update profile in Supabase
+      await updateProfile(updatedProfile);
+      
+      toast.success('Profile updated successfully');
+      
+      // Refresh profile data
+      if (refreshProfile) {
+        refreshProfile({
+          name,
+          bio,
+          username,
+          career,
+          education,
+          certifications,
+          achievements,
+          location,
+          interests
+        });
+      }
+      
+      setIsSubmitting(false);
+      navigate('/profile');
     } catch (error) {
       console.error('Error updating profile:', error);
       toast.error('Failed to update profile. Please try again.');
@@ -113,7 +107,7 @@ export const EditProfileForm = ({ profileData, refreshProfile }: EditProfileForm
       <CardContent className="space-y-6">
         {/* Profile Picture */}
         <ProfilePictureSection 
-          avatar={user?.avatar} 
+          avatar={userData?.avatar} 
           name={name} 
         />
 

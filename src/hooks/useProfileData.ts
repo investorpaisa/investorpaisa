@@ -1,10 +1,10 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useUserData } from '@/hooks/useUserData';
 import { ProfileData } from '@/types/profile';
 
 export const useProfileData = () => {
-  const { user } = useAuth();
+  const userData = useUserData();
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -15,10 +15,10 @@ export const useProfileData = () => {
     // In a real app, we would fetch this data from an API
     // For now, we're using mock data based on the current user
     const mockProfile: ProfileData = {
-      name: user?.name || "Jai Sharma",
-      username: user?.username || "@jaisharma",
-      avatar: user?.avatar || "/placeholder.svg",
-      bio: user?.bio || "SEBI Registered Investment Advisor with 8+ years of experience. Specializing in equity investments, retirement planning, and tax optimization strategies for young professionals.",
+      name: userData?.name || "Jai Sharma",
+      username: userData?.username || "@jaisharma",
+      avatar: userData?.avatar || "/placeholder.svg",
+      bio: userData?.bio || "SEBI Registered Investment Advisor with 8+ years of experience. Specializing in equity investments, retirement planning, and tax optimization strategies for young professionals.",
       location: "Mumbai, India",
       career: "Financial Advisor at XYZ Investments (2018-Present), Associate at ABC Financial Services (2015-2018)",
       education: "MBA Finance, IIM Ahmedabad (2016), B.Com, Delhi University (2013)",
@@ -72,7 +72,7 @@ export const useProfileData = () => {
     
     setProfileData(mockProfile);
     setLoading(false);
-  }, [user]);
+  }, [userData]);
 
   // Load profile data when user changes
   useEffect(() => {

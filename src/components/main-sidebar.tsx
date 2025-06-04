@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUserData } from '@/hooks/useUserData';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
@@ -32,12 +32,13 @@ import { toast } from 'sonner';
 
 export function MainSidebar() {
   const { pathname } = useLocation();
-  const { user, logout } = useAuth();
+  const { signOut } = useAuth();
+  const userData = useUserData();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [circlesExpanded, setCirclesExpanded] = useState(false);
-  const { data: circles = [] } = useUserCircles(user?.id);
+  const { data: circles = [] } = useUserCircles(userData?.id);
 
   const sidebarItems = [
     {
@@ -65,7 +66,7 @@ export function MainSidebar() {
   ];
 
   const handleLogout = () => {
-    logout();
+    signOut();
     navigate('/');
   };
 
@@ -84,14 +85,14 @@ export function MainSidebar() {
     <div className="flex h-full flex-col gap-2 py-4">
       {isMobile && (
         <div className="px-4 mb-2">
-          <Link to={`/profile/${user?.id}`} className="flex items-center gap-3">
+          <Link to={`/profile/${userData?.id}`} className="flex items-center gap-3">
             <Avatar className="h-10 w-10">
-              <AvatarImage src={user?.avatar || "/placeholder.svg"} alt={user?.name || "User"} />
-              <AvatarFallback>{user?.name?.charAt(0) || "U"}</AvatarFallback>
+              <AvatarImage src={userData?.avatar || "/placeholder.svg"} alt={userData?.name || "User"} />
+              <AvatarFallback>{userData?.name?.charAt(0) || "U"}</AvatarFallback>
             </Avatar>
             <div>
-              <p className="font-medium text-sm">{user?.name}</p>
-              <p className="text-xs text-muted-foreground">@{user?.username}</p>
+              <p className="font-medium text-sm">{userData?.name}</p>
+              <p className="text-xs text-muted-foreground">@{userData?.username}</p>
             </div>
           </Link>
         </div>
@@ -183,7 +184,7 @@ export function MainSidebar() {
         <Button
           variant="ghost"
           className="w-full justify-start text-muted-foreground hover:text-ip-gold hover:bg-transparent"
-          onClick={handleLogout}
+          onClick={() => signOut()}
         >
           <LogOut className="h-5 w-5" />
           <span className="ml-2">Log out</span>
@@ -219,23 +220,23 @@ export function MainSidebar() {
         <div className="flex items-center gap-2 mb-6">
           <Avatar 
             className="cursor-pointer" 
-            onClick={() => navigate(`/profile/${user?.id}`)}
+            onClick={() => navigate(`/profile/${userData?.id}`)}
           >
-            <AvatarImage src={user?.avatar || "/placeholder.svg"} alt={user?.name || "User"} />
-            <AvatarFallback>{user?.name?.charAt(0) || "U"}</AvatarFallback>
+            <AvatarImage src={userData?.avatar || "/placeholder.svg"} alt={userData?.name || "User"} />
+            <AvatarFallback>{userData?.name?.charAt(0) || "U"}</AvatarFallback>
           </Avatar>
           <div className="overflow-hidden">
             <p 
               className="font-medium truncate cursor-pointer hover:underline hover:text-ip-gold" 
-              onClick={() => navigate(`/profile/${user?.id}`)}
+              onClick={() => navigate(`/profile/${userData?.id}`)}
             >
-              {user?.name}
+              {userData?.name}
             </p>
             <p 
               className="text-xs text-muted-foreground truncate cursor-pointer hover:underline hover:text-ip-gold" 
-              onClick={() => navigate(`/profile/${user?.id}`)}
+              onClick={() => navigate(`/profile/${userData?.id}`)}
             >
-              @{user?.username}
+              @{userData?.username}
             </p>
           </div>
         </div>

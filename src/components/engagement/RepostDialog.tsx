@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Repeat2, Users, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
-import { useAuth } from '@/contexts/AuthContext';
+import { useUserData } from '@/hooks/useUserData';
 
 interface Post {
   id: number;
@@ -40,7 +39,7 @@ export function RepostDialog({ open, onOpenChange, post }: RepostDialogProps) {
   const [caption, setCaption] = useState('');
   const [audienceType, setAudienceType] = useState('public');
   const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
+  const userData = useUserData();
 
   const handleRepost = async () => {
     setLoading(true);
@@ -75,10 +74,10 @@ export function RepostDialog({ open, onOpenChange, post }: RepostDialogProps) {
         <div className="space-y-4 py-4">
           <div className="flex items-center gap-3 mb-4">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={user?.avatar || '/placeholder.svg'} />
-              <AvatarFallback>{user?.name?.substring(0, 2).toUpperCase() || 'IP'}</AvatarFallback>
+              <AvatarImage src={userData?.avatar || '/placeholder.svg'} />
+              <AvatarFallback>{userData?.name?.substring(0, 2).toUpperCase() || 'IP'}</AvatarFallback>
             </Avatar>
-            <span className="text-sm font-medium">@{user?.username || 'username'}</span>
+            <span className="text-sm font-medium">@{userData?.username || 'username'}</span>
           </div>
           
           <Textarea

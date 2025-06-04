@@ -6,6 +6,7 @@ import { Button } from './ui/button';
 import { BarChart2, Bell, Home, Globe, Inbox, Menu } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from '@/contexts/AuthContext';
+import { useUserData } from '@/hooks/useUserData';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,7 +16,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 export function MainNav() {
-  const { user, logout } = useAuth();
+  const { signOut } = useAuth();
+  const userData = useUserData();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-black/5 bg-white/90 backdrop-blur-md">
@@ -57,8 +59,8 @@ export function MainNav() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 rounded-md p-0 data-[state=open]:bg-black/5">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={user?.avatar} />
-                  <AvatarFallback>{user?.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
+                  <AvatarImage src={userData?.avatar} />
+                  <AvatarFallback>{userData?.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
@@ -72,7 +74,7 @@ export function MainNav() {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => {
-                  logout();
+                  signOut();
                 }}
               >
                 Log out

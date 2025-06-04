@@ -2,23 +2,18 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { UserProfile, OnboardingData } from '@/types/app';
+import { UserProfile, OnboardingData, UserRole } from '@/types/app';
 
 interface AuthContextType {
   user: User | null;
   profile: UserProfile | null;
   loading: boolean;
-  isLoading: boolean;
-  signUp: (email: string, password: string, userData: any) => Promise<void>;
-  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, userData: any) => Promise<{ error: any }>;
+  signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
-  logout: () => Promise<void>;
   updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
   completeOnboarding: (data: OnboardingData) => Promise<void>;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, userData: any) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
-  updateUserProfile: (data: Partial<UserProfile>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -75,17 +70,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const userProfile: UserProfile = {
         id: data.id,
         username: data.username || '',
-        email: data.email || '',
+        email: data.email || user?.email || '',
         full_name: data.full_name,
         avatar_url: data.avatar_url,
-        role: data.role,
+        role: data.role as UserRole,
         verification_status: data.verification_status || 'unverified',
-        financial_goals: data.financial_goals,
+        financial_goals: data.financial_goals || {},
         risk_profile: data.risk_profile,
         onboarding_completed: data.onboarding_completed || false,
         financial_literacy_score: data.financial_literacy_score,
         bio: data.bio,
-        credentials: data.credentials,
+        credentials: data.credentials || {},
         followers: data.followers || 0,
         following: data.following || 0,
         is_verified: data.is_verified || false,
@@ -109,7 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         data: userData
       }
     });
-    if (error) throw error;
+    return { error };
   };
 
   const signIn = async (email: string, password: string) => {
@@ -117,7 +112,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       email,
       password
     });
-    if (error) throw error;
+    return { error };
   };
 
   const signOut = async () => {
@@ -172,17 +167,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     profile,
     loading,
-    isLoading: loading,
     signUp,
     signIn,
     signOut,
-    logout: signOut,
-    login: signIn,
-    register: signUp,
-    signInWithGoogle,
     updateProfile,
-    updateUserProfile: updateProfile,
-    completeOnboarding
+    completeOnboarding,
+    signInWithGoogle
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
