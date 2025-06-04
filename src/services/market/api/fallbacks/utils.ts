@@ -19,6 +19,41 @@ export function getFallbackData(endpoint: string, params: Record<string, string>
   }
 }
 
+export function createMockStock(symbol: string, price: number, change: number) {
+  const changePercent = (change / price) * 100;
+  
+  return {
+    symbol: symbol,
+    lastPrice: price,
+    change: change,
+    pChange: changePercent,
+    open: price - Math.random() * 10,
+    high: price + Math.random() * 20,
+    low: price - Math.random() * 20,
+    previousClose: price - change,
+    tradedQuantity: Math.floor(Math.random() * 100000)
+  };
+}
+
+export function getCompanyName(symbol: string): string {
+  const companyNames: Record<string, string> = {
+    'RELIANCE': 'Reliance Industries Limited',
+    'TCS': 'Tata Consultancy Services Limited',
+    'HDFCBANK': 'HDFC Bank Limited',
+    'INFY': 'Infosys Limited',
+    'ICICIBANK': 'ICICI Bank Limited',
+    'ITC': 'ITC Limited',
+    'KOTAKBANK': 'Kotak Mahindra Bank Limited',
+    'LT': 'Larsen & Toubro Limited',
+    'AXISBANK': 'Axis Bank Limited',
+    'WIPRO': 'Wipro Limited',
+    'ADANIPORTS': 'Adani Ports and Special Economic Zone Limited',
+    'TATASTEEL': 'Tata Steel Limited'
+  };
+  
+  return companyNames[symbol] || `${symbol} Corporation`;
+}
+
 function generateFallbackStockData(symbol: string) {
   const basePrice = 100 + Math.random() * 400;
   const change = (Math.random() - 0.5) * 10;
@@ -27,7 +62,7 @@ function generateFallbackStockData(symbol: string) {
   return {
     info: {
       symbol: symbol,
-      companyName: `${symbol} Corporation`,
+      companyName: getCompanyName(symbol),
       industry: 'Technology',
       series: 'EQ'
     },

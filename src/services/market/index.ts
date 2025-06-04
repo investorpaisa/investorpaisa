@@ -9,6 +9,9 @@ export * from './market-data';
 // Export the main service
 export { marketService } from './marketService';
 
+// Export NSE_INDICES constant
+export { NSE_INDICES } from './marketService';
+
 // Export specific functions with clear names to avoid conflicts
 export { 
   getStockQuoteFromService as getStockQuote,
