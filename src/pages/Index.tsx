@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { PageLoader } from '@/components/ui/page-loader';
 
 const Index = () => {
-  const { user, isLoading } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -13,7 +13,7 @@ const Index = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const hasOAuthParams = urlParams.has('code') || urlParams.has('access_token') || urlParams.has('error');
     
-    if (!isLoading) {
+    if (!loading) {
       if (user) {
         // If user is authenticated, redirect to home
         navigate('/home', { replace: true });
@@ -29,7 +29,7 @@ const Index = () => {
         navigate('/landing', { replace: true });
       }
     }
-  }, [user, isLoading, navigate]);
+  }, [user, loading, navigate]);
 
   return <PageLoader />;
 };

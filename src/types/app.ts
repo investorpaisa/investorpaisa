@@ -32,6 +32,17 @@ export interface UserProfile {
   updated_at: string;
 }
 
+// Extended User interface that includes profile data for convenience
+export interface ExtendedUser {
+  id: string;
+  email: string;
+  name?: string;
+  username?: string;
+  avatar?: string;
+  bio?: string;
+  role?: UserRole;
+}
+
 export interface Circle {
   id: string;
   name: string;

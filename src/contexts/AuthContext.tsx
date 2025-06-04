@@ -8,11 +8,17 @@ interface AuthContextType {
   user: User | null;
   profile: UserProfile | null;
   loading: boolean;
+  isLoading: boolean;
   signUp: (email: string, password: string, userData: any) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  logout: () => Promise<void>;
   updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
   completeOnboarding: (data: OnboardingData) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, userData: any) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
+  updateUserProfile: (data: Partial<UserProfile>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -64,7 +70,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .single();
 
       if (error) throw error;
-      setProfile(data);
+      
+      // Transform the data to match UserProfile interface
+      const userProfile: UserProfile = {
+        id: data.id,
+        username: data.username || '',
+        email: data.email || '',
+        full_name: data.full_name,
+        avatar_url: data.avatar_url,
+        role: data.role,
+        verification_status: data.verification_status || 'unverified',
+        financial_goals: data.financial_goals,
+        risk_profile: data.risk_profile,
+        onboarding_completed: data.onboarding_completed || false,
+        financial_literacy_score: data.financial_literacy_score,
+        bio: data.bio,
+        credentials: data.credentials,
+        followers: data.followers || 0,
+        following: data.following || 0,
+        is_verified: data.is_verified || false,
+        created_at: data.created_at,
+        updated_at: data.updated_at
+      };
+      
+      setProfile(userProfile);
     } catch (error) {
       console.error('Error fetching profile:', error);
     } finally {
@@ -101,7 +130,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const { error } = await supabase
       .from('profiles')
-      .update(updates)
+      .update({
+        ...updates,
+        updated_at: new Date().toISOString()
+      })
       .eq('id', user.id);
 
     if (error) throw error;
@@ -118,7 +150,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       .update({
         financial_goals: data.financial_goals,
         risk_profile: data.risk_profile,
-        onboarding_completed: true
+        onboarding_completed: true,
+        updated_at: new Date().toISOString()
       })
       .eq('id', user.id);
 
@@ -128,14 +161,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await fetchProfile(user.id);
   };
 
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google'
+    });
+    if (error) throw error;
+  };
+
   const value = {
     user,
     profile,
     loading,
+    isLoading: loading,
     signUp,
     signIn,
     signOut,
+    logout: signOut,
+    login: signIn,
+    register: signUp,
+    signInWithGoogle,
     updateProfile,
+    updateUserProfile: updateProfile,
     completeOnboarding
   };
 
