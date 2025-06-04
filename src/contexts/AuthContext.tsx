@@ -14,6 +14,9 @@ interface AuthContextType {
   updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
   completeOnboarding: (data: OnboardingData) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
+  // Legacy method names for backward compatibility
+  register: (email: string, password: string, userData: any) => Promise<{ error: any }>;
+  login: (email: string, password: string) => Promise<{ user: User | null; error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -66,21 +69,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) throw error;
       
-      // Transform the data to match UserProfile interface
+      // Transform the data to match UserProfile interface with proper defaults
       const userProfile: UserProfile = {
         id: data.id,
         username: data.username || '',
-        email: data.email || user?.email || '',
+        email: user?.email || '',
         full_name: data.full_name,
         avatar_url: data.avatar_url,
-        role: data.role as UserRole,
-        verification_status: data.verification_status || 'unverified',
-        financial_goals: data.financial_goals || {},
-        risk_profile: data.risk_profile,
-        onboarding_completed: data.onboarding_completed || false,
-        financial_literacy_score: data.financial_literacy_score,
+        role: (data.role as UserRole) || 'user',
+        verification_status: 'unverified',
+        financial_goals: {},
+        risk_profile: undefined,
+        onboarding_completed: false,
+        financial_literacy_score: undefined,
         bio: data.bio,
-        credentials: data.credentials || {},
+        credentials: {},
         followers: data.followers || 0,
         following: data.following || 0,
         is_verified: data.is_verified || false,
@@ -143,9 +146,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { error } = await supabase
       .from('profiles')
       .update({
-        financial_goals: data.financial_goals,
-        risk_profile: data.risk_profile,
-        onboarding_completed: true,
         updated_at: new Date().toISOString()
       })
       .eq('id', user.id);
@@ -163,6 +163,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (error) throw error;
   };
 
+  // Legacy methods for backward compatibility
+  const register = signUp;
+  const login = async (email: string, password: string) => {
+    const { error } = await signIn(email, password);
+    return { user, error };
+  };
+
   const value = {
     user,
     profile,
@@ -172,7 +179,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signOut,
     updateProfile,
     completeOnboarding,
-    signInWithGoogle
+    signInWithGoogle,
+    register,
+    login
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

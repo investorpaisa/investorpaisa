@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCommentsDialogStore } from "@/hooks/useCommentsDialog";
-import { useAuth } from "@/contexts/AuthContext";
+import { useUserData } from "@/hooks/useUserData";
 import { X, Heart, Reply, MoreHorizontal, Edit, Trash2, Flag, MessageSquare } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -226,7 +226,7 @@ const Comment = ({ comment, onReply, currentUser }: any) => {
 
 export const CommentsDialog = () => {
   const { isOpen, entity, closeComments } = useCommentsDialogStore();
-  const { user } = useAuth();
+  const userData = useUserData();
   const [comments, setComments] = useState<any[]>([]);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
@@ -249,16 +249,16 @@ export const CommentsDialog = () => {
     const newCommentObj = {
       id: `comment-${Date.now()}`,
       content: newComment,
-      user_id: user?.id || 'anonymous',
+      user_id: userData?.id || 'anonymous',
       post_id: entity?.id || '',
       parent_id: null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       author: {
-        id: user?.id || 'anonymous',
-        username: user?.username || 'anonymous',
-        full_name: user?.name || 'Anonymous User',
-        avatar_url: user?.avatar || '',
+        id: userData?.id || 'anonymous',
+        username: userData?.username || 'anonymous',
+        full_name: userData?.name || 'Anonymous User',
+        avatar_url: userData?.avatar || '',
         bio: '',
         followers: 0,
         following: 0,
@@ -285,16 +285,16 @@ export const CommentsDialog = () => {
     const replyComment = {
       id: `reply-${Date.now()}`,
       content: content,
-      user_id: user?.id || 'anonymous',
+      user_id: userData?.id || 'anonymous',
       post_id: entity?.id || '',
       parent_id: parentId,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       author: {
-        id: user?.id || 'anonymous',
-        username: user?.username || 'anonymous',
-        full_name: user?.name || 'Anonymous User',
-        avatar_url: user?.avatar || '',
+        id: userData?.id || 'anonymous',
+        username: userData?.username || 'anonymous',
+        full_name: userData?.name || 'Anonymous User',
+        avatar_url: userData?.avatar || '',
         bio: '',
         followers: 0,
         following: 0,
@@ -350,8 +350,8 @@ export const CommentsDialog = () => {
         <div className="p-4 border-b">
           <div className="flex gap-3">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={user?.avatar} />
-              <AvatarFallback>{user?.name?.substring(0, 2).toUpperCase() || 'U'}</AvatarFallback>
+              <AvatarImage src={userData?.avatar} />
+              <AvatarFallback>{userData?.name?.substring(0, 2).toUpperCase() || 'U'}</AvatarFallback>
             </Avatar>
             <div className="flex-1">
               <Textarea 
@@ -380,7 +380,7 @@ export const CommentsDialog = () => {
                 key={comment.id} 
                 comment={comment} 
                 onReply={handleAddReply}
-                currentUser={user}
+                currentUser={userData}
               />
             ))
           ) : (
