@@ -1,247 +1,115 @@
-import React, { useState } from 'react';
-import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { useAuth } from '@/contexts/AuthContext';
-import { useUserData } from '@/hooks/useUserData';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+import { Link, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { 
   Home, 
+  TrendingUp, 
+  Users, 
+  BookOpen, 
   PieChart, 
-  Settings, 
-  LogOut, 
-  Menu, 
-  Users,
-  ChevronRight,
-  ChevronDown,
-  Pin,
-  MoreHorizontal,
   MessageSquare,
-  Bell
+  User,
+  Settings,
+  Sparkles
 } from 'lucide-react';
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useUserCircles } from '@/hooks/useCircles';
-import { toast } from 'sonner';
 
-export function MainSidebar() {
-  const { pathname } = useLocation();
-  const { signOut } = useAuth();
-  const userData = useUserData();
-  const isMobile = useIsMobile();
-  const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [circlesExpanded, setCirclesExpanded] = useState(false);
-  const { data: circles = [] } = useUserCircles(userData?.id);
+const navigation = [
+  { name: 'Home', href: '/home', icon: Home },
+  { name: 'Feed', href: '/feed', icon: MessageSquare },
+  { name: 'Market', href: '/market', icon: TrendingUp },
+  { name: 'Portfolio', href: '/portfolio', icon: PieChart },
+  { name: 'Circles', href: '/circles', icon: Users },
+  { name: 'Discover', href: '/discover', icon: BookOpen },
+  { name: 'Profile', href: '/profile', icon: User },
+];
 
-  const sidebarItems = [
-    {
-      title: 'Home',
-      icon: <Home className="h-5 w-5" />,
-      path: '/home',
-      exact: true,
-    },
-    {
-      title: 'Market',
-      icon: <PieChart className="h-5 w-5" />,
-      path: '/market',
-    },
-    {
-      title: 'My Circle',
-      icon: <Users className="h-5 w-5" />,
-      path: '/mycircle',
-    },
-    {
-      title: 'Updates',
-      icon: <Bell className="h-5 w-5" />,
-      path: '/notifications',
-      badge: 3,
-    },
-  ];
-
-  const handleLogout = () => {
-    signOut();
-    navigate('/');
-  };
-
-  const handleCircleManagement = (circleId: string) => {
-    toast.info('Circle management coming soon');
-  };
-
-  const handlePinCircle = (circleId: string) => {
-    toast.success('Circle pinned successfully');
-  };
-  
-  // Filter only pinned circles for display at the bottom
-  const pinnedCircles = circles?.filter(circle => circle.isPinned)?.slice(0, circlesExpanded ? circles.length : 3) || [];
-
-  const renderContent = () => (
-    <div className="flex h-full flex-col gap-2 py-4">
-      {isMobile && (
-        <div className="px-4 mb-2">
-          <Link to={`/profile/${userData?.id}`} className="flex items-center gap-3">
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={userData?.avatar || "/placeholder.svg"} alt={userData?.name || "User"} />
-              <AvatarFallback>{userData?.name?.charAt(0) || "U"}</AvatarFallback>
-            </Avatar>
-            <div>
-              <p className="font-medium text-sm">{userData?.name}</p>
-              <p className="text-xs text-muted-foreground">@{userData?.username}</p>
-            </div>
-          </Link>
-        </div>
-      )}
-
-      <div className="px-2 space-y-1">
-        {sidebarItems.map((item) => (
-          <Link
-            key={item.path}
-            to={item.path}
-            className="block"
-            onClick={() => isMobile && setSidebarOpen(false)}
-          >
-            <Button
-              variant={pathname === item.path ? "default" : "ghost"}
-              className={`w-full justify-start ${
-                pathname === item.path 
-                  ? 'bg-black text-white' 
-                  : 'hover:text-ip-gold hover:bg-transparent'
-              }`}
-            >
-              {item.icon}
-              <span className="ml-2">{item.title}</span>
-              {item.badge && (
-                <span className="ml-auto bg-ip-teal text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                  {item.badge}
-                </span>
-              )}
-            </Button>
-          </Link>
-        ))}
-      </div>
-
-      {pinnedCircles.length > 0 && (
-        <>
-          <Separator className="my-2" />
-
-          <div className="px-2">
-            <div className="flex items-center px-3 py-2">
-              <Pin className="h-4 w-4 mr-2 text-muted-foreground" />
-              <span className="text-sm font-medium">Pinned Circles</span>
-            </div>
-
-            <div className="space-y-1 mt-1 pl-2">
-              {pinnedCircles.map((circle) => (
-                <div key={circle.id} className="flex items-center group">
-                  <Link
-                    to={`/circles/${circle.id}`}
-                    className="flex-1"
-                    onClick={() => isMobile && setSidebarOpen(false)}
-                  >
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-start text-sm hover:text-ip-gold hover:bg-transparent"
-                    >
-                      {circle.name}
-                      {circle.hasNewPost && (
-                        <span className="h-2 w-2 rounded-full bg-ip-teal ml-2"></span>
-                      )}
-                    </Button>
-                  </Link>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleCircleManagement(circle.id)}>
-                        <Settings className="h-4 w-4 mr-2" /> Manage Circle
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
-
-      <div className="mt-auto px-2 space-y-1">
-        <Link to="/settings">
-          <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-ip-gold hover:bg-transparent">
-            <Settings className="h-5 w-5" />
-            <span className="ml-2">Settings</span>
-          </Button>
-        </Link>
-        <Button
-          variant="ghost"
-          className="w-full justify-start text-muted-foreground hover:text-ip-gold hover:bg-transparent"
-          onClick={() => signOut()}
-        >
-          <LogOut className="h-5 w-5" />
-          <span className="ml-2">Log out</span>
-        </Button>
-      </div>
-    </div>
-  );
-
-  if (isMobile) {
-    return (
-      <>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="fixed z-50 top-4 left-4"
-          onClick={() => setSidebarOpen(true)}
-        >
-          <Menu />
-        </Button>
-        
-        <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-          <SheetContent side="left" className="w-64 sm:max-w-sm p-0">
-            {renderContent()}
-          </SheetContent>
-        </Sheet>
-      </>
-    );
-  }
+export const MainSidebar = () => {
+  const location = useLocation();
 
   return (
-    <div className="h-screen sticky top-0 w-64 border-r bg-background p-4">
-      <div className="flex flex-col h-full">
-        <div className="flex items-center gap-2 mb-6">
-          <Avatar 
-            className="cursor-pointer" 
-            onClick={() => navigate(`/profile/${userData?.id}`)}
-          >
-            <AvatarImage src={userData?.avatar || "/placeholder.svg"} alt={userData?.name || "User"} />
-            <AvatarFallback>{userData?.name?.charAt(0) || "U"}</AvatarFallback>
-          </Avatar>
-          <div className="overflow-hidden">
-            <p 
-              className="font-medium truncate cursor-pointer hover:underline hover:text-ip-gold" 
-              onClick={() => navigate(`/profile/${userData?.id}`)}
-            >
-              {userData?.name}
-            </p>
-            <p 
-              className="text-xs text-muted-foreground truncate cursor-pointer hover:underline hover:text-ip-gold" 
-              onClick={() => navigate(`/profile/${userData?.id}`)}
-            >
-              @{userData?.username}
-            </p>
+    <motion.aside 
+      className="w-64 h-screen bg-gray-900/50 border-r border-white/10 flex flex-col"
+      initial={{ x: -300, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+    >
+      {/* Logo */}
+      <div className="p-6 border-b border-white/10">
+        <motion.div 
+          className="flex items-center space-x-3"
+          whileHover={{ scale: 1.05 }}
+        >
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold to-gold/80 flex items-center justify-center">
+            <Sparkles className="w-6 h-6 text-black" />
           </div>
-        </div>
-        {renderContent()}
+          <div>
+            <h1 className="text-xl font-heading font-bold text-white">
+              Investor<span className="text-gold">Paisa</span>
+            </h1>
+            <p className="text-xs text-white/60">Financial Community</p>
+          </div>
+        </motion.div>
       </div>
-    </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 p-4 space-y-2">
+        {navigation.map((item, index) => {
+          const isActive = location.pathname === item.href;
+          return (
+            <motion.div
+              key={item.name}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <Link
+                to={item.href}
+                className={`
+                  flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group
+                  ${isActive 
+                    ? 'bg-gold/20 text-gold border border-gold/30' 
+                    : 'text-white/70 hover:text-white hover:bg-white/5'
+                  }
+                `}
+              >
+                <item.icon className={`h-5 w-5 transition-colors duration-300 ${
+                  isActive ? 'text-gold' : 'text-white/60 group-hover:text-white'
+                }`} />
+                <span className="font-medium">{item.name}</span>
+                {isActive && (
+                  <motion.div
+                    className="w-2 h-2 rounded-full bg-gold ml-auto"
+                    layoutId="activeIndicator"
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  />
+                )}
+              </Link>
+            </motion.div>
+          );
+        })}
+      </nav>
+
+      {/* Premium CTA */}
+      <motion.div 
+        className="p-4 border-t border-white/10"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8 }}
+      >
+        <div className="bg-gradient-to-br from-gold/10 to-gold/5 border border-gold/20 rounded-xl p-4">
+          <h3 className="text-white font-semibold mb-2">Upgrade to Premium</h3>
+          <p className="text-white/60 text-sm mb-3">
+            Get advanced analytics and exclusive insights
+          </p>
+          <motion.button
+            className="w-full bg-gradient-to-r from-gold to-gold/90 text-black font-semibold py-2 rounded-lg text-sm"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            Upgrade Now
+          </motion.button>
+        </div>
+      </motion.div>
+    </motion.aside>
   );
-}
+};

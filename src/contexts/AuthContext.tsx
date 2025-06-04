@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { UserProfile, OnboardingData, UserRole } from '@/types/app';
+import { useToast } from '@/hooks/use-toast';
 
 interface AuthContextType {
   user: User | null;
@@ -33,25 +34,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      } else {
+    const getInitialSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Error getting session:', error);
+        } else {
+          setUser(session?.user ?? null);
+          if (session?.user) {
+            await fetchProfile(session.user.id);
+          }
+        }
+      } catch (error) {
+        console.error('Error in getInitialSession:', error);
+      } finally {
         setLoading(false);
       }
-    });
+    };
+
+    getInitialSession();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event, session?.user?.email);
       setUser(session?.user ?? null);
+      
       if (session?.user) {
         await fetchProfile(session.user.id);
       } else {
         setProfile(null);
+      }
+      
+      if (!loading) {
         setLoading(false);
       }
     });
@@ -65,18 +83,68 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .from('profiles')
         .select('*')
         .eq('id', userId)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+      
+      if (data) {
+        // Transform the data to match UserProfile interface
+        const userProfile: UserProfile = {
+          id: data.id,
+          username: data.username || '',
+          email: user?.email || '',
+          full_name: data.full_name,
+          avatar_url: data.avatar_url,
+          role: (data.role as UserRole) || 'user',
+          verification_status: 'unverified',
+          financial_goals: data.financial_goals || {},
+          risk_profile: data.risk_profile,
+          onboarding_completed: data.onboarding_completed || false,
+          financial_literacy_score: data.financial_literacy_score,
+          bio: data.bio,
+          credentials: data.credentials || {},
+          followers: data.followers || 0,
+          following: data.following || 0,
+          is_verified: data.is_verified || false,
+          created_at: data.created_at,
+          updated_at: data.updated_at
+        };
+        
+        setProfile(userProfile);
+      } else {
+        // Create profile if it doesn't exist
+        await createProfile(userId);
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  };
+
+  const createProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .insert({
+          id: userId,
+          username: user?.email?.split('@')[0] || '',
+          full_name: user?.user_metadata?.full_name || user?.user_metadata?.name || '',
+          email: user?.email || '',
+          onboarding_completed: false
+        })
+        .select()
         .single();
 
       if (error) throw error;
-      
-      // Transform the data to match UserProfile interface with proper defaults
+
       const userProfile: UserProfile = {
         id: data.id,
         username: data.username || '',
         email: user?.email || '',
         full_name: data.full_name,
         avatar_url: data.avatar_url,
-        role: (data.role as UserRole) || 'user',
+        role: 'user',
         verification_status: 'unverified',
         financial_goals: {},
         risk_profile: undefined,
@@ -84,43 +152,94 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         financial_literacy_score: undefined,
         bio: data.bio,
         credentials: {},
-        followers: data.followers || 0,
-        following: data.following || 0,
-        is_verified: data.is_verified || false,
+        followers: 0,
+        following: 0,
+        is_verified: false,
         created_at: data.created_at,
         updated_at: data.updated_at
       };
       
       setProfile(userProfile);
     } catch (error) {
-      console.error('Error fetching profile:', error);
-    } finally {
-      setLoading(false);
+      console.error('Error creating profile:', error);
     }
   };
 
   const signUp = async (email: string, password: string, userData: any) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: userData
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: userData,
+          emailRedirectTo: `${window.location.origin}/home`
+        }
+      });
+
+      if (error) {
+        toast({
+          title: "Sign up failed",
+          description: error.message,
+          variant: "destructive"
+        });
+        return { error };
       }
-    });
-    return { error };
+
+      toast({
+        title: "Check your email",
+        description: "We've sent you a verification link"
+      });
+
+      return { error: null };
+    } catch (error) {
+      return { error };
+    }
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-    return { error };
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        toast({
+          title: "Sign in failed",
+          description: error.message,
+          variant: "destructive"
+        });
+        return { error };
+      }
+
+      toast({
+        title: "Welcome back!",
+        description: "You've successfully signed in"
+      });
+
+      return { error: null };
+    } catch (error) {
+      return { error };
+    }
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      toast({
+        title: "Signed out",
+        description: "You've been successfully signed out"
+      });
+    } catch (error) {
+      console.error('Sign out error:', error);
+      toast({
+        title: "Sign out failed",
+        description: "There was an error signing you out",
+        variant: "destructive"
+      });
+    }
   };
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
@@ -146,6 +265,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { error } = await supabase
       .from('profiles')
       .update({
+        onboarding_completed: true,
+        financial_goals: data.financial_goals,
+        risk_profile: data.risk_profile,
         updated_at: new Date().toISOString()
       })
       .eq('id', user.id);
@@ -157,17 +279,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google'
-    });
-    if (error) throw error;
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/home`
+        }
+      });
+
+      if (error) {
+        toast({
+          title: "Google sign in failed",
+          description: error.message,
+          variant: "destructive"
+        });
+        throw error;
+      }
+    } catch (error) {
+      console.error('Google sign in error:', error);
+      throw error;
+    }
   };
 
   // Legacy methods for backward compatibility
   const register = signUp;
   const login = async (email: string, password: string) => {
-    const { error } = await signIn(email, password);
-    return { user, error };
+    const result = await signIn(email, password);
+    return { user, error: result.error };
   };
 
   const value = {
