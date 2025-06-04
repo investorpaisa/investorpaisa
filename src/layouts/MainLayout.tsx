@@ -7,9 +7,12 @@ import { MainNav } from '@/components/main-nav';
 
 const MainLayout = () => {
   return (
-    <div className="min-h-screen bg-cred-dark text-white">
+    <div className="min-h-screen bg-black text-white">
       {/* Animated background */}
-      <div className="fixed inset-0 bg-mesh-gradient opacity-10 pointer-events-none"></div>
+      <div className="fixed inset-0 opacity-5 pointer-events-none">
+        <div className="absolute w-64 h-64 rounded-full bg-gold/30 blur-3xl animate-float" style={{ top: "20%", left: "10%" }}></div>
+        <div className="absolute w-96 h-96 rounded-full bg-white/20 blur-3xl animate-float-slow" style={{ bottom: "10%", right: "10%" }}></div>
+      </div>
       
       <div className="flex h-screen">
         {/* Sidebar */}
@@ -35,7 +38,7 @@ const MainLayout = () => {
           
           {/* Page content */}
           <motion.main 
-            className="flex-1 overflow-y-auto bg-cred-dark/50 backdrop-blur-sm"
+            className="flex-1 overflow-y-auto bg-black/50 backdrop-blur-sm"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut", delay: 0.4 }}

@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 import { fontFamily } from "tailwindcss/defaultTheme";
 import animatePlugin from "tailwindcss-animate";
@@ -30,7 +31,7 @@ const config = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
 
-        // Primary brand colors
+        // Primary brand colors - Black, White, Gold theme
         gold: "#DFBD69",
         "gold-light": "#F1D689",
         "gold-dark": "#C0A65C",
@@ -103,6 +104,10 @@ const config = {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-15px)" },
         },
+        "float-slow": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
         shimmer: {
           "100%": { left: "150%" },
         },
@@ -128,86 +133,6 @@ const config = {
           "0%": { transform: "scale(1) translateY(0)" },
           "100%": { transform: "scale(1.05) translateY(-5px)" },
         },
-        "float-complex": {
-          "0%, 100%": { 
-            transform: "translateY(0) rotate(0deg)",
-            filter: "hue-rotate(0deg)"
-          },
-          "33%": { 
-            transform: "translateY(-10px) rotate(1deg)",
-            filter: "hue-rotate(90deg)"
-          },
-          "66%": { 
-            transform: "translateY(-5px) rotate(-1deg)",
-            filter: "hue-rotate(180deg)"
-          },
-        },
-        "pulse-scale": {
-          "0%, 100%": { 
-            transform: "scale(1)",
-            opacity: "1"
-          },
-          "50%": { 
-            transform: "scale(1.1)",
-            opacity: "0.8"
-          },
-        },
-        "slide-in-bottom": {
-          "0%": { 
-            transform: "translateY(100px)",
-            opacity: "0"
-          },
-          "100%": { 
-            transform: "translateY(0)",
-            opacity: "1"
-          },
-        },
-        "slide-in-right": {
-          "0%": { 
-            transform: "translateX(100px)",
-            opacity: "0"
-          },
-          "100%": { 
-            transform: "translateX(0)",
-            opacity: "1"
-          },
-        },
-        "rotate-in-scale": {
-          "0%": { 
-            transform: "rotate(-180deg) scale(0.5)",
-            opacity: "0"
-          },
-          "100%": { 
-            transform: "rotate(0deg) scale(1)",
-            opacity: "1"
-          },
-        },
-        "glow-pulse": {
-          "0%, 100%": { 
-            boxShadow: "0 0 20px rgba(139, 69, 255, 0.4)"
-          },
-          "50%": { 
-            boxShadow: "0 0 40px rgba(139, 69, 255, 0.8), 0 0 60px rgba(255, 107, 158, 0.4)"
-          },
-        },
-        "backdrop-blur-in": {
-          "0%": { 
-            backdropFilter: "blur(0px)",
-            backgroundColor: "rgba(30, 30, 40, 0)"
-          },
-          "100%": { 
-            backdropFilter: "blur(20px)",
-            backgroundColor: "rgba(30, 30, 40, 0.8)"
-          },
-        },
-        "typing": {
-          "0%": { width: "0" },
-          "100%": { width: "100%" },
-        },
-        "blink": {
-          "0%, 50%": { borderColor: "transparent" },
-          "51%, 100%": { borderColor: "rgb(139, 69, 255)" },
-        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -215,39 +140,26 @@ const config = {
         "fade-in": "fade-in 0.5s ease-out forwards",
         "pulse-gold": "pulse-gold 2s ease-in-out infinite",
         "float": "float 8s ease-in-out infinite",
-        "float-slow": "float 12s ease-in-out infinite",
-        "float-reverse": "float 10s ease-in-out infinite reverse",
+        "float-slow": "float-slow 12s ease-in-out infinite",
         "shimmer": "shimmer 2.5s infinite",
         "reveal": "reveal 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards",
         "glow": "glow 2s ease-in-out infinite alternate",
         "magnetic-hover": "magnetic-hover 0.3s ease-out",
-        "float-complex": "float-complex 8s ease-in-out infinite",
-        "pulse-scale": "pulse-scale 2s ease-in-out infinite",
-        "slide-in-bottom": "slide-in-bottom 0.6s ease-out",
-        "slide-in-right": "slide-in-right 0.6s ease-out",
-        "rotate-in-scale": "rotate-in-scale 0.8s ease-out",
-        "glow-pulse": "glow-pulse 3s ease-in-out infinite",
-        "backdrop-blur-in": "backdrop-blur-in 0.5s ease-out",
-        "typing": "typing 3s steps(40) 1s forwards",
-        "blink": "blink 1s infinite",
       },
       backgroundImage: {
-        'gradient-cred': 'linear-gradient(135deg, rgb(139, 69, 255) 0%, rgb(255, 107, 158) 100%)',
-        'gradient-cred-reverse': 'linear-gradient(135deg, rgb(255, 107, 158) 0%, rgb(139, 69, 255) 100%)',
-        'gradient-green': 'linear-gradient(135deg, rgb(45, 212, 191) 0%, rgb(34, 197, 94) 100%)',
-        'gradient-orange': 'linear-gradient(135deg, rgb(255, 159, 67) 0%, rgb(251, 146, 60) 100%)',
+        'gradient-gold': 'linear-gradient(135deg, rgb(223, 189, 105) 0%, rgb(241, 214, 137) 100%)',
+        'gradient-gold-reverse': 'linear-gradient(135deg, rgb(241, 214, 137) 0%, rgb(223, 189, 105) 100%)',
         'gradient-radial': 'radial-gradient(circle at center, var(--tw-gradient-stops))',
-        'mesh-gradient': 'radial-gradient(circle at 20% 50%, rgb(139, 69, 255) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgb(255, 107, 158) 0%, transparent 50%), radial-gradient(circle at 40% 80%, rgb(45, 212, 191) 0%, transparent 50%)',
       },
       backdropBlur: {
         'xs': '2px',
-        'cred': '20px',
+        'modern': '20px',
       },
       blur: {
         'xs': '2px',
       },
       transitionTimingFunction: {
-        'cred': 'cubic-bezier(0.4, 0, 0.2, 1)',
+        'modern': 'cubic-bezier(0.4, 0, 0.2, 1)',
         'bounce-out': 'cubic-bezier(0.175, 0.885, 0.32, 1.275)',
       },
       transitionDuration: {
