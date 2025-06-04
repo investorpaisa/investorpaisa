@@ -4,10 +4,19 @@ import { UserExtended, TrackedAsset, FinancialMetrics, PublicProfile, UserAchiev
 
 export class FinancialProfileService {
   // User Extended Profile Management
-  static async createUserExtended(data: Partial<UserExtended>) {
+  static async createUserExtended(data: Omit<UserExtended, 'created_at' | 'updated_at'>) {
     const { data: result, error } = await supabase
       .from('users_extended')
-      .insert(data)
+      .insert({
+        id: data.id,
+        full_name: data.full_name,
+        email: data.email,
+        location: data.location,
+        profession: data.profession,
+        risk_profile: data.risk_profile,
+        financial_goals: data.financial_goals,
+        onboarding_completed: data.onboarding_completed
+      })
       .select()
       .single();
 
@@ -29,7 +38,15 @@ export class FinancialProfileService {
   static async updateUserExtended(userId: string, updates: Partial<UserExtended>) {
     const { data, error } = await supabase
       .from('users_extended')
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update({ 
+        full_name: updates.full_name,
+        location: updates.location,
+        profession: updates.profession,
+        risk_profile: updates.risk_profile,
+        financial_goals: updates.financial_goals,
+        onboarding_completed: updates.onboarding_completed,
+        updated_at: new Date().toISOString() 
+      })
       .eq('id', userId)
       .select()
       .single();
@@ -155,7 +172,13 @@ export class FinancialProfileService {
   static async updatePublicProfile(userId: string, updates: Partial<PublicProfile>) {
     const { data, error } = await supabase
       .from('public_profile')
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update({ 
+        is_public: updates.is_public,
+        visible_sections: updates.visible_sections,
+        showcase_metrics: updates.showcase_metrics,
+        profile_url: updates.profile_url,
+        updated_at: new Date().toISOString() 
+      })
       .eq('user_id', userId)
       .select()
       .single();

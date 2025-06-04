@@ -2,10 +2,9 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 import { OnboardingData } from './OnboardingFlow';
-import { RiskAssessmentQuestion } from '@/types/financial';
 
 interface RiskAssessmentStepProps {
   data: Partial<OnboardingData>;
@@ -14,41 +13,55 @@ interface RiskAssessmentStepProps {
   showPrevious: boolean;
 }
 
-const riskQuestions: RiskAssessmentQuestion[] = [
+const riskQuestions = [
   {
     id: 'market_drop',
     text: 'How would you react to a 20% drop in your portfolio value?',
     options: [
-      { text: 'Sell immediately to prevent further losses', score: 1 },
-      { text: 'Hold and monitor the situation', score: 3 },
-      { text: 'Buy more while prices are low', score: 5 }
+      { text: 'Sell everything immediately to avoid further losses', score: 1 },
+      { text: 'Sell some holdings but keep the rest', score: 2 },
+      { text: 'Hold all investments and wait for recovery', score: 3 },
+      { text: 'Buy more at lower prices', score: 4 }
     ]
   },
   {
-    id: 'investment_timeline',
-    text: 'What is your typical investment timeline?',
+    id: 'investment_horizon',
+    text: 'What is your typical investment time horizon?',
     options: [
-      { text: 'Less than 2 years', score: 1 },
-      { text: '2-5 years', score: 3 },
-      { text: 'More than 5 years', score: 5 }
+      { text: 'Less than 1 year', score: 1 },
+      { text: '1-3 years', score: 2 },
+      { text: '3-7 years', score: 3 },
+      { text: 'More than 7 years', score: 4 }
     ]
   },
   {
-    id: 'return_expectation',
-    text: 'What annual return do you expect from your investments?',
+    id: 'income_stability',
+    text: 'How stable is your income?',
     options: [
-      { text: '5-8% (Bank FD level)', score: 1 },
-      { text: '8-15% (Balanced growth)', score: 3 },
-      { text: '15%+ (High growth)', score: 5 }
+      { text: 'Very unstable, varies significantly', score: 1 },
+      { text: 'Somewhat unstable with seasonal variations', score: 2 },
+      { text: 'Generally stable with minor fluctuations', score: 3 },
+      { text: 'Very stable and predictable', score: 4 }
     ]
   },
   {
-    id: 'experience_level',
-    text: 'How would you describe your investment experience?',
+    id: 'emergency_fund',
+    text: 'Do you have an emergency fund covering 6+ months of expenses?',
     options: [
-      { text: 'Beginner (less than 1 year)', score: 1 },
-      { text: 'Intermediate (1-5 years)', score: 3 },
-      { text: 'Advanced (5+ years)', score: 5 }
+      { text: 'No emergency fund', score: 1 },
+      { text: '1-3 months covered', score: 2 },
+      { text: '3-6 months covered', score: 3 },
+      { text: '6+ months covered', score: 4 }
+    ]
+  },
+  {
+    id: 'investment_knowledge',
+    text: 'How would you rate your investment knowledge?',
+    options: [
+      { text: 'Beginner - I know very little', score: 1 },
+      { text: 'Basic - I understand fundamentals', score: 2 },
+      { text: 'Intermediate - I actively research investments', score: 3 },
+      { text: 'Advanced - I have extensive experience', score: 4 }
     ]
   }
 ];
@@ -59,17 +72,17 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
   onPrevious,
   showPrevious
 }) => {
-  const [answers, setAnswers] = useState<Record<string, number>>({});
-  const [errors, setErrors] = useState<string>('');
+  const [answers, setAnswers] = useState<Record<string, number>>(
+    data.risk_profile ? {} : {}
+  );
 
   const handleAnswerChange = (questionId: string, score: number) => {
     setAnswers(prev => ({ ...prev, [questionId]: score }));
-    setErrors('');
   };
 
   const calculateRiskProfile = () => {
     const totalScore = Object.values(answers).reduce((sum, score) => sum + score, 0);
-    const maxScore = riskQuestions.length * 5;
+    const maxScore = riskQuestions.length * 4;
     const percentage = (totalScore / maxScore) * 100;
 
     if (percentage <= 40) return 'conservative';
@@ -79,62 +92,34 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     if (Object.keys(answers).length !== riskQuestions.length) {
-      setErrors('Please answer all questions to continue');
       return;
     }
 
-    const risk_profile = calculateRiskProfile();
-    onComplete({ risk_profile });
+    const riskProfile = calculateRiskProfile();
+    onComplete({ risk_profile: riskProfile });
   };
 
-  const getRiskDescription = () => {
-    const answeredQuestions = Object.keys(answers).length;
-    if (answeredQuestions === 0) return null;
-
-    const totalScore = Object.values(answers).reduce((sum, score) => sum + score, 0);
-    const avgScore = totalScore / answeredQuestions;
-
-    if (avgScore <= 2) {
-      return {
-        type: 'Conservative',
-        description: 'You prefer stable investments with lower risk and consistent returns.',
-        color: 'text-blue-600'
-      };
-    } else if (avgScore <= 3.5) {
-      return {
-        type: 'Moderate',
-        description: 'You balance growth potential with risk management.',
-        color: 'text-yellow-600'
-      };
-    } else {
-      return {
-        type: 'Aggressive',
-        description: 'You seek high growth potential and are comfortable with higher risk.',
-        color: 'text-red-600'
-      };
-    }
-  };
-
-  const riskProfile = getRiskDescription();
+  const isComplete = Object.keys(answers).length === riskQuestions.length;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-6">
-        {riskQuestions.map((question, index) => (
+        {riskQuestions.map((question) => (
           <Card key={question.id} className="p-4">
-            <h3 className="font-medium mb-3">
-              {index + 1}. {question.text}
-            </h3>
+            <h3 className="font-medium mb-4">{question.text}</h3>
             <RadioGroup
-              value={answers[question.id]?.toString()}
+              value={answers[question.id]?.toString() || ''}
               onValueChange={(value) => handleAnswerChange(question.id, parseInt(value))}
             >
-              {question.options.map((option, optionIndex) => (
-                <div key={optionIndex} className="flex items-center space-x-2">
-                  <RadioGroupItem value={option.score.toString()} id={`${question.id}-${optionIndex}`} />
-                  <Label htmlFor={`${question.id}-${optionIndex}`} className="cursor-pointer">
+              {question.options.map((option, index) => (
+                <div key={index} className="flex items-start space-x-3">
+                  <RadioGroupItem value={option.score.toString()} id={`${question.id}-${index}`} />
+                  <Label 
+                    htmlFor={`${question.id}-${index}`} 
+                    className="text-sm cursor-pointer leading-relaxed"
+                  >
                     {option.text}
                   </Label>
                 </div>
@@ -143,19 +128,18 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
           </Card>
         ))}
 
-        {riskProfile && (
-          <Card className="p-4 bg-gradient-to-r from-premium-gold/10 to-transparent">
-            <h3 className="font-medium mb-2">Your Risk Profile</h3>
-            <p className={`font-semibold ${riskProfile.color}`}>
-              {riskProfile.type}
-            </p>
-            <p className="text-sm text-muted-foreground mt-1">
-              {riskProfile.description}
+        {isComplete && (
+          <Card className="p-4 bg-premium-gold/5 border-premium-gold/20">
+            <h4 className="font-medium mb-2">Your Risk Profile</h4>
+            <p className="text-sm text-muted-foreground">
+              Based on your answers, you have a{' '}
+              <span className="font-medium text-premium-gold capitalize">
+                {calculateRiskProfile()}
+              </span>{' '}
+              risk profile.
             </p>
           </Card>
         )}
-
-        {errors && <p className="text-red-500 text-sm">{errors}</p>}
       </div>
 
       <div className="flex gap-3">
@@ -164,7 +148,11 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
             Previous
           </Button>
         )}
-        <Button type="submit" className="btn-premium flex-1">
+        <Button 
+          type="submit" 
+          disabled={!isComplete}
+          className="btn-premium flex-1"
+        >
           Continue
         </Button>
       </div>
