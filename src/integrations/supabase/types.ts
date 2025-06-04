@@ -224,6 +224,88 @@ export type Database = {
           },
         ]
       }
+      email_integrations: {
+        Row: {
+          access_token: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          last_sync: string | null
+          provider: string | null
+          refresh_token: string | null
+          token_expires_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          access_token?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_sync?: string | null
+          provider?: string | null
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          access_token?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_sync?: string | null
+          provider?: string | null
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_integrations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users_extended"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_metrics: {
+        Row: {
+          annualized_returns: number | null
+          asset_allocation: Json | null
+          calculated_at: string | null
+          id: string
+          investment_returns: number | null
+          portfolio_size: number | null
+          user_id: string | null
+        }
+        Insert: {
+          annualized_returns?: number | null
+          asset_allocation?: Json | null
+          calculated_at?: string | null
+          id?: string
+          investment_returns?: number | null
+          portfolio_size?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          annualized_returns?: number | null
+          asset_allocation?: Json | null
+          calculated_at?: string | null
+          id?: string
+          investment_returns?: number | null
+          portfolio_size?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_metrics_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users_extended"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       follows: {
         Row: {
           created_at: string | null
@@ -386,6 +468,53 @@ export type Database = {
         }
         Relationships: []
       }
+      parsed_transactions: {
+        Row: {
+          broker: string | null
+          created_at: string | null
+          email_message_id: string | null
+          id: string
+          price: number
+          quantity: number
+          ticker: string
+          transaction_date: string | null
+          transaction_type: string | null
+          user_id: string | null
+        }
+        Insert: {
+          broker?: string | null
+          created_at?: string | null
+          email_message_id?: string | null
+          id?: string
+          price: number
+          quantity: number
+          ticker: string
+          transaction_date?: string | null
+          transaction_type?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          broker?: string | null
+          created_at?: string | null
+          email_message_id?: string | null
+          id?: string
+          price?: number
+          quantity?: number
+          ticker?: string
+          transaction_date?: string | null
+          transaction_type?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parsed_transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users_extended"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_shares: {
         Row: {
           commentary: string | null
@@ -475,6 +604,47 @@ export type Database = {
           },
         ]
       }
+      professional_details: {
+        Row: {
+          certifications: string[] | null
+          created_at: string | null
+          education: Json | null
+          id: string
+          job_title: string | null
+          skills: string[] | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          certifications?: string[] | null
+          created_at?: string | null
+          education?: Json | null
+          id?: string
+          job_title?: string | null
+          skills?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          certifications?: string[] | null
+          created_at?: string | null
+          education?: Json | null
+          id?: string
+          job_title?: string | null
+          skills?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_details_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users_extended"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -517,11 +687,207 @@ export type Database = {
         }
         Relationships: []
       }
+      public_profile: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_public: boolean | null
+          profile_url: string | null
+          showcase_metrics: Json | null
+          updated_at: string | null
+          user_id: string | null
+          visible_sections: string[] | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          profile_url?: string | null
+          showcase_metrics?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+          visible_sections?: string[] | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          profile_url?: string | null
+          showcase_metrics?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+          visible_sections?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_profile_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users_extended"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tracked_assets: {
+        Row: {
+          asset_type: string | null
+          created_at: string | null
+          current_price: number | null
+          id: string
+          purchase_date: string | null
+          purchase_price: number | null
+          quantity: number
+          ticker: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          asset_type?: string | null
+          created_at?: string | null
+          current_price?: number | null
+          id?: string
+          purchase_date?: string | null
+          purchase_price?: number | null
+          quantity?: number
+          ticker: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          asset_type?: string | null
+          created_at?: string | null
+          current_price?: number | null
+          id?: string
+          purchase_date?: string | null
+          purchase_price?: number | null
+          quantity?: number
+          ticker?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tracked_assets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users_extended"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_achievements: {
+        Row: {
+          achievement_type: string
+          badge_icon: string | null
+          badge_name: string
+          criteria_met: Json | null
+          description: string | null
+          earned_at: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          achievement_type: string
+          badge_icon?: string | null
+          badge_name: string
+          criteria_met?: Json | null
+          description?: string | null
+          earned_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          achievement_type?: string
+          badge_icon?: string | null
+          badge_name?: string
+          criteria_met?: Json | null
+          description?: string | null
+          earned_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users_extended"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users_extended: {
+        Row: {
+          created_at: string | null
+          email: string
+          financial_goals: Json | null
+          full_name: string
+          id: string
+          location: string | null
+          onboarding_completed: boolean | null
+          profession: string | null
+          risk_profile: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          financial_goals?: Json | null
+          full_name: string
+          id: string
+          location?: string | null
+          onboarding_completed?: boolean | null
+          profession?: string | null
+          risk_profile?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          financial_goals?: Json | null
+          full_name?: string
+          id?: string
+          location?: string | null
+          onboarding_completed?: boolean | null
+          profession?: string | null
+          risk_profile?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      calculate_portfolio_value: {
+        Args: { p_user_id: string }
+        Returns: number
+      }
+      citext: {
+        Args: { "": boolean } | { "": string } | { "": unknown }
+        Returns: string
+      }
+      citext_hash: {
+        Args: { "": string }
+        Returns: number
+      }
+      citextin: {
+        Args: { "": unknown }
+        Returns: string
+      }
+      citextout: {
+        Args: { "": string }
+        Returns: unknown
+      }
+      citextrecv: {
+        Args: { "": unknown }
+        Returns: string
+      }
+      citextsend: {
+        Args: { "": string }
+        Returns: string
+      }
       decrement_comments: {
         Args: { post_id: string }
         Returns: undefined
@@ -567,6 +933,10 @@ export type Database = {
       is_expert: {
         Args: { user_id: string }
         Returns: boolean
+      }
+      update_financial_metrics: {
+        Args: { p_user_id: string }
+        Returns: undefined
       }
     }
     Enums: {
