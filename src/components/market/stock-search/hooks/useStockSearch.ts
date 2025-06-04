@@ -1,12 +1,11 @@
-
 import { useState, useEffect } from 'react';
 import { getStockQuote, searchStocks } from '@/services/market';
-import type { StockQuote } from '@/services/market';
+import type { MarketData } from '@/services/market';
 import { useToast } from '@/hooks/use-toast';
 
 export function useStockSearch() {
   const [symbol, setSymbol] = useState('');
-  const [stockData, setStockData] = useState<StockQuote | null>(null);
+  const [stockData, setStockData] = useState<MarketData | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [chartData, setChartData] = useState<any[]>([]);
@@ -80,7 +79,7 @@ export function useStockSearch() {
         setRecentSearches(prev => [stockSymbol, ...prev.slice(0, 3)]);
       }
 
-      // Generate historical data based on time range - use lastPrice instead of lastPrice
+      // Generate historical data based on time range - use lastPrice
       generateChartData(stockSymbol, timeRange, data?.lastPrice || 0);
       
       toast({

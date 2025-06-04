@@ -6,3 +6,4 @@ export * from './search';
 export * from './performers';
 export * from './marketStatus';
 export * from './utils';
+export { getFallbackData } from './utils';

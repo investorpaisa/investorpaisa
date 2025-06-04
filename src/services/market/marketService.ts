@@ -18,6 +18,10 @@ export interface MarketData {
   // Add properties that components expect
   lastPrice: number;
   companyName: string;
+  // Add missing properties to match StockQuote interface
+  pChange: number;
+  close: number;
+  timestamp: string;
 }
 
 export interface IndexData {
@@ -56,7 +60,11 @@ class MarketService {
         open: data.priceInfo?.open || 0,
         previousClose: data.priceInfo?.previousClose || 0,
         lastPrice: data.priceInfo?.lastPrice || 0,
-        companyName: data.info?.companyName || symbol
+        companyName: data.info?.companyName || symbol,
+        // Add missing properties
+        pChange: data.priceInfo?.pChange || 0,
+        close: data.priceInfo?.close || data.priceInfo?.lastPrice || 0,
+        timestamp: new Date().toISOString()
       };
     } catch (error) {
       console.error('Error fetching stock quote:', error);
@@ -125,10 +133,10 @@ class MarketService {
 
 export const marketService = new MarketService();
 
-// Export functions for backwards compatibility
-export const getStockQuote = (symbol: string) => marketService.getStockQuote(symbol);
-export const getIndexData = (indexName: string) => marketService.getIndexData(indexName);
-export const searchStocks = (query: string) => marketService.searchStocks(query);
+// Remove duplicate exports to avoid conflicts - only export the service methods
+export const getStockQuoteFromService = (symbol: string) => marketService.getStockQuote(symbol);
+export const getIndexDataFromService = (indexName: string) => marketService.getIndexData(indexName);
+export const searchStocksFromService = (query: string) => marketService.searchStocks(query);
 
 // Export additional functions that components expect
 export { getMarketStatus } from './status/marketStatus';
