@@ -1,180 +1,21 @@
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User } from '@/services/api';
-import { authService } from '@/services/auth';
+import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { UserProfile, OnboardingData } from '@/types/app';
 
 interface AuthContextType {
   user: User | null;
-  isLoading: boolean;
-  login: (email: string, password: string) => Promise<User | null>;
-  register: (name: string, email: string, password: string) => Promise<User | null>;
-  signInWithGoogle: () => Promise<void>;
-  logout: () => Promise<boolean>;
-  updateUserProfile: (updatedProfile: Partial<User>) => void;
+  profile: UserProfile | null;
+  loading: boolean;
+  signUp: (email: string, password: string, userData: any) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
+  updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
+  completeOnboarding: (data: OnboardingData) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Handle OAuth errors from URL
-    const handleOAuthError = () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const error = urlParams.get('error');
-      const errorDescription = urlParams.get('error_description');
-      
-      if (error) {
-        console.error('OAuth error:', error, errorDescription);
-        toast({
-          title: "Authentication failed",
-          description: "Google sign-in failed. Please check your configuration and try again.",
-          variant: "destructive"
-        });
-        
-        // Clean up the URL
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-    };
-
-    // Check for OAuth errors first
-    handleOAuthError();
-
-    // Check if user is already logged in
-    const checkUser = async () => {
-      setIsLoading(true);
-      try {
-        const currentUser = await authService.getCurrentUser();
-        setUser(currentUser);
-      } catch (error) {
-        console.error("Error checking authentication:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkUser();
-
-    // Set up auth state change listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log("Auth state changed:", event, session?.user?.id);
-        
-        if (event === 'SIGNED_IN' && session) {
-          const currentUser = await authService.getCurrentUser();
-          setUser(currentUser);
-          
-          // Show success message for OAuth login
-          if (session.user.app_metadata.provider === 'google') {
-            toast({
-              title: "Welcome!",
-              description: "Successfully signed in with Google"
-            });
-          }
-        } else if (event === 'SIGNED_OUT') {
-          setUser(null);
-        }
-      }
-    );
-
-    // Cleanup function
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
-  const login = async (email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      const user = await authService.login(email, password);
-      if (user) {
-        setUser(user);
-      }
-      return user;
-    } catch (error) {
-      console.error("Login error in context:", error);
-      toast({
-        title: "Login failed",
-        description: error instanceof Error ? error.message : "Something went wrong",
-        variant: "destructive"
-      });
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const register = async (name: string, email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      const user = await authService.register(name, email, password);
-      setUser(user);
-      return user;
-    } catch (error) {
-      console.error("Registration error:", error);
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const signInWithGoogle = async () => {
-    setIsLoading(true);
-    try {
-      await authService.signInWithGoogle();
-      // User will be set by the auth state change listener if successful
-    } catch (error) {
-      console.error("Google login error:", error);
-      toast({
-        title: "Google login failed",
-        description: error instanceof Error ? error.message : "Something went wrong",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const logout = async () => {
-    setIsLoading(true);
-    try {
-      const success = await authService.logout();
-      if (success) {
-        setUser(null);
-      }
-      return success;
-    } catch (error) {
-      console.error("Logout error:", error);
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const updateUserProfile = (updatedProfile: Partial<User>) => {
-    if (!user) return;
-    
-    // Update user state with the new profile data
-    setUser({
-      ...user,
-      ...updatedProfile
-    });
-
-    // In a real app, we would also call an API to update the user's profile
-    console.log('Profile updated:', updatedProfile);
-    // This is where you would call a service to update the user profile
-    // e.g. userService.updateProfile(user.id, updatedProfile)
-  };
-
-  return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, signInWithGoogle, logout, updateUserProfile }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -182,4 +23,121 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
+};
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchProfile(session.user.id);
+      } else {
+        setLoading(false);
+      }
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        await fetchProfile(session.user.id);
+      } else {
+        setProfile(null);
+        setLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const fetchProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) throw error;
+      setProfile(data);
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signUp = async (email: string, password: string, userData: any) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: userData
+      }
+    });
+    if (error) throw error;
+  };
+
+  const signIn = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+    if (error) throw error;
+  };
+
+  const signOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+  };
+
+  const updateProfile = async (updates: Partial<UserProfile>) => {
+    if (!user) throw new Error('No user logged in');
+
+    const { error } = await supabase
+      .from('profiles')
+      .update(updates)
+      .eq('id', user.id);
+
+    if (error) throw error;
+    
+    // Refresh profile
+    await fetchProfile(user.id);
+  };
+
+  const completeOnboarding = async (data: OnboardingData) => {
+    if (!user) throw new Error('No user logged in');
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        financial_goals: data.financial_goals,
+        risk_profile: data.risk_profile,
+        onboarding_completed: true
+      })
+      .eq('id', user.id);
+
+    if (error) throw error;
+    
+    // Refresh profile
+    await fetchProfile(user.id);
+  };
+
+  const value = {
+    user,
+    profile,
+    loading,
+    signUp,
+    signIn,
+    signOut,
+    updateProfile,
+    completeOnboarding
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

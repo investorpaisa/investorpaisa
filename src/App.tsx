@@ -1,78 +1,74 @@
 
-import { Routes, Route } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Toaster } from '@/components/ui/sonner';
-import MainLayout from '@/layouts/MainLayout';
-import AuthLayout from '@/layouts/AuthLayout';
-import ProtectedRoute from '@/components/ProtectedRoute';
-import Market from '@/pages/Market';
-import Index from '@/pages/Index';
-import Login from '@/pages/auth/Login';
-import Register from '@/pages/auth/Register';
-import Home from '@/pages/Home';
-import ProfileNew from '@/pages/ProfileNew';
-import EditProfile from '@/pages/EditProfile';
-import Landing from '@/pages/Landing';
-import NotFound from '@/pages/NotFound';
-import Circle from '@/pages/Circle';
-import Circles from '@/pages/Circles';
-import Dashboard from '@/pages/Dashboard';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { useGoogleAnalytics } from '@/hooks/useGoogleAnalytics';
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { MainLayout } from "@/layouts/MainLayout";
+import { AuthLayout } from "@/layouts/AuthLayout";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
-const queryClient = new QueryClient();
+// Pages
+import Landing from "./pages/Landing";
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import Home from "./pages/Home";
+import Feed from "./pages/Feed";
+import Onboarding from "./pages/Onboarding";
+import Profile from "./pages/Profile";
+import Circles from "./pages/Circles";
+import Circle from "./pages/Circle";
+import Market from "./pages/Market";
+import Dashboard from "./pages/Dashboard";
+import Discover from "./pages/Discover";
+import Inbox from "./pages/Inbox";
 
-function AppContent() {
-  useGoogleAnalytics();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: 1,
+    },
+  },
+});
 
-  return (
-    <Routes>
-      <Route path="/" element={<Index />} />
-      <Route path="/landing" element={<Landing />} />
-      
-      <Route path="/auth" element={<AuthLayout />}>
-        <Route path="login" element={<Login />} />
-        <Route path="register" element={<Register />} />
-      </Route>
-      
-      <Route 
-        path="/" 
-        element={
-          <ProtectedRoute>
-            <MainLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route path="home" element={<Home />} />
-        <Route path="market" element={<Market />} />
-        <Route path="mycircle" element={<Circles />} />
-        <Route path="notifications" element={<Home />} />
-        <Route path="profile" element={<ProfileNew />} />
-        <Route path="profile/:id" element={<ProfileNew />} />
-        <Route path="edit-profile" element={<EditProfile />} />
-        <Route path="circles/:id" element={<Circle />} />
-        <Route path="communities/:id" element={<Circle />} />
-        <Route path="app/dashboard" element={<Dashboard />} />
-        
-        {/* Redirect routes for old paths */}
-        <Route path="feed" element={<Home />} />
-        <Route path="discover" element={<Home />} />
-      </Route>
-
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-  );
-}
-
-function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
       <AuthProvider>
-        <AppContent />
         <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/landing" element={<Landing />} />
+            <Route path="/" element={<Navigate to="/landing" replace />} />
+            
+            {/* Auth routes */}
+            <Route element={<AuthLayout />}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+            </Route>
+
+            {/* Protected routes */}
+            <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+              <Route path="/home" element={<Home />} />
+              <Route path="/feed" element={<Feed />} />
+              <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/profile/:id?" element={<Profile />} />
+              <Route path="/circles" element={<Circles />} />
+              <Route path="/circle/:id" element={<Circle />} />
+              <Route path="/market" element={<Market />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/discover" element={<Discover />} />
+              <Route path="/inbox" element={<Inbox />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
       </AuthProvider>
-    </QueryClientProvider>
-  );
-}
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
 export default App;

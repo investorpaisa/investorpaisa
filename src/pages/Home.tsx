@@ -1,104 +1,247 @@
 
-import React, { useRef, useEffect, useState } from 'react';
-import { useIsMobile } from '@/hooks/use-mobile';
-import NewsPage from '@/components/home/NewsPage';
-import { CommentsDialog } from '@/components/news/CommentsDialog';
-import { RefreshCw } from 'lucide-react';
-import { toast } from 'sonner';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  TrendingUp,
+  Users,
+  BookOpen,
+  Bell,
+  ArrowRight,
+  Crown,
+  Target,
+  PieChart
+} from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
-const MIN_PULL_DISTANCE = 100;
+export default function Home() {
+  const { profile } = useAuth();
+  const navigate = useNavigate();
 
-const Home = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const touchStartRef = useRef<number | null>(null);
-  const pullDistanceRef = useRef<number>(0);
-  const [isPulling, setIsPulling] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-  const isMobile = useIsMobile();
-
-  const handleTouchStart = (e: TouchEvent) => {
-    // Only enable pull to refresh when at the top of the page
-    if (window.scrollY === 0) {
-      touchStartRef.current = e.touches[0].clientY;
-    } else {
-      touchStartRef.current = null;
-    }
-  };
-
-  const handleTouchMove = (e: TouchEvent) => {
-    if (touchStartRef.current === null || refreshing) return;
-
-    const touchY = e.touches[0].clientY;
-    const pullDistance = touchY - touchStartRef.current;
-
-    // Only proceed if pulling down
-    if (pullDistance > 0) {
-      pullDistanceRef.current = Math.min(pullDistance, 200);
-      setIsPulling(true);
-    } else {
-      pullDistanceRef.current = 0;
-      setIsPulling(false);
-    }
-  };
-
-  const handleTouchEnd = () => {
-    if (!touchStartRef.current || refreshing) return;
-
-    if (pullDistanceRef.current >= MIN_PULL_DISTANCE) {
-      refreshContent();
-    }
-
-    touchStartRef.current = null;
-    pullDistanceRef.current = 0;
-    setIsPulling(false);
-  };
-
-  const refreshContent = async () => {
-    setRefreshing(true);
-    
-    // Simulate refresh
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // After refresh completes
-    setRefreshing(false);
-    toast.success('Feed refreshed');
-  };
-
+  // Redirect to onboarding if not completed
   useEffect(() => {
-    if (isMobile) {
-      document.addEventListener('touchstart', handleTouchStart);
-      document.addEventListener('touchmove', handleTouchMove);
-      document.addEventListener('touchend', handleTouchEnd);
-      
-      return () => {
-        document.removeEventListener('touchstart', handleTouchStart);
-        document.removeEventListener('touchmove', handleTouchMove);
-        document.removeEventListener('touchend', handleTouchEnd);
-      };
+    if (profile && !profile.onboarding_completed) {
+      navigate('/onboarding');
     }
-  }, [isMobile, refreshing]);
+  }, [profile, navigate]);
+
+  if (!profile?.onboarding_completed) {
+    return null; // Will redirect to onboarding
+  }
+
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'expert':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'influencer':
+        return 'bg-blue-100 text-blue-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const quickActions = [
+    {
+      title: 'Join Circles',
+      description: 'Connect with like-minded investors',
+      icon: Users,
+      href: '/circles',
+      color: 'bg-blue-50 hover:bg-blue-100'
+    },
+    {
+      title: 'Market Analysis',
+      description: 'Latest market insights and trends',
+      icon: TrendingUp,
+      href: '/market',
+      color: 'bg-green-50 hover:bg-green-100'
+    },
+    {
+      title: 'Learn & Grow',
+      description: 'Educational content and tips',
+      icon: BookOpen,
+      href: '/discover',
+      color: 'bg-purple-50 hover:bg-purple-100'
+    }
+  ];
 
   return (
-    <>
-      {isMobile && (isPulling || refreshing) && (
-        <div 
-          className="fixed top-0 left-0 right-0 z-50 flex justify-center items-center py-4 bg-background"
-          style={{
-            height: refreshing ? '60px' : `${Math.min(pullDistanceRef.current / 2, 60)}px`,
-            transition: refreshing ? 'none' : 'height 0.2s'
-          }}
-        >
-          <RefreshCw 
-            className={`h-6 w-6 text-gold ${refreshing ? 'animate-spin' : 'animate-bounce'}`} 
-          />
+    <div className="space-y-6 p-6">
+      {/* Welcome Header */}
+      <div className="bg-gradient-to-r from-green-600 to-blue-600 rounded-lg p-6 text-white">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center space-x-3 mb-2">
+              <h1 className="text-2xl font-bold">
+                Welcome back, {profile?.full_name || profile?.username}!
+              </h1>
+              <Badge className={`${getRoleColor(profile?.role || 'user')} border-white`}>
+                {profile?.role?.charAt(0).toUpperCase() + profile?.role?.slice(1)}
+              </Badge>
+              {profile?.role === 'expert' && (
+                <Crown className="h-5 w-5 text-yellow-300" />
+              )}
+            </div>
+            <p className="text-green-100">
+              Ready to grow your wealth? Let's explore today's opportunities.
+            </p>
+          </div>
+          <div className="hidden md:block">
+            <div className="text-right">
+              <p className="text-sm text-green-100">Financial Literacy Score</p>
+              <p className="text-3xl font-bold">
+                {profile?.financial_literacy_score || 'N/A'}
+                {profile?.financial_literacy_score && '/100'}
+              </p>
+            </div>
+          </div>
         </div>
-      )}
-      <div ref={containerRef} className="w-full">
-        <NewsPage />
-        <CommentsDialog />
       </div>
-    </>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {quickActions.map((action, index) => {
+          const Icon = action.icon;
+          return (
+            <Card
+              key={index}
+              className={`cursor-pointer transition-colors ${action.color}`}
+              onClick={() => navigate(action.href)}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-3">
+                  <Icon className="h-8 w-8 text-gray-600" />
+                  <div>
+                    <h3 className="font-semibold">{action.title}</h3>
+                    <p className="text-sm text-muted-foreground">{action.description}</p>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-gray-400 ml-auto" />
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Main Content Tabs */}
+      <Tabs defaultValue="feed" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="feed">Feed</TabsTrigger>
+          <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
+          <TabsTrigger value="goals">Goals</TabsTrigger>
+          <TabsTrigger value="alerts">Alerts</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="feed" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <TrendingUp className="h-5 w-5" />
+                <span>Latest from Your Network</span>
+              </CardTitle>
+              <CardDescription>
+                Recent posts from circles and people you follow
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8 text-muted-foreground">
+                <p>No recent activity in your network.</p>
+                <Button
+                  variant="outline"
+                  className="mt-4"
+                  onClick={() => navigate('/feed')}
+                >
+                  Explore Feed
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="portfolio" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <PieChart className="h-5 w-5" />
+                <span>Portfolio Overview</span>
+              </CardTitle>
+              <CardDescription>
+                Track your investments and performance
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8 text-muted-foreground">
+                <p>No portfolio data available.</p>
+                <Button
+                  variant="outline"
+                  className="mt-4"
+                >
+                  Create Portfolio
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="goals" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Target className="h-5 w-5" />
+                <span>Financial Goals</span>
+              </CardTitle>
+              <CardDescription>
+                Track progress towards your financial objectives
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <h4 className="font-medium">Primary Goal</h4>
+                  <p className="text-sm text-muted-foreground capitalize">
+                    {typeof profile?.financial_goals === 'object' && profile?.financial_goals
+                      ? (profile.financial_goals as any).primary_goal?.replace('_', ' ')
+                      : 'Not set'}
+                  </p>
+                </div>
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <h4 className="font-medium">Risk Profile</h4>
+                  <p className="text-sm text-muted-foreground capitalize">
+                    {profile?.risk_profile?.replace('_', ' ') || 'Not set'}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="alerts" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Bell className="h-5 w-5" />
+                <span>Market Alerts</span>
+              </CardTitle>
+              <CardDescription>
+                Stay updated with personalized notifications
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8 text-muted-foreground">
+                <p>No active alerts.</p>
+                <Button
+                  variant="outline"
+                  className="mt-4"
+                >
+                  Set Up Alerts
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }
-
-export default Home;
