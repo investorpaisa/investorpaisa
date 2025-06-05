@@ -100,7 +100,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           verification_status: 'unverified',
           financial_goals: {}, // Default empty object since not in DB
           risk_profile: undefined, // Default undefined since not in DB
-          onboarding_completed: false, // Default false since not in DB
+          onboarding_completed: data.onboarding_completed || false, // Now check from DB
           financial_literacy_score: undefined, // Default undefined since not in DB
           bio: data.bio,
           credentials: {}, // Default empty object since not in DB
@@ -130,7 +130,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           username: user?.email?.split('@')[0] || '',
           full_name: user?.user_metadata?.full_name || user?.user_metadata?.name || '',
           avatar_url: user?.user_metadata?.avatar_url || null,
-          role: 'user'
+          role: 'user',
+          onboarding_completed: false // Set default to false for new users
         })
         .select()
         .single();
@@ -261,8 +262,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const completeOnboarding = async (data: OnboardingData) => {
     if (!user) throw new Error('No user logged in');
 
-    // For now, just mark onboarding as complete in the profile state
-    // In the future, you might want to add these fields to the database
+    // Update the database to mark onboarding as complete
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        onboarding_completed: true,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', user.id);
+
+    if (error) throw error;
+
+    // Update local profile state
     if (profile) {
       setProfile({
         ...profile,

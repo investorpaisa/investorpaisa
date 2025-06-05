@@ -3,24 +3,19 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Home, 
-  TrendingUp, 
+  Globe, 
+  Plus,
   Users, 
-  BookOpen, 
-  PieChart, 
   MessageSquare,
-  User,
-  Settings,
   Sparkles
 } from 'lucide-react';
 
 const navigation = [
   { name: 'Home', href: '/home', icon: Home },
-  { name: 'Feed', href: '/feed', icon: MessageSquare },
-  { name: 'Market', href: '/market', icon: TrendingUp },
-  { name: 'Portfolio', href: '/portfolio', icon: PieChart },
-  { name: 'Circles', href: '/circles', icon: Users },
-  { name: 'Discover', href: '/discover', icon: BookOpen },
-  { name: 'Profile', href: '/profile', icon: User },
+  { name: 'Public', href: '/feed', icon: Globe },
+  { name: 'Add', href: '/create-post', icon: Plus, isSpecial: true },
+  { name: 'Circle', href: '/circles', icon: Users },
+  { name: 'Inbox', href: '/inbox', icon: MessageSquare },
 ];
 
 export const MainSidebar = () => {
@@ -28,7 +23,7 @@ export const MainSidebar = () => {
 
   return (
     <motion.aside 
-      className="w-64 h-screen bg-gray-900/50 border-r border-white/10 flex flex-col"
+      className="w-64 h-screen bg-black border-r border-white/10 flex flex-col"
       initial={{ x: -300, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
@@ -70,13 +65,15 @@ export const MainSidebar = () => {
                     ? 'bg-gold/20 text-gold border border-gold/30' 
                     : 'text-white/70 hover:text-white hover:bg-white/5'
                   }
+                  ${item.isSpecial ? 'bg-gold text-black hover:bg-gold/90' : ''}
                 `}
               >
                 <item.icon className={`h-5 w-5 transition-colors duration-300 ${
+                  item.isSpecial ? 'text-black' : 
                   isActive ? 'text-gold' : 'text-white/60 group-hover:text-white'
                 }`} />
                 <span className="font-medium">{item.name}</span>
-                {isActive && (
+                {isActive && !item.isSpecial && (
                   <motion.div
                     className="w-2 h-2 rounded-full bg-gold ml-auto"
                     layoutId="activeIndicator"

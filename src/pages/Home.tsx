@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -20,18 +19,39 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function Home() {
-  const { profile } = useAuth();
+  const { profile, loading } = useAuth();
   const navigate = useNavigate();
 
   // Redirect to onboarding if not completed
   useEffect(() => {
-    if (profile && !profile.onboarding_completed) {
+    // Only redirect if we're not loading and profile exists but onboarding isn't completed
+    if (!loading && profile && !profile.onboarding_completed) {
       navigate('/onboarding');
     }
-  }, [profile, navigate]);
+  }, [profile, loading, navigate]);
 
-  if (!profile?.onboarding_completed) {
-    return null; // Will redirect to onboarding
+  // Show loading while we're checking the profile
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <motion.div
+          className="text-center"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gold to-gold/80 flex items-center justify-center mx-auto mb-4">
+            <Sparkles className="w-8 h-8 text-black" />
+          </div>
+          <p className="text-white font-medium">Loading...</p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Don't render anything if we're about to redirect to onboarding
+  if (profile && !profile.onboarding_completed) {
+    return null;
   }
 
   const getRoleColor = (role: string) => {
@@ -41,7 +61,7 @@ export default function Home() {
       case 'influencer':
         return 'bg-white/10 text-white border-white/30';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-white/5 text-white/70 border-white/20';
     }
   };
 

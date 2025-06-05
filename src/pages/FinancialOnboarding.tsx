@@ -6,21 +6,30 @@ import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
 import { PageLoader } from '@/components/ui/page-loader';
 
 const FinancialOnboarding: React.FC = () => {
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && !user) {
-      navigate('/auth/login');
+    if (!loading) {
+      if (!user) {
+        navigate('/auth/login');
+      } else if (profile?.onboarding_completed) {
+        // If onboarding is already completed, redirect to home
+        navigate('/home');
+      }
     }
-  }, [user, loading, navigate]);
+  }, [user, profile, loading, navigate]);
 
   if (loading) {
     return <PageLoader />;
   }
 
   if (!user) {
-    return null;
+    return null; // Will redirect to login
+  }
+
+  if (profile?.onboarding_completed) {
+    return null; // Will redirect to home
   }
 
   return <OnboardingFlow />;

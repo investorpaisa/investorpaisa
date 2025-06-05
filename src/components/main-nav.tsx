@@ -89,7 +89,7 @@ export const MainNav = () => {
             {/* Profile Dropdown */}
             {showProfileMenu && (
               <motion.div
-                className="absolute right-0 top-full mt-2 w-48 bg-gray-900/95 backdrop-blur-sm border border-white/10 rounded-xl shadow-lg overflow-hidden"
+                className="absolute right-0 top-full mt-2 w-48 bg-black/95 backdrop-blur-sm border border-white/10 rounded-xl shadow-lg overflow-hidden"
                 initial={{ opacity: 0, scale: 0.95, y: -10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ duration: 0.2 }}
@@ -111,7 +111,7 @@ export const MainNav = () => {
                 <hr className="border-white/10" />
                 <button
                   onClick={handleSignOut}
-                  className="w-full text-left px-4 py-3 text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors duration-200 flex items-center space-x-2"
+                  className="w-full text-left px-4 py-3 text-white/60 hover:bg-white/5 hover:text-white transition-colors duration-200 flex items-center space-x-2"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>Sign Out</span>
