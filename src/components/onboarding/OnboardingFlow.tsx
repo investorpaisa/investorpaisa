@@ -2,21 +2,20 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { BasicInfoStep } from './BasicInfoStep';
 import { RiskAssessmentStep } from './RiskAssessmentStep';
 import { FinancialGoalsStep } from './FinancialGoalsStep';
 import { EmailIntegrationStep } from './EmailIntegrationStep';
 import { useAuth } from '@/contexts/AuthContext';
-import { FinancialProfileService } from '@/services/financial/profileService';
-import { toast } from '@/hooks/use-toast';
+import { ErrorToast } from '@/components/ui/error-toast';
+import { Typography } from '@/components/ui/design-system';
 
 export interface OnboardingData {
   full_name: string;
   location: string;
   profession: string;
-  risk_profile: 'conservative' | 'moderate' | 'aggressive';
+  risk_profile: 'conservative' | 'moderate' | 'aggressive' | 'very_aggressive';
   financial_goals: Record<string, any>;
   email_integration: boolean;
 }
@@ -24,12 +23,17 @@ export interface OnboardingData {
 export const OnboardingFlow: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<{ show: boolean; title: string; message: string }>({
+    show: false,
+    title: '',
+    message: ''
+  });
   const [onboardingData, setOnboardingData] = useState<Partial<OnboardingData>>({
     financial_goals: {},
     email_integration: false
   });
   
-  const { user } = useAuth();
+  const { user, updateProfile } = useAuth();
   const navigate = useNavigate();
 
   const steps = [
@@ -38,6 +42,14 @@ export const OnboardingFlow: React.FC = () => {
     { id: 'financial-goals', title: 'Financial Goals', description: 'Set your investment objectives' },
     { id: 'email-integration', title: 'Email Integration', description: 'Connect your broker emails (optional)' }
   ];
+
+  const showError = (title: string, message: string) => {
+    setError({ show: true, title, message });
+  };
+
+  const hideError = () => {
+    setError({ show: false, title: '', message: '' });
+  };
 
   const handleStepComplete = (stepData: Partial<OnboardingData>) => {
     setOnboardingData(prev => ({ ...prev, ...stepData }));
@@ -50,43 +62,27 @@ export const OnboardingFlow: React.FC = () => {
   };
 
   const handleOnboardingComplete = async () => {
-    if (!user) return;
+    if (!user) {
+      showError('Authentication Error', 'User not found. Please try signing in again.');
+      return;
+    }
 
     setIsLoading(true);
     try {
-      await FinancialProfileService.createUserExtended({
-        id: user.id,
-        full_name: onboardingData.full_name!,
-        email: user.email!,
-        location: onboardingData.location,
-        profession: onboardingData.profession,
-        risk_profile: onboardingData.risk_profile,
+      // Update the profile with onboarding completion
+      await updateProfile({
+        onboarding_completed: true,
         financial_goals: onboardingData.financial_goals || {},
-        onboarding_completed: true
-      });
-
-      // Create default public profile
-      await FinancialProfileService.createPublicProfile({
-        user_id: user.id,
-        is_public: false,
-        visible_sections: ['achievements', 'portfolio_size'],
-        showcase_metrics: {},
-        profile_url: onboardingData.full_name?.toLowerCase().replace(/\s+/g, '') || user.id
-      });
-
-      toast({
-        title: "Welcome to Investor Paisa!",
-        description: "Your financial profile has been created successfully.",
+        risk_profile: onboardingData.risk_profile
       });
 
       navigate('/home');
     } catch (error) {
       console.error('Onboarding error:', error);
-      toast({
-        title: "Onboarding Failed",
-        description: "There was an error creating your profile. Please try again.",
-        variant: "destructive"
-      });
+      showError(
+        'Onboarding Failed', 
+        'There was an error completing your onboarding. Please try again or contact support.'
+      );
     } finally {
       setIsLoading(false);
     }
@@ -101,18 +97,26 @@ export const OnboardingFlow: React.FC = () => {
   const progress = ((currentStep + 1) / steps.length) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-premium-gold/5 to-premium-dark-900/5 flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl premium-card">
+    <div className="min-h-screen bg-black flex items-center justify-center p-4">
+      <ErrorToast
+        isVisible={error.show}
+        onClose={hideError}
+        type="error"
+        title={error.title}
+        message={error.message}
+      />
+      
+      <Card className="w-full max-w-2xl bg-black/90 border border-white/10">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold bg-gradient-gold bg-clip-text text-transparent">
+          <CardTitle className="text-2xl font-bold text-gold font-heading">
             Complete Your Financial Profile
           </CardTitle>
-          <p className="text-muted-foreground mt-2">
+          <Typography.Body className="text-white/70 mt-2">
             {steps[currentStep].description}
-          </p>
+          </Typography.Body>
           <div className="mt-4">
             <Progress value={progress} className="h-2" />
-            <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+            <div className="flex justify-between mt-2 text-xs text-white/60">
               <span>Step {currentStep + 1} of {steps.length}</span>
               <span>{Math.round(progress)}% Complete</span>
             </div>

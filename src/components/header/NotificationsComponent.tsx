@@ -117,10 +117,10 @@ export const NotificationsComponent: React.FC = () => {
               exit={{ opacity: 0, scale: 0.95, y: -10 }}
               className="absolute right-0 top-full mt-2 w-96 z-50"
             >
-              <SystemCard variant="glass" className="p-0 max-h-96 overflow-hidden">
+              <SystemCard variant="elevated" className="p-0 max-h-96 overflow-hidden bg-black/95 backdrop-blur-xl border border-white/20">
                 <div className="p-4 border-b border-white/10">
                   <div className="flex items-center justify-between">
-                    <Typography.H3 className="text-lg">Notifications</Typography.H3>
+                    <Typography.H3 className="text-lg text-white">Notifications</Typography.H3>
                     {unreadCount > 0 && (
                       <button
                         onClick={markAllAsRead}
@@ -162,14 +162,14 @@ export const NotificationsComponent: React.FC = () => {
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between">
-                                <Typography.Body className="text-sm font-medium truncate">
+                                <Typography.Body className="text-sm font-medium truncate text-white">
                                   {notification.title}
                                 </Typography.Body>
                                 {!notification.read && (
                                   <div className="w-2 h-2 rounded-full bg-gold flex-shrink-0 ml-2" />
                                 )}
                               </div>
-                              <Typography.Small className="mt-1 line-clamp-2">
+                              <Typography.Small className="mt-1 line-clamp-2 text-white/70">
                                 {notification.message}
                               </Typography.Small>
                               <Typography.Small className="mt-1 text-white/40">

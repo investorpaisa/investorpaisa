@@ -1,8 +1,8 @@
+
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -134,7 +134,7 @@ export default function Home() {
                   >
                     <Sparkles className="h-8 w-8 text-gold" />
                   </motion.div>
-                  <Typography.H2>
+                  <Typography.H2 className="text-white">
                     Welcome back, {profile?.full_name || profile?.username}!
                   </Typography.H2>
                   <Badge className={`${getRoleColor(profile?.role || 'user')}`}>
@@ -144,7 +144,7 @@ export default function Home() {
                     <Crown className="h-5 w-5 text-gold" />
                   )}
                 </div>
-                <Typography.Body className="text-lg">
+                <Typography.Body className="text-lg text-white/80">
                   Ready to grow your wealth? Let's explore today's opportunities.
                 </Typography.Body>
               </div>
@@ -156,7 +156,7 @@ export default function Home() {
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.5, type: "spring" }}
                 >
-                  <Typography.H2>
+                  <Typography.H2 className="text-gold">
                     {profile?.financial_literacy_score || 'N/A'}
                     {profile?.financial_literacy_score && '/100'}
                   </Typography.H2>
@@ -187,8 +187,8 @@ export default function Home() {
                       <Icon className="h-6 w-6 text-white" />
                     </div>
                     <div className="flex-1">
-                      <Typography.H3 className="text-lg mb-1">{action.title}</Typography.H3>
-                      <Typography.Small>{action.description}</Typography.Small>
+                      <Typography.H3 className="text-lg mb-1 text-white">{action.title}</Typography.H3>
+                      <Typography.Small className="text-white/70">{action.description}</Typography.Small>
                     </div>
                     <ArrowRight className="h-5 w-5 text-gold" />
                   </div>
@@ -202,13 +202,12 @@ export default function Home() {
         <motion.div variants={itemVariants}>
           <Tabs defaultValue="feed" className="space-y-6">
             <TabsList className="grid w-full grid-cols-4 bg-black/50 border border-white/10">
-              <TabsTrigger value="feed" className="data-[state=active]:bg-gold data-[state=active]:text-black">Feed</TabsTrigger>
-              <TabsTrigger value="portfolio" className="data-[state=active]:bg-gold data-[state=active]:text-black">Portfolio</TabsTrigger>
-              <TabsTrigger value="goals" className="data-[state=active]:bg-gold data-[state=active]:text-black">Goals</TabsTrigger>
-              <TabsTrigger value="alerts" className="data-[state=active]:bg-gold data-[state=active]:text-black">Alerts</TabsTrigger>
+              <TabsTrigger value="feed" className="data-[state=active]:bg-gold data-[state=active]:text-black text-white">Feed</TabsTrigger>
+              <TabsTrigger value="portfolio" className="data-[state=active]:bg-gold data-[state=active]:text-black text-white">Portfolio</TabsTrigger>
+              <TabsTrigger value="goals" className="data-[state=active]:bg-gold data-[state=active]:text-black text-white">Goals</TabsTrigger>
+              <TabsTrigger value="alerts" className="data-[state=active]:bg-gold data-[state=active]:text-black text-white">Alerts</TabsTrigger>
             </TabsList>
 
-            {/* Tab contents remain the same with updated styling */}
             <TabsContent value="feed" className="space-y-4">
               <SystemCard>
                 <CardHeader>
@@ -229,7 +228,7 @@ export default function Home() {
                     >
                       <Users className="h-16 w-16 mx-auto mb-4 text-gold/50" />
                     </motion.div>
-                    <Typography.Body className="mb-4">No recent activity in your network.</Typography.Body>
+                    <Typography.Body className="mb-4 text-white/60">No recent activity in your network.</Typography.Body>
                     <SystemButton onClick={() => navigate('/feed')}>
                       Explore Feed
                     </SystemButton>
@@ -238,7 +237,6 @@ export default function Home() {
               </SystemCard>
             </TabsContent>
 
-            {/* Other tab contents with similar styling updates */}
             <TabsContent value="portfolio" className="space-y-4">
               <SystemCard>
                 <CardHeader>
@@ -250,14 +248,13 @@ export default function Home() {
                 <CardContent>
                   <div className="text-center py-12">
                     <PieChart className="h-16 w-16 mx-auto mb-4 text-gold/50" />
-                    <Typography.Body className="mb-4">No portfolio data available.</Typography.Body>
+                    <Typography.Body className="mb-4 text-white/60">No portfolio data available.</Typography.Body>
                     <SystemButton>Create Portfolio</SystemButton>
                   </div>
                 </CardContent>
               </SystemCard>
             </TabsContent>
 
-            {/* Goals and Alerts tabs with similar updates */}
             <TabsContent value="goals" className="space-y-4">
               <SystemCard>
                 <CardHeader>
@@ -269,8 +266,8 @@ export default function Home() {
                 <CardContent>
                   <div className="space-y-4">
                     <div className="p-4 bg-white/5 rounded-lg border border-white/10">
-                      <Typography.H3 className="text-base">Primary Goal</Typography.H3>
-                      <Typography.Small className="capitalize">
+                      <Typography.H3 className="text-base text-white">Primary Goal</Typography.H3>
+                      <Typography.Small className="capitalize text-white/70">
                         {typeof profile?.financial_goals === 'object' && profile?.financial_goals
                           ? (profile.financial_goals as any).primary_goal?.replace('_', ' ')
                           : 'Not set'}
@@ -292,7 +289,7 @@ export default function Home() {
                 <CardContent>
                   <div className="text-center py-12">
                     <Bell className="h-16 w-16 mx-auto mb-4 text-gold/50" />
-                    <Typography.Body className="mb-4">No active alerts.</Typography.Body>
+                    <Typography.Body className="mb-4 text-white/60">No active alerts.</Typography.Body>
                     <SystemButton>Set Up Alerts</SystemButton>
                   </div>
                 </CardContent>

@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { SystemButton, SystemCard, Typography } from '@/components/ui/design-system';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { OnboardingData } from './OnboardingFlow';
@@ -85,9 +84,10 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
     const maxScore = riskQuestions.length * 4;
     const percentage = (totalScore / maxScore) * 100;
 
-    if (percentage <= 40) return 'conservative';
-    if (percentage <= 70) return 'moderate';
-    return 'aggressive';
+    if (percentage <= 35) return 'conservative';
+    if (percentage <= 60) return 'moderate';
+    if (percentage <= 85) return 'aggressive';
+    return 'very_aggressive';
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -103,12 +103,27 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
 
   const isComplete = Object.keys(answers).length === riskQuestions.length;
 
+  const getRiskProfileDescription = (profile: string) => {
+    switch (profile) {
+      case 'conservative':
+        return 'You prefer stable investments with lower risk and steady returns.';
+      case 'moderate':
+        return 'You seek a balance between growth potential and risk management.';
+      case 'aggressive':
+        return 'You are comfortable with higher risk for potentially greater returns.';
+      case 'very_aggressive':
+        return 'You actively seek maximum returns and are comfortable with high volatility.';
+      default:
+        return '';
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-6">
         {riskQuestions.map((question) => (
-          <Card key={question.id} className="p-4">
-            <h3 className="font-medium mb-4">{question.text}</h3>
+          <SystemCard key={question.id} variant="default" className="p-4">
+            <Typography.H3 className="text-base mb-4 font-medium">{question.text}</Typography.H3>
             <RadioGroup
               value={answers[question.id]?.toString() || ''}
               onValueChange={(value) => handleAnswerChange(question.id, parseInt(value))}
@@ -118,43 +133,44 @@ export const RiskAssessmentStep: React.FC<RiskAssessmentStepProps> = ({
                   <RadioGroupItem value={option.score.toString()} id={`${question.id}-${index}`} />
                   <Label 
                     htmlFor={`${question.id}-${index}`} 
-                    className="text-sm cursor-pointer leading-relaxed"
+                    className="text-sm cursor-pointer leading-relaxed text-white/80"
                   >
                     {option.text}
                   </Label>
                 </div>
               ))}
             </RadioGroup>
-          </Card>
+          </SystemCard>
         ))}
 
         {isComplete && (
-          <Card className="p-4 bg-premium-gold/5 border-premium-gold/20">
-            <h4 className="font-medium mb-2">Your Risk Profile</h4>
-            <p className="text-sm text-muted-foreground">
-              Based on your answers, you have a{' '}
-              <span className="font-medium text-premium-gold capitalize">
-                {calculateRiskProfile()}
-              </span>{' '}
-              risk profile.
-            </p>
-          </Card>
+          <SystemCard variant="glass" className="p-4 border-gold/20">
+            <Typography.H3 className="text-base mb-2">Your Risk Profile</Typography.H3>
+            <div className="mb-2">
+              <span className="text-gold font-medium capitalize text-lg">
+                {calculateRiskProfile().replace('_', ' ')}
+              </span>
+            </div>
+            <Typography.Small className="text-white/70">
+              {getRiskProfileDescription(calculateRiskProfile())}
+            </Typography.Small>
+          </SystemCard>
         )}
       </div>
 
       <div className="flex gap-3">
         {showPrevious && (
-          <Button type="button" variant="outline" onClick={onPrevious}>
+          <SystemButton variant="outline" onClick={onPrevious}>
             Previous
-          </Button>
+          </SystemButton>
         )}
-        <Button 
+        <SystemButton 
           type="submit" 
           disabled={!isComplete}
-          className="btn-premium flex-1"
+          className="flex-1"
         >
           Continue
-        </Button>
+        </SystemButton>
       </div>
     </form>
   );

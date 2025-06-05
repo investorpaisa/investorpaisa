@@ -74,7 +74,7 @@ export const SearchComponent: React.FC = () => {
               exit={{ opacity: 0, scale: 0.95, y: -10 }}
               className="absolute right-0 top-full mt-2 w-96 z-50"
             >
-              <SystemCard variant="glass" className="p-4">
+              <SystemCard variant="elevated" className="p-4 bg-black/95 backdrop-blur-xl border border-white/20">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
                   <input
@@ -82,7 +82,7 @@ export const SearchComponent: React.FC = () => {
                     placeholder="Search users, posts, trends..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-10 py-3 bg-black/40 border border-white/20 rounded-xl text-white placeholder-white/40 focus:border-gold focus:outline-none"
+                    className="w-full pl-10 pr-10 py-3 bg-black/60 border border-white/20 rounded-xl text-white placeholder-white/40 focus:border-gold focus:outline-none backdrop-blur-sm"
                     autoFocus
                   />
                   {searchTerm && (
@@ -110,11 +110,11 @@ export const SearchComponent: React.FC = () => {
                             <Icon className="w-4 h-4 text-gold" />
                           </div>
                           <div className="flex-1">
-                            <Typography.Body className="text-sm font-medium">
+                            <Typography.Body className="text-sm font-medium text-white">
                               {result.title}
                             </Typography.Body>
                             {result.subtitle && (
-                              <Typography.Small>{result.subtitle}</Typography.Small>
+                              <Typography.Small className="text-white/60">{result.subtitle}</Typography.Small>
                             )}
                           </div>
                         </motion.div>
@@ -125,7 +125,7 @@ export const SearchComponent: React.FC = () => {
 
                 {searchTerm && results.length === 0 && (
                   <div className="mt-4 text-center py-8">
-                    <Typography.Small>No results found for "{searchTerm}"</Typography.Small>
+                    <Typography.Small className="text-white/60">No results found for "{searchTerm}"</Typography.Small>
                   </div>
                 )}
               </SystemCard>

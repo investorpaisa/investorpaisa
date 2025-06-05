@@ -45,7 +45,7 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-black text-white antialiased;
     font-family: 'Satoshi', sans-serif;
     background: #000000;
     min-height: 100vh;
@@ -57,7 +57,7 @@
   }
 
   h1, h2, h3 {
-    @apply font-heading font-bold;
+    @apply font-heading font-bold text-white;
     font-family: 'Clash Display', sans-serif;
   }
 
@@ -70,11 +70,28 @@
   }
 
   h2 {
-    @apply text-3xl md:text-4xl leading-tight;
+    @apply text-3xl md:text-4xl leading-tight text-white;
   }
 
   h3 {
-    @apply text-2xl md:text-3xl leading-snug;
+    @apply text-2xl md:text-3xl leading-snug text-white;
+  }
+
+  p {
+    @apply text-white;
+  }
+
+  /* Override any purple/yellow colors */
+  .bg-purple-500, .bg-purple-600, .bg-violet-500, .bg-violet-600,
+  .text-purple-500, .text-purple-600, .text-violet-500, .text-violet-600,
+  .border-purple-500, .border-purple-600, .border-violet-500, .border-violet-600 {
+    @apply bg-gold text-black border-gold !important;
+  }
+
+  .bg-yellow-500, .bg-yellow-600, .bg-amber-500, .bg-amber-600,
+  .text-yellow-500, .text-yellow-600, .text-amber-500, .text-amber-600,
+  .border-yellow-500, .border-yellow-600, .border-amber-500, .border-amber-600 {
+    @apply bg-gold text-black border-gold !important;
   }
   
   /* Modern scrollbars */
