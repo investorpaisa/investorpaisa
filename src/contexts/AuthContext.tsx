@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -100,7 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           verification_status: 'unverified',
           financial_goals: {}, // Default empty object since not in DB
           risk_profile: undefined, // Default undefined since not in DB
-          onboarding_completed: data.onboarding_completed || false, // Now check from DB
+          onboarding_completed: data.onboarding_completed || false, // Now properly handled from DB
           financial_literacy_score: undefined, // Default undefined since not in DB
           bio: data.bio,
           credentials: {}, // Default empty object since not in DB

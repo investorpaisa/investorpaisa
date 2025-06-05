@@ -655,6 +655,7 @@ export type Database = {
           full_name: string | null
           id: string
           is_verified: boolean | null
+          onboarding_completed: boolean | null
           role: string
           updated_at: string | null
           username: string | null
@@ -668,6 +669,7 @@ export type Database = {
           full_name?: string | null
           id: string
           is_verified?: boolean | null
+          onboarding_completed?: boolean | null
           role?: string
           updated_at?: string | null
           username?: string | null
@@ -681,6 +683,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_verified?: boolean | null
+          onboarding_completed?: boolean | null
           role?: string
           updated_at?: string | null
           username?: string | null
