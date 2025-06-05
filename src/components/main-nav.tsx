@@ -1,10 +1,12 @@
 
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Bell, Search, User, Menu, Sparkles, LogOut } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { User, Menu, Sparkles, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
+import { SearchComponent } from '@/components/header/SearchComponent';
+import { NotificationsComponent } from '@/components/header/NotificationsComponent';
+import { Typography, SystemIconButton } from '@/components/ui/design-system';
 
 export const MainNav = () => {
   const location = useLocation();
@@ -33,34 +35,18 @@ export const MainNav = () => {
           <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-gold to-gold/80 flex items-center justify-center">
             <Sparkles className="w-5 h-5 text-black" />
           </div>
-          <span className="text-xl font-heading font-bold text-white">
+          <Typography.H3 className="text-xl">
             Investor<span className="text-gold">Paisa</span>
-          </span>
+          </Typography.H3>
         </motion.div>
-
-        {/* Search Bar */}
-        <div className="hidden md:flex flex-1 max-w-lg mx-8">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
-            <input
-              type="text"
-              placeholder="Search stocks, users, circles..."
-              className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:border-gold focus:ring-1 focus:ring-gold focus:outline-none"
-            />
-          </div>
-        </div>
 
         {/* Actions */}
         <div className="flex items-center space-x-4">
+          {/* Search */}
+          <SearchComponent />
+
           {/* Notifications */}
-          <motion.button
-            className="relative p-2 rounded-xl hover:bg-white/5 transition-colors duration-300"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Bell className="h-5 w-5 text-white/70" />
-            <span className="absolute -top-1 -right-1 w-3 h-3 bg-gold rounded-full"></span>
-          </motion.button>
+          <NotificationsComponent />
 
           {/* Profile Menu */}
           <div className="relative">
@@ -81,9 +67,9 @@ export const MainNav = () => {
                   <User className="w-4 h-4 text-black" />
                 </div>
               )}
-              <span className="hidden md:block text-white/80 font-medium">
+              <Typography.Small className="hidden md:block text-white/80 font-medium">
                 {profile?.full_name || profile?.username || 'User'}
-              </span>
+              </Typography.Small>
             </motion.button>
 
             {/* Profile Dropdown */}
@@ -99,14 +85,14 @@ export const MainNav = () => {
                   className="block px-4 py-3 text-white/80 hover:bg-white/5 hover:text-white transition-colors duration-200"
                   onClick={() => setShowProfileMenu(false)}
                 >
-                  View Profile
+                  <Typography.Body className="text-sm">View Profile</Typography.Body>
                 </Link>
                 <Link
                   to="/edit-profile"
                   className="block px-4 py-3 text-white/80 hover:bg-white/5 hover:text-white transition-colors duration-200"
                   onClick={() => setShowProfileMenu(false)}
                 >
-                  Edit Profile
+                  <Typography.Body className="text-sm">Edit Profile</Typography.Body>
                 </Link>
                 <hr className="border-white/10" />
                 <button
@@ -114,20 +100,18 @@ export const MainNav = () => {
                   className="w-full text-left px-4 py-3 text-white/60 hover:bg-white/5 hover:text-white transition-colors duration-200 flex items-center space-x-2"
                 >
                   <LogOut className="w-4 h-4" />
-                  <span>Sign Out</span>
+                  <Typography.Body className="text-sm">Sign Out</Typography.Body>
                 </button>
               </motion.div>
             )}
           </div>
 
           {/* Mobile menu */}
-          <motion.button
-            className="md:hidden p-2 rounded-xl hover:bg-white/5 transition-colors duration-300"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Menu className="h-5 w-5 text-white/70" />
-          </motion.button>
+          <SystemIconButton
+            icon={Menu}
+            variant="ghost"
+            className="md:hidden"
+          />
         </div>
       </div>
     </motion.nav>

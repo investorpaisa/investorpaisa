@@ -99,12 +99,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           avatar_url: data.avatar_url,
           role: (data.role as UserRole) || 'user',
           verification_status: 'unverified',
-          financial_goals: {}, // Default empty object since not in DB
-          risk_profile: undefined, // Default undefined since not in DB
-          onboarding_completed: data.onboarding_completed || false, // Now properly handled from DB
-          financial_literacy_score: undefined, // Default undefined since not in DB
+          financial_goals: {}, 
+          risk_profile: undefined, 
+          onboarding_completed: Boolean(data.onboarding_completed), // Ensure boolean conversion
+          financial_literacy_score: undefined, 
           bio: data.bio,
-          credentials: {}, // Default empty object since not in DB
+          credentials: {}, 
           followers: data.followers || 0,
           following: data.following || 0,
           is_verified: data.is_verified || false,
@@ -132,7 +132,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           full_name: user?.user_metadata?.full_name || user?.user_metadata?.name || '',
           avatar_url: user?.user_metadata?.avatar_url || null,
           role: 'user',
-          onboarding_completed: false // Set default to false for new users
+          onboarding_completed: false
         })
         .select()
         .single();

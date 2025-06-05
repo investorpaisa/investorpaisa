@@ -17,16 +17,20 @@ import {
   Sparkles
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { Typography, SystemCard, SystemButton } from '@/components/ui/design-system';
 
 export default function Home() {
   const { profile, loading } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect to onboarding if not completed
+  // Only redirect to onboarding if profile exists but onboarding is not completed
   useEffect(() => {
-    // Only redirect if we're not loading and profile exists but onboarding isn't completed
-    if (!loading && profile && !profile.onboarding_completed) {
-      navigate('/onboarding');
+    if (!loading && profile) {
+      // Check if onboarding is specifically false (not null/undefined)
+      if (profile.onboarding_completed === false) {
+        console.log('Redirecting to onboarding - onboarding_completed:', profile.onboarding_completed);
+        navigate('/onboarding');
+      }
     }
   }, [profile, loading, navigate]);
 
@@ -43,14 +47,14 @@ export default function Home() {
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gold to-gold/80 flex items-center justify-center mx-auto mb-4">
             <Sparkles className="w-8 h-8 text-black" />
           </div>
-          <p className="text-white font-medium">Loading...</p>
+          <Typography.Body>Loading...</Typography.Body>
         </motion.div>
       </div>
     );
   }
 
   // Don't render anything if we're about to redirect to onboarding
-  if (profile && !profile.onboarding_completed) {
+  if (profile && profile.onboarding_completed === false) {
     return null;
   }
 
@@ -118,12 +122,8 @@ export default function Home() {
         className="space-y-6"
       >
         {/* Welcome Header */}
-        <motion.div 
-          variants={itemVariants}
-          className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-black via-gray-900 to-black border border-gold/20 p-8"
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-gold/5 to-transparent"></div>
-          <div className="relative z-10">
+        <motion.div variants={itemVariants}>
+          <SystemCard variant="glass" className="p-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <div className="flex items-center space-x-3 mb-4">
@@ -134,9 +134,9 @@ export default function Home() {
                   >
                     <Sparkles className="h-8 w-8 text-gold" />
                   </motion.div>
-                  <h1 className="text-3xl font-bold text-white">
+                  <Typography.H2>
                     Welcome back, {profile?.full_name || profile?.username}!
-                  </h1>
+                  </Typography.H2>
                   <Badge className={`${getRoleColor(profile?.role || 'user')}`}>
                     {profile?.role?.charAt(0).toUpperCase() + profile?.role?.slice(1)}
                   </Badge>
@@ -144,24 +144,26 @@ export default function Home() {
                     <Crown className="h-5 w-5 text-gold" />
                   )}
                 </div>
-                <p className="text-white/70 text-lg">
+                <Typography.Body className="text-lg">
                   Ready to grow your wealth? Let's explore today's opportunities.
-                </p>
+                </Typography.Body>
               </div>
               <div className="text-center md:text-right">
-                <p className="text-sm text-white/60">Financial Literacy Score</p>
-                <motion.p 
+                <Typography.Small className="text-white/60">Financial Literacy Score</Typography.Small>
+                <motion.div
                   className="text-4xl font-bold text-gold"
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.5, type: "spring" }}
                 >
-                  {profile?.financial_literacy_score || 'N/A'}
-                  {profile?.financial_literacy_score && '/100'}
-                </motion.p>
+                  <Typography.H2>
+                    {profile?.financial_literacy_score || 'N/A'}
+                    {profile?.financial_literacy_score && '/100'}
+                  </Typography.H2>
+                </motion.div>
               </div>
             </div>
-          </div>
+          </SystemCard>
         </motion.div>
 
         {/* Quick Actions */}
@@ -179,20 +181,18 @@ export default function Home() {
                 className="cursor-pointer"
                 onClick={() => navigate(action.href)}
               >
-                <Card className="bg-gray-900/50 border-white/10 hover:border-gold/30 transition-all duration-300 backdrop-blur-sm">
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-4">
-                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.gradient} flex items-center justify-center`}>
-                        <Icon className="h-6 w-6 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-white mb-1">{action.title}</h3>
-                        <p className="text-sm text-white/60">{action.description}</p>
-                      </div>
-                      <ArrowRight className="h-5 w-5 text-gold" />
+                <SystemCard variant="default" className="hover:border-gold/30 transition-all duration-300">
+                  <div className="flex items-center space-x-4">
+                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.gradient} flex items-center justify-center`}>
+                      <Icon className="h-6 w-6 text-white" />
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="flex-1">
+                      <Typography.H3 className="text-lg mb-1">{action.title}</Typography.H3>
+                      <Typography.Small>{action.description}</Typography.Small>
+                    </div>
+                    <ArrowRight className="h-5 w-5 text-gold" />
+                  </div>
+                </SystemCard>
               </motion.div>
             );
           })}
@@ -201,15 +201,16 @@ export default function Home() {
         {/* Main Content Tabs */}
         <motion.div variants={itemVariants}>
           <Tabs defaultValue="feed" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4 bg-gray-900/50 border border-white/10">
+            <TabsList className="grid w-full grid-cols-4 bg-black/50 border border-white/10">
               <TabsTrigger value="feed" className="data-[state=active]:bg-gold data-[state=active]:text-black">Feed</TabsTrigger>
               <TabsTrigger value="portfolio" className="data-[state=active]:bg-gold data-[state=active]:text-black">Portfolio</TabsTrigger>
               <TabsTrigger value="goals" className="data-[state=active]:bg-gold data-[state=active]:text-black">Goals</TabsTrigger>
               <TabsTrigger value="alerts" className="data-[state=active]:bg-gold data-[state=active]:text-black">Alerts</TabsTrigger>
             </TabsList>
 
+            {/* Tab contents remain the same with updated styling */}
             <TabsContent value="feed" className="space-y-4">
-              <Card className="bg-gray-900/50 border-white/10">
+              <SystemCard>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2 text-white">
                     <TrendingUp className="h-5 w-5 text-gold" />
@@ -228,113 +229,74 @@ export default function Home() {
                     >
                       <Users className="h-16 w-16 mx-auto mb-4 text-gold/50" />
                     </motion.div>
-                    <p className="mb-4">No recent activity in your network.</p>
-                    <Button
-                      variant="outline"
-                      className="border-gold/30 text-gold hover:bg-gold hover:text-black"
-                      onClick={() => navigate('/feed')}
-                    >
+                    <Typography.Body className="mb-4">No recent activity in your network.</Typography.Body>
+                    <SystemButton onClick={() => navigate('/feed')}>
                       Explore Feed
-                    </Button>
+                    </SystemButton>
                   </div>
                 </CardContent>
-              </Card>
+              </SystemCard>
             </TabsContent>
 
+            {/* Other tab contents with similar styling updates */}
             <TabsContent value="portfolio" className="space-y-4">
-              <Card className="bg-gray-900/50 border-white/10">
+              <SystemCard>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2 text-white">
                     <PieChart className="h-5 w-5 text-gold" />
                     <span>Portfolio Overview</span>
                   </CardTitle>
-                  <CardDescription className="text-white/60">
-                    Track your investments and performance
-                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center py-12 text-white/60">
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ delay: 0.2 }}
-                    >
-                      <PieChart className="h-16 w-16 mx-auto mb-4 text-gold/50" />
-                    </motion.div>
-                    <p className="mb-4">No portfolio data available.</p>
-                    <Button
-                      variant="outline"
-                      className="border-gold/30 text-gold hover:bg-gold hover:text-black"
-                    >
-                      Create Portfolio
-                    </Button>
+                  <div className="text-center py-12">
+                    <PieChart className="h-16 w-16 mx-auto mb-4 text-gold/50" />
+                    <Typography.Body className="mb-4">No portfolio data available.</Typography.Body>
+                    <SystemButton>Create Portfolio</SystemButton>
                   </div>
                 </CardContent>
-              </Card>
+              </SystemCard>
             </TabsContent>
 
+            {/* Goals and Alerts tabs with similar updates */}
             <TabsContent value="goals" className="space-y-4">
-              <Card className="bg-gray-900/50 border-white/10">
+              <SystemCard>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2 text-white">
                     <Target className="h-5 w-5 text-gold" />
                     <span>Financial Goals</span>
                   </CardTitle>
-                  <CardDescription className="text-white/60">
-                    Track progress towards your financial objectives
-                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div className="p-4 bg-white/5 rounded-lg border border-white/10">
-                      <h4 className="font-medium text-white">Primary Goal</h4>
-                      <p className="text-sm text-white/60 capitalize">
+                      <Typography.H3 className="text-base">Primary Goal</Typography.H3>
+                      <Typography.Small className="capitalize">
                         {typeof profile?.financial_goals === 'object' && profile?.financial_goals
                           ? (profile.financial_goals as any).primary_goal?.replace('_', ' ')
                           : 'Not set'}
-                      </p>
-                    </div>
-                    <div className="p-4 bg-white/5 rounded-lg border border-white/10">
-                      <h4 className="font-medium text-white">Risk Profile</h4>
-                      <p className="text-sm text-white/60 capitalize">
-                        {profile?.risk_profile?.replace('_', ' ') || 'Not set'}
-                      </p>
+                      </Typography.Small>
                     </div>
                   </div>
                 </CardContent>
-              </Card>
+              </SystemCard>
             </TabsContent>
 
             <TabsContent value="alerts" className="space-y-4">
-              <Card className="bg-gray-900/50 border-white/10">
+              <SystemCard>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2 text-white">
                     <Bell className="h-5 w-5 text-gold" />
                     <span>Market Alerts</span>
                   </CardTitle>
-                  <CardDescription className="text-white/60">
-                    Stay updated with personalized notifications
-                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center py-12 text-white/60">
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ delay: 0.2 }}
-                    >
-                      <Bell className="h-16 w-16 mx-auto mb-4 text-gold/50" />
-                    </motion.div>
-                    <p className="mb-4">No active alerts.</p>
-                    <Button
-                      variant="outline"
-                      className="border-gold/30 text-gold hover:bg-gold hover:text-black"
-                    >
-                      Set Up Alerts
-                    </Button>
+                  <div className="text-center py-12">
+                    <Bell className="h-16 w-16 mx-auto mb-4 text-gold/50" />
+                    <Typography.Body className="mb-4">No active alerts.</Typography.Body>
+                    <SystemButton>Set Up Alerts</SystemButton>
                   </div>
                 </CardContent>
-              </Card>
+              </SystemCard>
             </TabsContent>
           </Tabs>
         </motion.div>
