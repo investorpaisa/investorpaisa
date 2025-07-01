@@ -98,7 +98,7 @@ const Circles = () => {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {circles.map(circle => (
-                <Card key={circle.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate(`/app/circles/${circle.id}`)}>
+                <Card key={circle.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/network')}>
                   <CardHeader className="pb-2">
                     <div className="flex justify-between items-start">
                       <CardTitle className="text-lg">{circle.name}</CardTitle>

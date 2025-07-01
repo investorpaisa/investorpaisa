@@ -8,8 +8,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
-import { createCircle } from '@/services/circles';
-import { CircleType } from '@/services/circles/types';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface CreateCircleModalProps {
@@ -19,7 +17,7 @@ interface CreateCircleModalProps {
 
 export function CreateCircleModal({ isOpen, onClose }: CreateCircleModalProps) {
   const navigate = useNavigate();
-  const { user } = useAuth(); // Get the current user from AuthContext
+  const { user } = useAuth();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [circleType, setCircleType] = useState<'public' | 'private'>('public');
@@ -39,21 +37,10 @@ export function CreateCircleModal({ isOpen, onClose }: CreateCircleModalProps) {
     setLoading(true);
     
     try {
-      // Create the circle with the current user's ID
-      const newCircle = await createCircle({
-        name,
-        description,
-        type: circleType,
-        created_by: user.id // Add the required created_by property
-      });
-      
-      toast.success('Circle created successfully');
+      // Note: Circle functionality has been deprecated in favor of professional networking
+      toast.info('Circle functionality has been replaced with professional networking. Redirecting...');
       onClose();
-      
-      // Navigate to the new circle
-      if (newCircle && newCircle.id) {
-        navigate(`/app/circles/${newCircle.id}`);
-      }
+      navigate('/network');
     } catch (error) {
       console.error('Error creating circle:', error);
       toast.error('Failed to create circle. Please try again.');

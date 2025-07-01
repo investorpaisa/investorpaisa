@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Search, Lock, Globe } from 'lucide-react';
 import { toast } from 'sonner';
-import { joinCircle } from '@/services/circles';
+import { useNavigate } from 'react-router-dom';
 
 interface JoinCircleModalProps {
   isOpen: boolean;
@@ -14,10 +14,10 @@ interface JoinCircleModalProps {
 }
 
 export function JoinCircleModal({ isOpen, onClose }: JoinCircleModalProps) {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [requestSent, setRequestSent] = useState(false);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -52,19 +52,10 @@ export function JoinCircleModal({ isOpen, onClose }: JoinCircleModalProps) {
     setLoading(true);
     
     try {
-      if (isPrivate) {
-        // Mock sending access request
-        setTimeout(() => {
-          toast.success('Access request sent successfully');
-          setRequestSent(true);
-          setLoading(false);
-        }, 1000);
-      } else {
-        // Actually join public circle
-        await joinCircle(circleId);
-        toast.success('Successfully joined the circle');
-        onClose();
-      }
+      // Note: Circle functionality has been deprecated
+      toast.info('Circle functionality has been replaced with professional networking. Redirecting...');
+      onClose();
+      navigate('/network');
     } catch (error) {
       console.error('Error joining circle:', error);
       toast.error('Failed to join circle. Please try again.');
@@ -119,7 +110,7 @@ export function JoinCircleModal({ isOpen, onClose }: JoinCircleModalProps) {
                   <Button 
                     variant={circle.type === 'private' ? 'outline' : 'default'}
                     onClick={() => handleJoinCircle(circle.id, circle.type === 'private')}
-                    disabled={loading || (circle.type === 'private' && requestSent)}
+                    disabled={loading}
                   >
                     {circle.type === 'private' ? 'Request Access' : 'Join'}
                   </Button>

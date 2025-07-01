@@ -1,52 +1,47 @@
 
-import { supabase } from '@/integrations/supabase/client';
 import { CircleMember } from '../types';
 import { Profile } from '@/types';
+
+// Mock data for demonstration - circles functionality has been deprecated
+const mockMembers: CircleMember[] = [
+  {
+    id: '1',
+    circle_id: '1',
+    user_id: 'user1',
+    role: 'admin',
+    created_at: new Date().toISOString(),
+    profile: {
+      id: 'user1',
+      username: 'john_doe',
+      full_name: 'John Doe',
+      avatar_url: '/placeholder.svg',
+      bio: 'Financial advisor',
+      followers: 500,
+      following: 200,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      role: 'expert'
+    } as Profile
+  }
+];
 
 /**
  * Get members of a circle
  */
 const getCircleMembers = async (circleId: string): Promise<CircleMember[]> => {
-  const { data, error } = await supabase
-    .from('circle_members')
-    .select('*, profile:profiles(*)')
-    .eq('circle_id', circleId);
-
-  if (error) {
-    console.error('Error fetching circle members:', error);
-    throw new Error(`Failed to fetch circle members: ${error.message}`);
-  }
-
-  // Map to CircleMember type with profile data
-  const members = data.map(member => ({
-    id: member.id,
-    circle_id: member.circle_id,
-    user_id: member.user_id,
-    role: member.role as CircleMember['role'],
-    created_at: member.created_at,
-    profile: member.profile as unknown as Profile
-  }));
-
-  return members;
+  // Note: Circles functionality has been deprecated
+  console.warn('Circles functionality has been deprecated in favor of professional networking connections');
+  return Promise.resolve(mockMembers.filter(m => m.circle_id === circleId));
 };
 
 /**
  * Get user's role in a circle
  */
 const getUserCircleRole = async (circleId: string, userId: string): Promise<CircleMember['role'] | null> => {
-  const { data, error } = await supabase
-    .from('circle_members')
-    .select('role')
-    .eq('circle_id', circleId)
-    .eq('user_id', userId)
-    .maybeSingle();
-
-  if (error) {
-    console.error('Error fetching user role:', error);
-    throw new Error(`Failed to fetch user role: ${error.message}`);
-  }
-
-  return data ? data.role as CircleMember['role'] : null;
+  // Note: Circles functionality has been deprecated
+  console.warn('Circles functionality has been deprecated in favor of professional networking connections');
+  const member = mockMembers.find(m => m.circle_id === circleId && m.user_id === userId);
+  return Promise.resolve(member ? member.role : null);
 };
 
 export { getCircleMembers, getUserCircleRole };

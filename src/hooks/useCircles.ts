@@ -1,22 +1,37 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { Circle } from '@/types';
-import { 
-  getUserCircles, 
-  getPublicCircles, 
-  getTrendingCircles 
-} from '@/services/circles';
+
+// Mock circles data for demonstration - circles functionality has been deprecated
+const mockCircles: Circle[] = [
+  {
+    id: '1',
+    name: 'Investment Strategies',
+    description: 'Discuss various investment strategies and approaches',
+    type: 'public',
+    created_at: new Date().toISOString(),
+    created_by: 'user1',
+    member_count: 256,
+    post_count: 42,
+    hasNewPost: true
+  },
+  {
+    id: '2',
+    name: 'Tax Planning',
+    description: 'Private group for tax planning and optimization',
+    type: 'private',
+    created_at: new Date().toISOString(),
+    created_by: 'user2',
+    member_count: 128,
+    post_count: 23,
+    hasNewPost: false
+  }
+];
 
 export const useUserCircles = (userId: string | undefined) => {
   return useQuery({
     queryKey: ['userCircles', userId],
-    queryFn: () => userId ? getUserCircles(userId).then(circles => 
-      // Add isPinned property to some circles for demo
-      circles.map((circle, index) => ({
-        ...circle,
-        isPinned: index % 3 === 0 // Demo: Every 3rd circle is pinned
-      }))
-    ) : Promise.resolve([]),
+    queryFn: () => Promise.resolve(userId ? mockCircles : []),
     enabled: !!userId,
   });
 };
@@ -24,14 +39,14 @@ export const useUserCircles = (userId: string | undefined) => {
 export const usePublicCircles = (page = 1, limit = 10) => {
   return useQuery({
     queryKey: ['publicCircles', page, limit],
-    queryFn: () => getPublicCircles(page, limit),
+    queryFn: () => Promise.resolve(mockCircles.filter(c => c.type === 'public')),
   });
 };
 
 export const useTrendingCircles = (limit = 5) => {
   return useQuery({
     queryKey: ['trendingCircles', limit],
-    queryFn: () => getTrendingCircles(limit),
+    queryFn: () => Promise.resolve(mockCircles.slice(0, limit)),
   });
 };
 
