@@ -68,110 +68,6 @@ export type Database = {
         }
         Relationships: []
       }
-      circle_members: {
-        Row: {
-          circle_id: string
-          created_at: string | null
-          id: string
-          role: string
-          user_id: string
-        }
-        Insert: {
-          circle_id: string
-          created_at?: string | null
-          id?: string
-          role: string
-          user_id: string
-        }
-        Update: {
-          circle_id?: string
-          created_at?: string | null
-          id?: string
-          role?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "circle_members_circle_id_fkey"
-            columns: ["circle_id"]
-            isOneToOne: false
-            referencedRelation: "circles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      circle_posts: {
-        Row: {
-          circle_id: string
-          created_at: string | null
-          id: string
-          is_pinned: boolean | null
-          post_id: string
-        }
-        Insert: {
-          circle_id: string
-          created_at?: string | null
-          id?: string
-          is_pinned?: boolean | null
-          post_id: string
-        }
-        Update: {
-          circle_id?: string
-          created_at?: string | null
-          id?: string
-          is_pinned?: boolean | null
-          post_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "circle_posts_circle_id_fkey"
-            columns: ["circle_id"]
-            isOneToOne: false
-            referencedRelation: "circles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "circle_posts_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "posts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      circles: {
-        Row: {
-          created_at: string | null
-          created_by: string
-          description: string | null
-          id: string
-          member_count: number | null
-          name: string
-          post_count: number | null
-          type: string
-        }
-        Insert: {
-          created_at?: string | null
-          created_by: string
-          description?: string | null
-          id?: string
-          member_count?: number | null
-          name: string
-          post_count?: number | null
-          type: string
-        }
-        Update: {
-          created_at?: string | null
-          created_by?: string
-          description?: string | null
-          id?: string
-          member_count?: number | null
-          name?: string
-          post_count?: number | null
-          type?: string
-        }
-        Relationships: []
-      }
       comments: {
         Row: {
           content: string
@@ -224,6 +120,137 @@ export type Database = {
           },
         ]
       }
+      companies: {
+        Row: {
+          banner_url: string | null
+          company_size: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          industry: string | null
+          location: string | null
+          logo_url: string | null
+          name: string
+          website: string | null
+        }
+        Insert: {
+          banner_url?: string | null
+          company_size?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          industry?: string | null
+          location?: string | null
+          logo_url?: string | null
+          name: string
+          website?: string | null
+        }
+        Update: {
+          banner_url?: string | null
+          company_size?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          industry?: string | null
+          location?: string | null
+          logo_url?: string | null
+          name?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      connections: {
+        Row: {
+          connected_at: string | null
+          created_at: string | null
+          id: string
+          message: string | null
+          receiver_id: string | null
+          requester_id: string | null
+          status: string
+        }
+        Insert: {
+          connected_at?: string | null
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          receiver_id?: string | null
+          requester_id?: string | null
+          status?: string
+        }
+        Update: {
+          connected_at?: string | null
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          receiver_id?: string | null
+          requester_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "connections_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      education: {
+        Row: {
+          activities: string | null
+          created_at: string | null
+          degree: string | null
+          description: string | null
+          end_year: number | null
+          field_of_study: string | null
+          id: string
+          institution: string
+          start_year: number | null
+          user_id: string | null
+        }
+        Insert: {
+          activities?: string | null
+          created_at?: string | null
+          degree?: string | null
+          description?: string | null
+          end_year?: number | null
+          field_of_study?: string | null
+          id?: string
+          institution: string
+          start_year?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          activities?: string | null
+          created_at?: string | null
+          degree?: string | null
+          description?: string | null
+          end_year?: number | null
+          field_of_study?: string | null
+          id?: string
+          institution?: string
+          start_year?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "education_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_integrations: {
         Row: {
           access_token: string | null
@@ -264,6 +291,56 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users_extended"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      experiences: {
+        Row: {
+          company: string
+          created_at: string | null
+          description: string | null
+          end_date: string | null
+          id: string
+          industry: string | null
+          is_current: boolean | null
+          location: string | null
+          position: string
+          start_date: string | null
+          user_id: string | null
+        }
+        Insert: {
+          company: string
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          industry?: string | null
+          is_current?: boolean | null
+          location?: string | null
+          position: string
+          start_date?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          company?: string
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          industry?: string | null
+          is_current?: boolean | null
+          location?: string | null
+          position?: string
+          start_date?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "experiences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -372,6 +449,50 @@ export type Database = {
           {
             foreignKeyName: "likes_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      market_insights: {
+        Row: {
+          author_id: string | null
+          category: string | null
+          content: string | null
+          created_at: string | null
+          engagement_metrics: Json | null
+          id: string
+          published_at: string | null
+          source: string | null
+          title: string
+        }
+        Insert: {
+          author_id?: string | null
+          category?: string | null
+          content?: string | null
+          created_at?: string | null
+          engagement_metrics?: Json | null
+          id?: string
+          published_at?: string | null
+          source?: string | null
+          title: string
+        }
+        Update: {
+          author_id?: string | null
+          category?: string | null
+          content?: string | null
+          created_at?: string | null
+          engagement_metrics?: Json | null
+          id?: string
+          published_at?: string | null
+          source?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_insights_author_id_fkey"
+            columns: ["author_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -647,46 +768,73 @@ export type Database = {
       }
       profiles: {
         Row: {
+          about: string | null
           avatar_url: string | null
+          banner_image: string | null
           bio: string | null
+          connection_count: number | null
           created_at: string | null
+          current_company: string | null
+          experience_years: number | null
           followers: number | null
           following: number | null
           full_name: string | null
+          headline: string | null
           id: string
+          industry: string | null
           is_verified: boolean | null
           onboarding_completed: boolean | null
+          premium_member: boolean | null
           role: string
           updated_at: string | null
           username: string | null
+          verification_status: string | null
         }
         Insert: {
+          about?: string | null
           avatar_url?: string | null
+          banner_image?: string | null
           bio?: string | null
+          connection_count?: number | null
           created_at?: string | null
+          current_company?: string | null
+          experience_years?: number | null
           followers?: number | null
           following?: number | null
           full_name?: string | null
+          headline?: string | null
           id: string
+          industry?: string | null
           is_verified?: boolean | null
           onboarding_completed?: boolean | null
+          premium_member?: boolean | null
           role?: string
           updated_at?: string | null
           username?: string | null
+          verification_status?: string | null
         }
         Update: {
+          about?: string | null
           avatar_url?: string | null
+          banner_image?: string | null
           bio?: string | null
+          connection_count?: number | null
           created_at?: string | null
+          current_company?: string | null
+          experience_years?: number | null
           followers?: number | null
           following?: number | null
           full_name?: string | null
+          headline?: string | null
           id?: string
+          industry?: string | null
           is_verified?: boolean | null
           onboarding_completed?: boolean | null
+          premium_member?: boolean | null
           role?: string
           updated_at?: string | null
           username?: string | null
+          verification_status?: string | null
         }
         Relationships: []
       }
@@ -727,6 +875,38 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: true
             referencedRelation: "users_extended"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      skills: {
+        Row: {
+          created_at: string | null
+          endorsement_count: number | null
+          id: string
+          skill_name: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          endorsement_count?: number | null
+          id?: string
+          skill_name: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          endorsement_count?: number | null
+          id?: string
+          skill_name?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skills_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
