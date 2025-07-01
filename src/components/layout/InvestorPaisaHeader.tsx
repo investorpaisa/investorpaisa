@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { 
   Search, Bell, MessageCircle, Users, Home, 
-  TrendingUp, User, LogOut, Settings, Briefcase 
+  TrendingUp, User, LogOut, Settings
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -22,7 +22,7 @@ import { useAuth } from '@/contexts/AuthContext';
 export const InvestorPaisaHeader: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearch = (e: React.FormEvent) => {
@@ -41,7 +41,6 @@ export const InvestorPaisaHeader: React.FC = () => {
 
   const navItems = [
     { path: '/home', icon: Home, label: 'Home' },
-    { path: '/professional', icon: Briefcase, label: 'Professional' },
     { path: '/network', icon: Users, label: 'My Network' },
     { path: '/market', icon: TrendingUp, label: 'Markets' },
     { path: '/inbox', icon: MessageCircle, label: 'Messaging' },
@@ -111,9 +110,9 @@ export const InvestorPaisaHeader: React.FC = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src="/placeholder.svg" alt="Profile" />
+                      <AvatarImage src={profile?.avatar_url || "/placeholder.svg"} alt="Profile" />
                       <AvatarFallback>
-                        {user.email?.charAt(0).toUpperCase()}
+                        {profile?.full_name?.charAt(0)?.toUpperCase() || user.email?.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
@@ -122,10 +121,10 @@ export const InvestorPaisaHeader: React.FC = () => {
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">
-                        {user.email}
+                        {profile?.full_name || user.email}
                       </p>
                       <p className="text-xs leading-none text-muted-foreground">
-                        Professional Member
+                        Financial Professional
                       </p>
                     </div>
                   </DropdownMenuLabel>
