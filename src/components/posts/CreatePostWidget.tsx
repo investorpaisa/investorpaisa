@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { CreatePostModal } from './CreatePostModal';
+import { ProfessionalUser } from '@/types/professional';
 
 export const CreatePostWidget: React.FC = () => {
   const { profile } = useAuth();
@@ -21,6 +22,26 @@ export const CreatePostWidget: React.FC = () => {
   };
 
   if (!profile) return null;
+
+  // Convert UserProfile to ProfessionalUser format
+  const professionalProfile: ProfessionalUser = {
+    id: profile.id || '1',
+    username: profile.username || '',
+    full_name: profile.full_name || 'Professional User',
+    headline: 'Financial Professional', // Mock headline
+    avatar_url: profile.avatar_url || '',
+    banner_url: '',
+    location: '',
+    industry: 'Financial Services',
+    current_company: '',
+    about: profile.bio || '',
+    followers: profile.followers || 0,
+    following: profile.following || 0,
+    connections: 0, // Mock connections count
+    is_verified: false,
+    premium_member: false, // Mock premium status
+    experience_years: 0 // Mock experience years
+  };
 
   return (
     <>
@@ -89,7 +110,7 @@ export const CreatePostWidget: React.FC = () => {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         postType={postType}
-        userProfile={profile}
+        userProfile={professionalProfile}
       />
     </>
   );
