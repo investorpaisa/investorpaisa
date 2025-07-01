@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { 
   Image, Video, Calendar, FileText, 
-  Smile, Poll, Celebration, Camera
+  Smile, BarChart3, Gift, Camera
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { CreatePostModal } from './CreatePostModal';
@@ -78,7 +78,7 @@ export const CreatePostWidget: React.FC = () => {
               className="flex items-center space-x-2 text-gray-600 hover:bg-purple-50 hover:text-purple-600 transition-colors"
               onClick={() => handleCreatePost('poll')}
             >
-              <Poll className="h-5 w-5 text-purple-600" />
+              <BarChart3 className="h-5 w-5 text-purple-600" />
               <span className="font-medium">Poll</span>
             </Button>
           </div>

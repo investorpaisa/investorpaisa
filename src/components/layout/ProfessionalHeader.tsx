@@ -49,6 +49,14 @@ export const ProfessionalHeader: React.FC = () => {
     { path: '/notifications', icon: Bell, label: 'Notifications', count: 8 },
   ];
 
+  // Mock professional data - in a real app this would come from profile
+  const professionalData = {
+    headline: 'Professional',
+    connections: 0,
+    premium_member: false,
+    is_verified: false
+  };
+
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4">
@@ -127,7 +135,7 @@ export const ProfessionalHeader: React.FC = () => {
                         {profile.full_name?.charAt(0)?.toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
-                    {profile.premium_member && (
+                    {professionalData.premium_member && (
                       <Crown className="absolute -top-1 -right-1 h-4 w-4 text-yellow-500 fill-current" />
                     )}
                   </Button>
@@ -144,14 +152,14 @@ export const ProfessionalHeader: React.FC = () => {
                       <div className="flex-1">
                         <p className="text-sm font-semibold text-gray-900">
                           {profile.full_name}
-                          {profile.is_verified && (
+                          {professionalData.is_verified && (
                             <Badge className="ml-2 bg-blue-100 text-blue-800 text-xs">
                               Verified
                             </Badge>
                           )}
                         </p>
-                        <p className="text-xs text-gray-600">{profile.headline || 'Professional'}</p>
-                        <p className="text-xs text-gray-500">{profile.connections} connections</p>
+                        <p className="text-xs text-gray-600">{professionalData.headline}</p>
+                        <p className="text-xs text-gray-500">{professionalData.connections} connections</p>
                       </div>
                     </div>
                   </DropdownMenuLabel>
@@ -164,7 +172,7 @@ export const ProfessionalHeader: React.FC = () => {
                     <Settings className="mr-3 h-4 w-4" />
                     <span>Settings & Privacy</span>
                   </DropdownMenuItem>
-                  {profile.premium_member && (
+                  {professionalData.premium_member && (
                     <DropdownMenuItem onClick={() => navigate('/premium')}>
                       <Crown className="mr-3 h-4 w-4 text-yellow-600" />
                       <span>Premium Features</span>

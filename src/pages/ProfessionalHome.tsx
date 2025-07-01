@@ -195,18 +195,19 @@ To my fellow PMs: What's the most challenging cross-functional project you've wo
     toast.success('Post saved!');
   };
 
+  // Create userProfile with safe property access and mock professional data
   const userProfile = {
     id: profile?.id || '1',
     name: profile?.full_name || 'Your Name',
-    title: profile?.headline || 'Professional',
-    company: profile?.current_company || 'Your Company',
+    title: 'Professional', // Mock headline
+    company: 'Your Company', // Mock company
     avatar: profile?.avatar_url || '/placeholder.svg',
     banner: '/placeholder.svg',
-    connections: profile?.connection_count || 0,
+    connections: 0, // Mock connection count
     profileViews: 89,
     postImpressions: 2341,
     skills: ['Financial Planning', 'Investment Advisory', 'Risk Management', 'Portfolio Analysis', 'Tax Planning'],
-    premium: profile?.premium_member || false
+    premium: false // Mock premium status
   };
 
   const networkingSuggestions = [
