@@ -2,16 +2,15 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/contexts/AuthContext';
-import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { Login } from '@/pages/auth/Login';
-import { Register } from '@/pages/auth/Register';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import Login from '@/pages/auth/Login';
+import Register from '@/pages/auth/Register';
 import { InvestorPaisaHome } from '@/pages/InvestorPaisaHome';
 import { MyNetwork } from '@/pages/MyNetwork';
-import { ProfileNew } from '@/pages/ProfileNew';
-import { Market } from '@/pages/Market';
-import { Onboarding } from '@/pages/Onboarding';
+import ProfileNew from '@/pages/ProfileNew';
+import Market from '@/pages/Market';
+import Onboarding from '@/pages/Onboarding';
 import { PageLoader } from '@/components/ui/page-loader';
-import { ErrorToast } from '@/components/ui/error-toast';
 import { Toaster } from '@/components/ui/sonner';
 import './App.css';
 

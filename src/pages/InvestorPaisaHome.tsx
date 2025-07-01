@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { InvestorPaisaHeader } from '@/components/layout/InvestorPaisaHeader';
-import { PostFeed } from '@/components/feed/PostFeed';
+import PostFeed from '@/components/feed/PostFeed';
 import { CreatePostWidget } from '@/components/posts/CreatePostWidget';
 import { ProfileSidebar } from '@/components/profile/ProfileSidebar';
 import { MarketWidget } from '@/components/market/MarketWidget';

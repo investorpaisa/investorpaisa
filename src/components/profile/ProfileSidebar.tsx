@@ -5,7 +5,7 @@ import { SystemCard, Typography } from '@/components/ui/design-system';
 import { MapPin, Building, Users } from 'lucide-react';
 
 export const ProfileSidebar: React.FC = () => {
-  const { user } = useAuth();
+  const { profile } = useAuth();
 
   return (
     <SystemCard className="p-0 overflow-hidden">
@@ -16,15 +16,15 @@ export const ProfileSidebar: React.FC = () => {
       <div className="p-4 -mt-8">
         <div className="relative">
           <img
-            src={user?.avatar_url || '/placeholder.svg'}
-            alt={user?.full_name || 'Profile'}
+            src={profile?.avatar_url || '/placeholder.svg'}
+            alt={profile?.full_name || 'Profile'}
             className="w-16 h-16 rounded-full border-4 border-white mx-auto"
           />
         </div>
         
         <div className="text-center mt-3">
           <Typography.H3 className="font-semibold text-black">
-            {user?.full_name || 'Professional Name'}
+            {profile?.full_name || 'Professional Name'}
           </Typography.H3>
           <Typography.Small className="text-gray-600 mt-1">
             Financial Analyst at InvestCorp

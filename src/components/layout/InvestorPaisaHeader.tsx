@@ -7,7 +7,7 @@ import { SearchComponent } from '@/components/header/SearchComponent';
 import { NotificationsComponent } from '@/components/header/NotificationsComponent';
 
 export const InvestorPaisaHeader: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname === path;
@@ -69,12 +69,12 @@ export const InvestorPaisaHeader: React.FC = () => {
             <NotificationsComponent />
             <div className="flex items-center space-x-2">
               <img
-                src={user?.avatar_url || '/placeholder.svg'}
-                alt={user?.full_name || 'Profile'}
+                src={profile?.avatar_url || '/placeholder.svg'}
+                alt={profile?.full_name || 'Profile'}
                 className="w-8 h-8 rounded-full"
               />
               <button
-                onClick={logout}
+                onClick={signOut}
                 className="text-sm text-gray-600 hover:text-black"
               >
                 Sign out

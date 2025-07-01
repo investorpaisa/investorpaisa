@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { SystemCard, SystemButton, Typography } from '@/components/ui/design-system';
 
 export const CreatePostWidget: React.FC = () => {
-  const { user } = useAuth();
+  const { profile } = useAuth();
   const [showModal, setShowModal] = useState(false);
 
   const handleCreatePost = () => {
@@ -16,8 +16,8 @@ export const CreatePostWidget: React.FC = () => {
     <SystemCard className="p-4">
       <div className="flex items-start space-x-3">
         <img
-          src={user?.avatar_url || '/placeholder.svg'}
-          alt={user?.full_name || 'Profile'}
+          src={profile?.avatar_url || '/placeholder.svg'}
+          alt={profile?.full_name || 'Profile'}
           className="w-12 h-12 rounded-full"
         />
         <div className="flex-1">
