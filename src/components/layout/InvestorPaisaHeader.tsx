@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -21,7 +22,7 @@ import { useAuth } from '@/contexts/AuthContext';
 export const InvestorPaisaHeader: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearch = (e: React.FormEvent) => {
@@ -32,7 +33,7 @@ export const InvestorPaisaHeader: React.FC = () => {
   };
 
   const handleLogout = async () => {
-    await logout();
+    await signOut();
     navigate('/');
   };
 
