@@ -1,70 +1,70 @@
 
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
-import ProtectedRoute from '@/components/ProtectedRoute';
+
+// Import pages
+import Landing from '@/pages/Landing';
+import { InvestorPaisaHome } from '@/pages/InvestorPaisaHome';
+import { ProfessionalHome } from '@/pages/ProfessionalHome';
 import Login from '@/pages/auth/Login';
 import Register from '@/pages/auth/Register';
-import { InvestorPaisaHome } from '@/pages/InvestorPaisaHome';
-import { MyNetwork } from '@/pages/MyNetwork';
+import Profile from '@/pages/Profile';
+import EditProfile from '@/pages/EditProfile';
 import ProfileNew from '@/pages/ProfileNew';
+import UserProfile from '@/pages/UserProfile';
+import { MyNetwork } from '@/pages/MyNetwork';
 import Market from '@/pages/Market';
+import MarketWithComparison from '@/pages/MarketWithComparison';
+import Discover from '@/pages/Discover';
+import NotFound from '@/pages/NotFound';
+import Inbox from '@/pages/Inbox';
+import Portfolio from '@/pages/Portfolio';
+import Dashboard from '@/pages/Dashboard';
 import Onboarding from '@/pages/Onboarding';
-import { PageLoader } from '@/components/ui/page-loader';
-import { Toaster } from '@/components/ui/sonner';
-import './App.css';
+import FinancialOnboarding from '@/pages/FinancialOnboarding';
+import Feed from '@/pages/Feed';
+import Home from '@/pages/Home';
+
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="App">
-          <Routes>
-            {/* Public routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            
-            {/* Protected routes */}
-            <Route path="/home" element={
-              <ProtectedRoute>
-                <InvestorPaisaHome />
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/network" element={
-              <ProtectedRoute>
-                <MyNetwork />
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/profile" element={
-              <ProtectedRoute>
-                <ProfileNew />
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/market" element={
-              <ProtectedRoute>
-                <Market />
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/onboarding" element={
-              <ProtectedRoute>
-                <Onboarding />
-              </ProtectedRoute>
-            } />
-            
-            {/* Default redirect */}
-            <Route path="/" element={<Navigate to="/home" replace />} />
-            <Route path="*" element={<Navigate to="/home" replace />} />
-          </Routes>
-          
-          <PageLoader />
-          <Toaster />
-        </div>
-      </Router>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <Router>
+          <div className="App">
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/home" element={<InvestorPaisaHome />} />
+              <Route path="/professional" element={<ProfessionalHome />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/profile/:id" element={<Profile />} />
+              <Route path="/edit-profile" element={<EditProfile />} />
+              <Route path="/profile-new" element={<ProfileNew />} />
+              <Route path="/user/:id" element={<UserProfile />} />
+              <Route path="/network" element={<MyNetwork />} />
+              <Route path="/market" element={<Market />} />
+              <Route path="/market-comparison" element={<MarketWithComparison />} />
+              <Route path="/discover" element={<Discover />} />
+              <Route path="/inbox" element={<Inbox />} />
+              <Route path="/portfolio" element={<Portfolio />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/financial-onboarding" element={<FinancialOnboarding />} />
+              <Route path="/feed" element={<Feed />} />
+              <Route path="/old-home" element={<Home />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <Toaster />
+          </div>
+        </Router>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
