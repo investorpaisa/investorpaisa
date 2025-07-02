@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -16,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
-import { User, Mail, Lock, Shield, Eye, EyeOff, Sparkles, ArrowLeft, Loader2, Check, Zap } from 'lucide-react';
+import { User, Mail, Lock, Eye, EyeOff, TrendingUp, ArrowLeft, Loader2, Check } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const registerSchema = z.object({
@@ -57,7 +58,7 @@ const Register = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      navigate('/home');
+      navigate('/professional');
     }
   }, [user, navigate]);
 
@@ -71,7 +72,7 @@ const Register = () => {
       if (!result.error) {
         setIsSuccess(true);
         setTimeout(() => {
-          navigate('/home');
+          navigate('/professional');
         }, 1500);
       }
     } catch (error) {
@@ -87,7 +88,6 @@ const Register = () => {
     setIsGoogleLoading(true);
     try {
       await signInWithGoogle();
-      // The redirect will be handled by the OAuth flow
     } catch (error) {
       console.error("Google sign up error:", error);
       setIsGoogleLoading(false);
@@ -115,12 +115,7 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-4 py-8 relative overflow-hidden">
-      {/* Animated background */}
-      <div className="fixed inset-0 opacity-10">
-        <div className="absolute w-64 h-64 rounded-full bg-gold/30 blur-3xl animate-float" style={{ top: "5%", left: "15%" }}></div>
-        <div className="absolute w-80 h-80 rounded-full bg-white/20 blur-3xl animate-float-slow" style={{ bottom: "5%", right: "15%" }}></div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 flex items-center justify-center px-4 py-8 relative overflow-hidden">
 
       {/* Back button */}
       <motion.div 
@@ -131,7 +126,7 @@ const Register = () => {
       >
         <Link to="/">
           <motion.button 
-            className="flex items-center space-x-2 text-white/70 hover:text-white transition-colors duration-300"
+            className="flex items-center space-x-2 text-slate-600 hover:text-slate-900 transition-colors duration-300"
             whileHover={{ x: -5 }}
           >
             <ArrowLeft className="w-5 h-5" />
@@ -152,21 +147,21 @@ const Register = () => {
           variants={itemVariants}
         >
           <motion.div 
-            className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gold to-gold/80 flex items-center justify-center mx-auto mb-4"
+            className="w-16 h-16 rounded-3xl bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 flex items-center justify-center mx-auto mb-4 shadow-lg"
             whileHover={{ rotate: 5, scale: 1.05 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            <Sparkles className="w-8 h-8 text-black" />
+            <TrendingUp className="w-8 h-8 text-white" />
           </motion.div>
-          <h1 className="text-4xl font-heading font-bold text-white mb-2">
+          <h1 className="text-4xl font-bold text-slate-900 mb-2">
             Join InvestorPaisa
           </h1>
-          <p className="text-white/60">Start your financial journey today</p>
+          <p className="text-slate-600">Start your financial journey today</p>
         </motion.div>
 
         {/* Main card */}
         <motion.div 
-          className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8"
+          className="bg-white/90 backdrop-blur-sm border border-slate-200/50 rounded-3xl p-8 shadow-lg"
           variants={itemVariants}
           whileHover={{ y: -5 }}
           transition={{ type: "spring", stiffness: 300 }}
@@ -179,167 +174,161 @@ const Register = () => {
               transition={{ type: "spring", stiffness: 200 }}
             >
               <motion.div 
-                className="w-16 h-16 rounded-full bg-gradient-to-br from-gold to-gold/80 flex items-center justify-center mx-auto mb-4"
+                className="w-16 h-16 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center mx-auto mb-4"
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1 }}
               >
-                <Check className="w-8 h-8 text-black" />
+                <Check className="w-8 h-8 text-white" />
               </motion.div>
-              <h2 className="text-2xl font-bold text-white mb-2">Welcome to InvestorPaisa!</h2>
-              <p className="text-white/60">Setting up your account...</p>
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">Welcome to InvestorPaisa!</h2>
+              <p className="text-slate-600">Setting up your account...</p>
             </motion.div>
           ) : (
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                {/* Name field */}
-                <motion.div>
+                <motion.div variants={itemVariants}>
                   <FormField
                     control={form.control}
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-white/80 font-medium">Full Name</FormLabel>
+                        <FormLabel className="text-slate-700 font-medium">Full Name</FormLabel>
                         <FormControl>
                           <div className="relative group">
-                            <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40 group-focus-within:text-gold transition-colors duration-300" />
+                            <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-600 transition-colors duration-300" />
                             <Input 
                               placeholder="Enter your full name" 
                               {...field} 
-                              className="bg-white/5 border-white/20 text-white placeholder-white/40 pl-12 h-12 rounded-xl focus:border-gold focus:ring-1 focus:ring-gold" 
+                              className="bg-white border-slate-200 text-slate-900 placeholder-slate-400 pl-12 h-12 rounded-2xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" 
                             />
                           </div>
                         </FormControl>
-                        <FormMessage className="text-red-400" />
+                        <FormMessage className="text-red-500" />
                       </FormItem>
                     )}
                   />
                 </motion.div>
 
-                {/* Email field */}
-                <motion.div>
+                <motion.div variants={itemVariants}>
                   <FormField
                     control={form.control}
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-white/80 font-medium">Email Address</FormLabel>
+                        <FormLabel className="text-slate-700 font-medium">Email Address</FormLabel>
                         <FormControl>
                           <div className="relative group">
-                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40 group-focus-within:text-gold transition-colors duration-300" />
+                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-600 transition-colors duration-300" />
                             <Input 
                               placeholder="Enter your email" 
                               {...field} 
-                              className="bg-white/5 border-white/20 text-white placeholder-white/40 pl-12 h-12 rounded-xl focus:border-gold focus:ring-1 focus:ring-gold" 
+                              className="bg-white border-slate-200 text-slate-900 placeholder-slate-400 pl-12 h-12 rounded-2xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" 
                             />
                           </div>
                         </FormControl>
-                        <FormMessage className="text-red-400" />
+                        <FormMessage className="text-red-500" />
                       </FormItem>
                     )}
                   />
                 </motion.div>
 
-                {/* Password field */}
-                <motion.div>
+                <motion.div variants={itemVariants}>
                   <FormField
                     control={form.control}
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-white/80 font-medium">Password</FormLabel>
+                        <FormLabel className="text-slate-700 font-medium">Password</FormLabel>
                         <FormControl>
                           <div className="relative group">
-                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40 group-focus-within:text-gold transition-colors duration-300" />
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-600 transition-colors duration-300" />
                             <Input 
                               type={showPassword ? "text" : "password"}
                               placeholder="Create a password" 
                               {...field} 
-                              className="bg-white/5 border-white/20 text-white placeholder-white/40 pl-12 pr-12 h-12 rounded-xl focus:border-gold focus:ring-1 focus:ring-gold" 
+                              className="bg-white border-slate-200 text-slate-900 placeholder-slate-400 pl-12 pr-12 h-12 rounded-2xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" 
                             />
                             <button
                               type="button"
                               onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors duration-300"
+                              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors duration-300"
                             >
                               {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                             </button>
                           </div>
                         </FormControl>
-                        <FormMessage className="text-red-400" />
+                        <FormMessage className="text-red-500" />
                       </FormItem>
                     )}
                   />
                 </motion.div>
 
-                {/* Confirm Password field */}
-                <motion.div>
+                <motion.div variants={itemVariants}>
                   <FormField
                     control={form.control}
                     name="confirmPassword"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-white/80 font-medium">Confirm Password</FormLabel>
+                        <FormLabel className="text-slate-700 font-medium">Confirm Password</FormLabel>
                         <FormControl>
                           <div className="relative group">
-                            <Shield className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40 group-focus-within:text-gold transition-colors duration-300" />
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-600 transition-colors duration-300" />
                             <Input 
                               type={showConfirmPassword ? "text" : "password"}
                               placeholder="Confirm your password" 
                               {...field} 
-                              className="bg-white/5 border-white/20 text-white placeholder-white/40 pl-12 pr-12 h-12 rounded-xl focus:border-gold focus:ring-1 focus:ring-gold" 
+                              className="bg-white border-slate-200 text-slate-900 placeholder-slate-400 pl-12 pr-12 h-12 rounded-2xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" 
                             />
                             <button
                               type="button"
                               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                              className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors duration-300"
+                              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors duration-300"
                             >
                               {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                             </button>
                           </div>
                         </FormControl>
-                        <FormMessage className="text-red-400" />
+                        <FormMessage className="text-red-500" />
                       </FormItem>
                     )}
                   />
                 </motion.div>
 
-                {/* Terms checkbox */}
-                <motion.div>
+                <motion.div variants={itemVariants}>
                   <FormField
                     control={form.control}
                     name="acceptTerms"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-4 rounded-xl border border-white/10 bg-white/5">
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                         <FormControl>
                           <Checkbox
                             checked={field.value}
                             onCheckedChange={field.onChange}
-                            className="border-white/20 data-[state=checked]:bg-gold data-[state=checked]:border-gold"
+                            className="rounded-lg"
                           />
                         </FormControl>
                         <div className="space-y-1 leading-none">
-                          <FormLabel className="text-white/80 text-sm">
+                          <FormLabel className="text-sm text-slate-700">
                             I agree to the{' '}
-                            <Link to="#" className="text-gold hover:text-gold/80 transition-colors duration-300">
+                            <Link to="#" className="text-blue-600 hover:text-blue-700 underline">
                               Terms of Service
                             </Link>{' '}
                             and{' '}
-                            <Link to="#" className="text-gold hover:text-gold/80 transition-colors duration-300">
+                            <Link to="#" className="text-blue-600 hover:text-blue-700 underline">
                               Privacy Policy
                             </Link>
                           </FormLabel>
-                          <FormMessage className="text-red-400" />
+                          <FormMessage className="text-red-500" />
                         </div>
                       </FormItem>
                     )}
                   />
                 </motion.div>
 
-                {/* Submit button */}
-                <motion.div>
+                <motion.div variants={itemVariants}>
                   <motion.button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-gold to-gold/90 text-black font-semibold py-4 rounded-xl hover:from-gold/90 hover:to-gold transition-all duration-300 relative overflow-hidden"
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 rounded-2xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 relative overflow-hidden shadow-lg"
                     disabled={isLoading}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -355,21 +344,22 @@ const Register = () => {
                   </motion.button>
                 </motion.div>
 
-                {/* Separator */}
-                <motion.div className="relative my-6">
-                  <Separator className="bg-white/10" />
+                <motion.div 
+                  className="relative my-6"
+                  variants={itemVariants}
+                >
+                  <Separator className="bg-slate-200" />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="bg-black px-4 text-white/60 text-sm">or continue with</span>
+                    <span className="bg-white px-4 text-slate-500 text-sm">or continue with</span>
                   </div>
                 </motion.div>
 
-                {/* Google button */}
-                <motion.div>
+                <motion.div variants={itemVariants}>
                   <motion.button
                     type="button"
                     onClick={handleGoogleSignUp}
                     disabled={isGoogleLoading}
-                    className="w-full flex items-center justify-center space-x-3 py-4 px-6 rounded-xl border-2 border-white/20 text-white font-medium hover:border-white/40 hover:bg-white/5 transition-all duration-300"
+                    className="w-full flex items-center justify-center space-x-3 py-4 px-6 rounded-2xl border-2 border-slate-200 text-slate-700 font-medium hover:border-slate-300 hover:bg-slate-50 transition-all duration-300"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
@@ -408,26 +398,12 @@ const Register = () => {
           className="text-center mt-8"
           variants={itemVariants}
         >
-          <p className="text-white/60">
+          <p className="text-slate-600">
             Already have an account?{' '}
-            <Link to="/auth/login" className="text-gold hover:text-gold/80 transition-colors duration-300 font-medium">
+            <Link to="/auth/login" className="text-blue-600 hover:text-blue-700 transition-colors duration-300 font-medium">
               Sign in here
             </Link>
           </p>
-        </motion.div>
-
-        {/* Premium offer */}
-        <motion.div 
-          className="mt-6 p-4 rounded-xl border border-gold/20 bg-gold/5 backdrop-blur-sm"
-          variants={itemVariants}
-          whileHover={{ scale: 1.02 }}
-        >
-          <div className="flex items-center space-x-3">
-            <Zap className="w-5 h-5 text-gold" />
-            <p className="text-sm text-white/80">
-              <span className="text-gold font-medium">Free Premium Trial!</span> Get 30 days of premium features when you sign up today.
-            </p>
-          </div>
         </motion.div>
       </motion.div>
     </div>

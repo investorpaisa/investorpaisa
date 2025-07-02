@@ -83,21 +83,21 @@ const Landing: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-green-600 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-green-600 rounded-2xl flex items-center justify-center">
                 <DollarSign className="text-white h-6 w-6" />
               </div>
               <span className="font-bold text-2xl text-gray-900">InvestorPaisa</span>
-              <Badge className="bg-green-100 text-green-800 text-xs">Live</Badge>
+              <Badge className="bg-green-100 text-green-800 text-xs rounded-full">Live</Badge>
             </div>
             
             <div className="flex items-center space-x-4">
-              <Link to="/login">
-                <Button variant="ghost" className="font-medium">
+              <Link to="/auth/login">
+                <Button variant="ghost" className="font-medium rounded-2xl">
                   Sign In
                 </Button>
               </Link>
-              <Link to="/register">
-                <Button className="bg-blue-600 hover:bg-blue-700 font-medium">
+              <Link to="/auth/register">
+                <Button className="bg-blue-600 hover:bg-blue-700 font-medium rounded-2xl">
                   Join Community
                 </Button>
               </Link>
@@ -122,21 +122,21 @@ const Landing: React.FC = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-              <Link to="/register">
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-4 h-auto">
+              <Link to="/auth/register">
+                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-4 h-auto rounded-2xl">
                   Start Investing Together
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
               <Link to="/market">
-                <Button variant="outline" size="lg" className="text-lg px-8 py-4 h-auto border-2">
+                <Button variant="outline" size="lg" className="text-lg px-8 py-4 h-auto border-2 rounded-2xl">
                   Explore Markets
                 </Button>
               </Link>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 bg-white/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-200">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 bg-white/50 backdrop-blur-sm rounded-3xl p-8 border border-gray-200">
               {stats.map((stat, index) => (
                 <div key={index} className="text-center">
                   <div className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
@@ -168,10 +168,10 @@ const Landing: React.FC = () => {
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {features.map((feature, index) => (
-              <Card key={index} className="group hover:shadow-xl transition-all duration-300 border-2 hover:border-green-200">
+              <Card key={index} className="group hover:shadow-xl transition-all duration-300 border-2 hover:border-green-200 rounded-3xl">
                 <CardContent className="p-8">
                   <div className="flex items-start space-x-4">
-                    <div className={`p-3 rounded-xl ${feature.bgColor} group-hover:scale-110 transition-transform duration-300`}>
+                    <div className={`p-3 rounded-2xl ${feature.bgColor} group-hover:scale-110 transition-transform duration-300`}>
                       <feature.icon className={`h-8 w-8 ${feature.color}`} />
                     </div>
                     <div className="flex-1">
@@ -205,7 +205,7 @@ const Landing: React.FC = () => {
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow duration-300">
+              <Card key={index} className="hover:shadow-lg transition-shadow duration-300 rounded-3xl">
                 <CardContent className="p-8">
                   <div className="flex items-center mb-6">
                     <img
@@ -245,14 +245,14 @@ const Landing: React.FC = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/register">
-              <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4 h-auto font-semibold">
+            <Link to="/auth/register">
+              <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4 h-auto font-semibold rounded-2xl">
                 Start Your Journey
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
             <Link to="/market">
-              <Button variant="outline" size="lg" className="text-white border-white hover:bg-white hover:text-blue-600 text-lg px-8 py-4 h-auto">
+              <Button variant="outline" size="lg" className="text-white border-white hover:bg-white hover:text-blue-600 text-lg px-8 py-4 h-auto rounded-2xl">
                 Explore Markets
               </Button>
             </Link>
@@ -266,7 +266,7 @@ const Landing: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <div className="lg:col-span-2">
               <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-green-600 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-green-600 rounded-2xl flex items-center justify-center">
                   <DollarSign className="text-white h-5 w-5" />
                 </div>
                 <span className="font-bold text-xl">InvestorPaisa</span>
@@ -279,10 +279,10 @@ const Landing: React.FC = () => {
             <div>
               <h4 className="font-semibold mb-4">Platform</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><Link to="/home" className="hover:text-white">Investment Feed</Link></li>
+                <li><Link to="/professional" className="hover:text-white">Investment Feed</Link></li>
                 <li><Link to="/network" className="hover:text-white">My Network</Link></li>
                 <li><Link to="/market" className="hover:text-white">Markets</Link></li>
-                <li><Link to="/inbox" className="hover:text-white">Messages</Link></li>
+                <li><Link to="/messages" className="hover:text-white">Messages</Link></li>
               </ul>
             </div>
             

@@ -15,6 +15,7 @@ import ModernHome from '@/pages/ModernHome';
 import ProfileNew from '@/pages/ProfileNew';
 import Market from '@/pages/Market';
 import Inbox from '@/pages/Inbox';
+import Notifications from '@/pages/Notifications';
 import { MyNetwork } from '@/pages/MyNetwork';
 
 function App() {
@@ -40,7 +41,7 @@ function App() {
               <Route path="market" element={<Market />} />
               <Route path="messages" element={<Inbox />} />
               <Route path="network" element={<MyNetwork />} />
-              <Route path="notifications" element={<div className="p-6">Notifications coming soon...</div>} />
+              <Route path="notifications" element={<Notifications />} />
             </Route>
 
             {/* Fallback */}

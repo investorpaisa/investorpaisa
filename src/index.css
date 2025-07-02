@@ -41,6 +41,32 @@
   .card > *, .button > *, .dialog > * {
     border-radius: inherit;
   }
+
+  /* Mobile-first responsive design */
+  @media (max-width: 768px) {
+    .container {
+      @apply px-4;
+    }
+    
+    h1 {
+      @apply text-2xl;
+    }
+    
+    h2 {
+      @apply text-xl;
+    }
+    
+    .grid-cols-auto-mobile {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Tablet responsive */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .container {
+      @apply px-6;
+    }
+  }
 }
 
 @layer components {
@@ -70,6 +96,27 @@
   /* Glass morphism effect */
   .glass-morphism {
     @apply bg-white/90 backdrop-blur-xl border border-white/20 shadow-2xl rounded-3xl;
+  }
+
+  /* Mobile responsive utilities */
+  .mobile-container {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+  
+  .mobile-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6;
+  }
+  
+  .mobile-text {
+    @apply text-sm sm:text-base lg:text-lg;
+  }
+  
+  .mobile-padding {
+    @apply p-4 sm:p-6 lg:p-8;
+  }
+  
+  .mobile-margin {
+    @apply m-4 sm:m-6 lg:m-8;
   }
 }
 
@@ -109,6 +156,26 @@
   .shadow-modern-lg {
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   }
+
+  /* Mobile-first responsive utilities */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  /* Touch-friendly sizing */
+  .touch-target {
+    @apply min-w-[44px] min-h-[44px];
+  }
+  
+  /* Mobile viewport fixes */
+  .mobile-vh {
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height for mobile browsers */
+  }
 }
 
 /* Modern LinkedIn-style animations */
@@ -144,6 +211,13 @@
 
 ::-webkit-scrollbar-thumb:hover {
   @apply from-blue-500 to-purple-500;
+}
+
+/* Mobile scrollbar */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
 }
 
 /* InvestorPaisa modern brand colors */
@@ -183,3 +257,32 @@
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
+
+/* Mobile-specific animations */
+@media (max-width: 768px) {
+  .mobile-animate {
+    @apply transition-transform duration-200 ease-out;
+  }
+  
+  .mobile-animate:active {
+    @apply scale-95;
+  }
+}
+
+/* Responsive font sizes */
+.responsive-text-xs { @apply text-xs sm:text-sm; }
+.responsive-text-sm { @apply text-sm sm:text-base; }
+.responsive-text-base { @apply text-base sm:text-lg; }
+.responsive-text-lg { @apply text-lg sm:text-xl; }
+.responsive-text-xl { @apply text-xl sm:text-2xl; }
+.responsive-text-2xl { @apply text-2xl sm:text-3xl; }
+.responsive-text-3xl { @apply text-3xl sm:text-4xl; }
+.responsive-text-4xl { @apply text-4xl sm:text-5xl; }
+
+/* Mobile-optimized spacing */
+.mobile-space-y-2 { @apply space-y-2 sm:space-y-4; }
+.mobile-space-y-4 { @apply space-y-4 sm:space-y-6; }
+.mobile-space-y-6 { @apply space-y-6 sm:space-y-8; }
+.mobile-space-x-2 { @apply space-x-2 sm:space-x-4; }
+.mobile-space-x-4 { @apply space-x-4 sm:space-x-6; }
+.mobile-space-x-6 { @apply space-x-6 sm:space-x-8; }

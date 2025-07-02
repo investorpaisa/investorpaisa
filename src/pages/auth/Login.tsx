@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Eye, EyeOff, Mail, Lock, Sparkles, ArrowLeft, Loader2, Check } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, TrendingUp, ArrowLeft, Loader2, Check } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const loginSchema = z.object({
@@ -38,7 +38,7 @@ const Login = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      navigate('/home');
+      navigate('/professional');
     }
   }, [user, navigate]);
 
@@ -49,7 +49,7 @@ const Login = () => {
       if (!result.error) {
         setIsSuccess(true);
         setTimeout(() => {
-          navigate('/home');
+          navigate('/professional');
         }, 1500);
       }
     } catch (error) {
@@ -65,7 +65,6 @@ const Login = () => {
     setIsGoogleLoading(true);
     try {
       await signInWithGoogle();
-      // The redirect will be handled by the OAuth flow
     } catch (error) {
       console.error("Google sign in error:", error);
       setIsGoogleLoading(false);
@@ -93,12 +92,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-4 relative overflow-hidden">
-      {/* Animated background */}
-      <div className="fixed inset-0 opacity-10">
-        <div className="absolute w-64 h-64 rounded-full bg-gold/30 blur-3xl animate-float" style={{ top: "20%", left: "10%" }}></div>
-        <div className="absolute w-96 h-96 rounded-full bg-white/20 blur-3xl animate-float-slow" style={{ bottom: "10%", right: "10%" }}></div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 flex items-center justify-center px-4 relative overflow-hidden">
       
       {/* Back button */}
       <motion.div 
@@ -109,7 +103,7 @@ const Login = () => {
       >
         <Link to="/">
           <motion.button 
-            className="flex items-center space-x-2 text-white/70 hover:text-white transition-colors duration-300"
+            className="flex items-center space-x-2 text-slate-600 hover:text-slate-900 transition-colors duration-300"
             whileHover={{ x: -5 }}
           >
             <ArrowLeft className="w-5 h-5" />
@@ -130,21 +124,21 @@ const Login = () => {
           variants={itemVariants}
         >
           <motion.div 
-            className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gold to-gold/80 flex items-center justify-center mx-auto mb-4"
+            className="w-16 h-16 rounded-3xl bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 flex items-center justify-center mx-auto mb-4 shadow-lg"
             whileHover={{ rotate: 5, scale: 1.05 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            <Sparkles className="w-8 h-8 text-black" />
+            <TrendingUp className="w-8 h-8 text-white" />
           </motion.div>
-          <h1 className="text-4xl font-heading font-bold text-white mb-2">
+          <h1 className="text-4xl font-bold text-slate-900 mb-2">
             Welcome Back
           </h1>
-          <p className="text-white/60">Continue your financial journey</p>
+          <p className="text-slate-600">Continue your financial journey</p>
         </motion.div>
 
         {/* Main card */}
         <motion.div 
-          className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8"
+          className="bg-white/90 backdrop-blur-sm border border-slate-200/50 rounded-3xl p-8 shadow-lg"
           variants={itemVariants}
           whileHover={{ y: -5 }}
           transition={{ type: "spring", stiffness: 300 }}
@@ -157,14 +151,14 @@ const Login = () => {
               transition={{ type: "spring", stiffness: 200 }}
             >
               <motion.div 
-                className="w-16 h-16 rounded-full bg-gradient-to-br from-gold to-gold/80 flex items-center justify-center mx-auto mb-4"
+                className="w-16 h-16 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center mx-auto mb-4"
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1 }}
               >
-                <Check className="w-8 h-8 text-black" />
+                <Check className="w-8 h-8 text-white" />
               </motion.div>
-              <h2 className="text-2xl font-bold text-white mb-2">Welcome Back!</h2>
-              <p className="text-white/60">Redirecting to your dashboard...</p>
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">Welcome Back!</h2>
+              <p className="text-slate-600">Redirecting to your dashboard...</p>
             </motion.div>
           ) : (
             <Form {...form}>
@@ -175,18 +169,18 @@ const Login = () => {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-white/80 font-medium">Email Address</FormLabel>
+                        <FormLabel className="text-slate-700 font-medium">Email Address</FormLabel>
                         <FormControl>
                           <div className="relative group">
-                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40 group-focus-within:text-gold transition-colors duration-300" />
+                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-600 transition-colors duration-300" />
                             <Input 
                               placeholder="Enter your email" 
                               {...field} 
-                              className="bg-white/5 border-white/20 text-white placeholder-white/40 pl-12 h-12 rounded-xl focus:border-gold focus:ring-1 focus:ring-gold" 
+                              className="bg-white border-slate-200 text-slate-900 placeholder-slate-400 pl-12 h-12 rounded-2xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" 
                             />
                           </div>
                         </FormControl>
-                        <FormMessage className="text-red-400" />
+                        <FormMessage className="text-red-500" />
                       </FormItem>
                     )}
                   />
@@ -198,26 +192,26 @@ const Login = () => {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-white/80 font-medium">Password</FormLabel>
+                        <FormLabel className="text-slate-700 font-medium">Password</FormLabel>
                         <FormControl>
                           <div className="relative group">
-                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40 group-focus-within:text-gold transition-colors duration-300" />
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-600 transition-colors duration-300" />
                             <Input 
                               type={showPassword ? "text" : "password"}
                               placeholder="Enter your password" 
                               {...field} 
-                              className="bg-white/5 border-white/20 text-white placeholder-white/40 pl-12 pr-12 h-12 rounded-xl focus:border-gold focus:ring-1 focus:ring-gold" 
+                              className="bg-white border-slate-200 text-slate-900 placeholder-slate-400 pl-12 pr-12 h-12 rounded-2xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" 
                             />
                             <button
                               type="button"
                               onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors duration-300"
+                              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors duration-300"
                             >
                               {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                             </button>
                           </div>
                         </FormControl>
-                        <FormMessage className="text-red-400" />
+                        <FormMessage className="text-red-500" />
                       </FormItem>
                     )}
                   />
@@ -227,7 +221,7 @@ const Login = () => {
                   className="flex justify-end"
                   variants={itemVariants}
                 >
-                  <Link to="#" className="text-gold hover:text-gold/80 transition-colors duration-300 text-sm">
+                  <Link to="#" className="text-blue-600 hover:text-blue-700 transition-colors duration-300 text-sm">
                     Forgot password?
                   </Link>
                 </motion.div>
@@ -235,7 +229,7 @@ const Login = () => {
                 <motion.div variants={itemVariants}>
                   <motion.button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-gold to-gold/90 text-black font-semibold py-4 rounded-xl hover:from-gold/90 hover:to-gold transition-all duration-300 relative overflow-hidden"
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 rounded-2xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 relative overflow-hidden shadow-lg"
                     disabled={isLoading}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -255,9 +249,9 @@ const Login = () => {
                   className="relative my-6"
                   variants={itemVariants}
                 >
-                  <Separator className="bg-white/10" />
+                  <Separator className="bg-slate-200" />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="bg-black px-4 text-white/60 text-sm">or continue with</span>
+                    <span className="bg-white px-4 text-slate-500 text-sm">or continue with</span>
                   </div>
                 </motion.div>
 
@@ -266,7 +260,7 @@ const Login = () => {
                     type="button"
                     onClick={handleGoogleSignIn}
                     disabled={isGoogleLoading}
-                    className="w-full flex items-center justify-center space-x-3 py-4 px-6 rounded-xl border-2 border-white/20 text-white font-medium hover:border-white/40 hover:bg-white/5 transition-all duration-300"
+                    className="w-full flex items-center justify-center space-x-3 py-4 px-6 rounded-2xl border-2 border-slate-200 text-slate-700 font-medium hover:border-slate-300 hover:bg-slate-50 transition-all duration-300"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
@@ -305,9 +299,9 @@ const Login = () => {
           className="text-center mt-8"
           variants={itemVariants}
         >
-          <p className="text-white/60">
+          <p className="text-slate-600">
             Don't have an account?{' '}
-            <Link to="/auth/register" className="text-gold hover:text-gold/80 transition-colors duration-300 font-medium">
+            <Link to="/auth/register" className="text-blue-600 hover:text-blue-700 transition-colors duration-300 font-medium">
               Sign up here
             </Link>
           </p>
