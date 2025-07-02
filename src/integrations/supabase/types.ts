@@ -73,6 +73,7 @@ export type Database = {
           content: string
           created_at: string | null
           id: string
+          likes: number | null
           parent_id: string | null
           post_id: string
           updated_at: string | null
@@ -82,6 +83,7 @@ export type Database = {
           content: string
           created_at?: string | null
           id?: string
+          likes?: number | null
           parent_id?: string | null
           post_id: string
           updated_at?: string | null
@@ -91,6 +93,7 @@ export type Database = {
           content?: string
           created_at?: string | null
           id?: string
+          likes?: number | null
           parent_id?: string | null
           post_id?: string
           updated_at?: string | null
@@ -423,18 +426,21 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          liked_at: string | null
           post_id: string
           user_id: string
         }
         Insert: {
           created_at?: string | null
           id?: string
+          liked_at?: string | null
           post_id: string
           user_id: string
         }
         Update: {
           created_at?: string | null
           id?: string
+          liked_at?: string | null
           post_id?: string
           user_id?: string
         }
@@ -680,33 +686,42 @@ export type Database = {
           comment_count: number | null
           content: string
           created_at: string | null
+          hashtags: string[] | null
           id: string
+          image_url: string | null
           likes: number | null
           title: string
           updated_at: string | null
           user_id: string
+          visibility: string | null
         }
         Insert: {
           category_id?: string | null
           comment_count?: number | null
           content: string
           created_at?: string | null
+          hashtags?: string[] | null
           id?: string
+          image_url?: string | null
           likes?: number | null
           title: string
           updated_at?: string | null
           user_id: string
+          visibility?: string | null
         }
         Update: {
           category_id?: string | null
           comment_count?: number | null
           content?: string
           created_at?: string | null
+          hashtags?: string[] | null
           id?: string
+          image_url?: string | null
           likes?: number | null
           title?: string
           updated_at?: string | null
           user_id?: string
+          visibility?: string | null
         }
         Relationships: [
           {
@@ -786,6 +801,7 @@ export type Database = {
           onboarding_completed: boolean | null
           premium_member: boolean | null
           role: string
+          search_vector: unknown | null
           updated_at: string | null
           username: string | null
           verification_status: string | null
@@ -809,6 +825,7 @@ export type Database = {
           onboarding_completed?: boolean | null
           premium_member?: boolean | null
           role?: string
+          search_vector?: unknown | null
           updated_at?: string | null
           username?: string | null
           verification_status?: string | null
@@ -832,6 +849,7 @@ export type Database = {
           onboarding_completed?: boolean | null
           premium_member?: boolean | null
           role?: string
+          search_vector?: unknown | null
           updated_at?: string | null
           username?: string | null
           verification_status?: string | null
@@ -878,6 +896,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      reposts: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       skills: {
         Row: {
@@ -999,6 +1041,57 @@ export type Database = {
           },
         ]
       }
+      user_activities: {
+        Row: {
+          activity_type: string
+          created_at: string
+          id: string
+          target_id: string
+          target_type: string
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          id?: string
+          target_id: string
+          target_type: string
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          id?: string
+          target_id?: string
+          target_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_searches: {
+        Row: {
+          created_at: string
+          id: string
+          search_query: string
+          search_type: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          search_query: string
+          search_type?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          search_query?: string
+          search_type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       users_extended: {
         Row: {
           created_at: string | null
@@ -1087,6 +1180,10 @@ export type Database = {
         Args: { post_id: string }
         Returns: undefined
       }
+      decrement_reposts: {
+        Args: { post_id: string }
+        Returns: undefined
+      }
       get_conversations: {
         Args: { user_id: string }
         Returns: {
@@ -1106,6 +1203,10 @@ export type Database = {
         Returns: undefined
       }
       increment_likes: {
+        Args: { post_id: string }
+        Returns: undefined
+      }
+      increment_reposts: {
         Args: { post_id: string }
         Returns: undefined
       }
