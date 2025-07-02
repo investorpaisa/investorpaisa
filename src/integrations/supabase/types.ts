@@ -798,6 +798,7 @@ export type Database = {
           id: string
           industry: string | null
           is_verified: boolean | null
+          location: string | null
           onboarding_completed: boolean | null
           premium_member: boolean | null
           role: string
@@ -822,6 +823,7 @@ export type Database = {
           id: string
           industry?: string | null
           is_verified?: boolean | null
+          location?: string | null
           onboarding_completed?: boolean | null
           premium_member?: boolean | null
           role?: string
@@ -846,6 +848,7 @@ export type Database = {
           id?: string
           industry?: string | null
           is_verified?: boolean | null
+          location?: string | null
           onboarding_completed?: boolean | null
           premium_member?: boolean | null
           role?: string

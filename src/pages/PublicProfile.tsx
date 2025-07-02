@@ -93,12 +93,8 @@ const PublicProfile = () => {
         .single();
 
       if (profileData) {
-        // Ensure location is provided, use empty string as fallback
-        const profileWithLocation = {
-          ...profileData,
-          location: profileData.location || '' // Add fallback for location
-        };
-        setProfile(profileWithLocation);
+        // Now location should be available from the database
+        setProfile(profileData);
       }
 
       // Load experiences
