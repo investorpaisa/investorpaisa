@@ -1,29 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-
-export interface CommentInsert {
-  content: string;
-  post_id: string;
-  user_id: string;
-  parent_id?: string;
-}
-
-export interface Comment {
-  id: string;
-  content: string;
-  post_id: string;
-  user_id: string;
-  parent_id?: string;
-  likes: number;
-  created_at: string;
-  updated_at: string;
-  author: {
-    id: string;
-    full_name: string;
-    username: string;
-    avatar_url: string;
-  };
-}
+import { Comment, CommentInsert } from '@/types';
 
 /**
  * Create a new comment
@@ -38,7 +15,12 @@ export const createComment = async (comment: CommentInsert): Promise<Comment> =>
         id,
         full_name,
         username,
-        avatar_url
+        avatar_url,
+        followers,
+        following,
+        created_at,
+        updated_at,
+        role
       )
     `)
     .single();
@@ -50,11 +32,6 @@ export const createComment = async (comment: CommentInsert): Promise<Comment> =>
 
   return {
     ...data,
-    author: {
-      id: data.profiles.id,
-      full_name: data.profiles.full_name,
-      username: data.profiles.username,
-      avatar_url: data.profiles.avatar_url
-    }
+    author: data.profiles
   } as Comment;
 };

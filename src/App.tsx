@@ -15,7 +15,7 @@ import ProfessionalHome from '@/pages/ProfessionalHome';
 import ProfileNew from '@/pages/ProfileNew';
 import Market from '@/pages/Market';
 import Inbox from '@/pages/Inbox';
-import MyNetwork from '@/pages/MyNetwork';
+import { default as MyNetwork } from '@/pages/MyNetwork';
 
 function App() {
   return (

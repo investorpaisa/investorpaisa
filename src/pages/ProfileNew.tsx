@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -39,6 +38,7 @@ interface Activity {
   id: string;
   activity_type: 'like' | 'comment' | 'repost' | 'post';
   target_type: 'post' | 'comment';
+  target_id: string;
   created_at: string;
   post?: {
     id: string;
@@ -117,6 +117,7 @@ const ProfileNew = () => {
           id, 
           activity_type, 
           target_type, 
+          target_id,
           created_at
         `)
         .eq('user_id', profileId)
