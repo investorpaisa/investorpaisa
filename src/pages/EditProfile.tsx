@@ -1,33 +1,50 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft } from 'lucide-react';
 import { useProfileData } from '@/hooks/useProfileData';
-import { EditProfileForm } from '@/components/profile/edit/EditProfileForm';
+import { ProfileEditForm } from '@/components/profile/ProfileEditForm';
 
 const EditProfile = () => {
   const navigate = useNavigate();
-  const { profileData, loading, refreshProfile } = useProfileData();
+  const { profileData, refreshProfile } = useProfileData();
 
-  if (loading) {
-    return <div className="flex justify-center items-center h-64">Loading profile data...</div>;
-  }
+  const handleSave = (updatedProfile: any) => {
+    refreshProfile(updatedProfile);
+    navigate('/profile');
+  };
+
+  const handleCancel = () => {
+    navigate('/profile');
+  };
 
   return (
-    <div className="container max-w-2xl mx-auto py-6 space-y-6">
-      <div className="flex items-center">
-        <Button variant="ghost" onClick={() => navigate('/profile')} className="mr-2">
-          <ChevronLeft className="h-4 w-4 mr-2" />
-          Back to Profile
-        </Button>
-        <h1 className="text-2xl font-bold">Edit Profile</h1>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 p-6">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center space-x-4 mb-8">
+          <Button
+            variant="ghost"
+            onClick={() => navigate(-1)}
+            className="rounded-2xl"
+          >
+            <ArrowLeft className="h-5 w-5 mr-2" />
+            Back
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">Edit Profile</h1>
+            <p className="text-slate-600">Update your professional information</p>
+          </div>
+        </div>
 
-      <EditProfileForm 
-        profileData={profileData} 
-        refreshProfile={refreshProfile} 
-      />
+        {/* Edit Form */}
+        <ProfileEditForm
+          profile={profileData}
+          onSave={handleSave}
+          onCancel={handleCancel}
+        />
+      </div>
     </div>
   );
 };

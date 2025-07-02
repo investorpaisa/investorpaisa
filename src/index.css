@@ -70,9 +70,9 @@
 }
 
 @layer components {
-  /* Modern curved button styles */
+  /* Modern AI gradient button styles */
   .investorpaisa-primary {
-    @apply bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300;
+    @apply bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 text-white hover:from-blue-700 hover:via-purple-700 hover:to-cyan-700 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300;
   }
   
   .investorpaisa-secondary {
@@ -80,7 +80,21 @@
   }
   
   .investorpaisa-outline {
-    @apply border-2 border-gradient-to-r from-blue-600 to-purple-600 text-slate-900 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 rounded-3xl transition-all duration-300;
+    @apply border-2 border-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 text-slate-900 hover:bg-gradient-to-r hover:from-blue-50 hover:via-purple-50 hover:to-cyan-50 rounded-3xl transition-all duration-300;
+  }
+
+  /* AI gradient backgrounds */
+  .ai-gradient {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
+    background-size: 200% 200%;
+    animation: gradientShift 3s ease infinite;
+  }
+
+  .ai-gradient-text {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   /* Modern card styles */
@@ -139,13 +153,13 @@
     overflow: hidden;
   }
 
-  /* Modern gradient backgrounds */
-  .gradient-bg-1 {
-    @apply bg-gradient-to-br from-blue-50 via-white to-purple-50;
+  /* AI gradient backgrounds */
+  .gradient-bg-ai {
+    @apply bg-gradient-to-br from-blue-600 via-purple-600 to-cyan-600;
   }
   
-  .gradient-bg-2 {
-    @apply bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600;
+  .gradient-bg-ai-light {
+    @apply bg-gradient-to-br from-blue-50 via-purple-50 to-cyan-50;
   }
 
   /* Modern shadows */
@@ -178,6 +192,13 @@
   }
 }
 
+/* AI gradient animation */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
 /* Modern LinkedIn-style animations */
 .linkedin-hover {
   @apply transition-all duration-300 ease-out;
@@ -206,11 +227,11 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gradient-to-r from-blue-400 to-purple-400 rounded-full;
+  @apply bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 rounded-full;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply from-blue-500 to-purple-500;
+  @apply from-blue-500 via-purple-500 to-cyan-500;
 }
 
 /* Mobile scrollbar */
@@ -220,20 +241,20 @@
   }
 }
 
-/* InvestorPaisa modern brand colors */
+/* InvestorPaisa AI brand colors */
 .bg-investorpaisa-primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
 }
 
 .text-investorpaisa-primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .border-investorpaisa-primary {
-  border-image: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) 1;
+  border-image: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%) 1;
 }
 
 /* Modern glassmorphism effects */
@@ -243,19 +264,6 @@
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-}
-
-/* AI gradient effect for search */
-.ai-gradient {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  background-size: 200% 200%;
-  animation: gradientShift 3s ease infinite;
-}
-
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
 }
 
 /* Mobile-specific animations */

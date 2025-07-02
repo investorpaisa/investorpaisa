@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -27,6 +26,7 @@ const ModernLayout = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [createPostContent, setCreatePostContent] = useState('');
+  const [createPostTitle, setCreatePostTitle] = useState('');
 
   const handleLogout = async () => {
     try {
@@ -46,14 +46,14 @@ const ModernLayout = () => {
   };
 
   const handleCreatePost = async () => {
-    if (!createPostContent.trim() || !user) return;
+    if (!createPostTitle.trim() || !createPostContent.trim() || !user) return;
 
     try {
       const { data, error } = await supabase
         .from('posts')
         .insert({
           user_id: user.id,
-          title: createPostContent.substring(0, 100),
+          title: createPostTitle,
           content: createPostContent,
           visibility: 'public'
         })
@@ -70,6 +70,7 @@ const ModernLayout = () => {
         target_id: data.id
       });
 
+      setCreatePostTitle('');
       setCreatePostContent('');
       setShowCreatePost(false);
       toast({
@@ -110,11 +111,11 @@ const ModernLayout = () => {
               {/* Logo */}
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-3">
-                  <div className="h-10 w-10 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <div className="h-10 w-10 bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 rounded-2xl flex items-center justify-center shadow-lg">
                     <TrendingUp className="h-6 w-6 text-white" />
                   </div>
                   <div className="hidden sm:block">
-                    <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                    <span className="text-2xl font-bold ai-gradient-text">
                       InvestorPaisa
                     </span>
                   </div>
@@ -176,7 +177,7 @@ const ModernLayout = () => {
                   >
                     <Avatar className="h-10 w-10 ring-2 ring-transparent hover:ring-blue-200 transition-all duration-200">
                       <AvatarImage src={user?.user_metadata?.avatar_url} />
-                      <AvatarFallback className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-bold">
+                      <AvatarFallback className="bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 text-white text-sm font-bold">
                         {user?.user_metadata?.full_name?.charAt(0) || 'U'}
                       </AvatarFallback>
                     </Avatar>
@@ -236,7 +237,7 @@ const ModernLayout = () => {
 
       {/* Mobile Bottom Navigation */}
       {isMobile && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-t border-slate-200/50 shadow-lg">
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-t border-slate-200/50 shadow-lg safe-area-bottom">
           <div className="flex items-center justify-around px-4 py-2">
             {navigation.slice(0, 2).map((item) => (
               <Button
@@ -258,7 +259,7 @@ const ModernLayout = () => {
             {/* Center Create Button */}
             <Button
               onClick={() => setShowCreatePost(true)}
-              className="h-14 w-14 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              className="h-14 w-14 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 hover:from-blue-700 hover:via-purple-700 hover:to-cyan-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
             >
               <PlusCircle className="h-6 w-6 text-white" />
             </Button>
@@ -292,7 +293,7 @@ const ModernLayout = () => {
       {!isMobile && (
         <Button
           onClick={() => setShowCreatePost(true)}
-          className="fixed bottom-6 right-6 h-16 w-16 rounded-3xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 z-40"
+          className="fixed bottom-6 right-6 h-16 w-16 rounded-3xl bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 hover:from-blue-700 hover:via-purple-700 hover:to-cyan-700 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 z-40"
         >
           <PlusCircle className="h-7 w-7 text-white" />
         </Button>
@@ -318,7 +319,7 @@ const ModernLayout = () => {
             <div className="flex items-center space-x-4">
               <Avatar className="h-12 w-12 ring-2 ring-blue-100">
                 <AvatarImage src={user?.user_metadata?.avatar_url} />
-                <AvatarFallback className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold">
+                <AvatarFallback className="bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 text-white font-bold">
                   {user?.user_metadata?.full_name?.charAt(0) || 'U'}
                 </AvatarFallback>
               </Avatar>
@@ -327,6 +328,13 @@ const ModernLayout = () => {
                 <p className="text-sm text-slate-600">Sharing with your network</p>
               </div>
             </div>
+
+            <input
+              value={createPostTitle}
+              onChange={(e) => setCreatePostTitle(e.target.value)}
+              placeholder="Give your post a compelling title..."
+              className="w-full p-4 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white/80 backdrop-blur-sm text-slate-900 placeholder-slate-500"
+            />
 
             <textarea
               value={createPostContent}
@@ -361,8 +369,8 @@ const ModernLayout = () => {
                 </Button>
                 <Button
                   onClick={handleCreatePost}
-                  disabled={!createPostContent.trim()}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-2xl px-6"
+                  disabled={!createPostTitle.trim() || !createPostContent.trim()}
+                  className="bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 hover:from-blue-700 hover:via-purple-700 hover:to-cyan-700 rounded-2xl px-6"
                 >
                   Post
                 </Button>

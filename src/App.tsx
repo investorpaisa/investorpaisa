@@ -37,7 +37,8 @@ function App() {
               <Route path="home" element={<Navigate to="/professional" replace />} />
               <Route path="feed" element={<Navigate to="/professional" replace />} />
               <Route path="profile" element={<ProfileNew />} />
-              <Route path="profile/:userId" element={<ProfileNew />} />
+              <Route path="profile/:userId" element={<PublicProfile />} />
+              <Route path="edit-profile" element={<EditProfile />} />
               <Route path="market" element={<Market />} />
               <Route path="messages" element={<Inbox />} />
               <Route path="network" element={<MyNetwork />} />

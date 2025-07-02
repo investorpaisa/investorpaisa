@@ -4,208 +4,131 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { 
-  Heart, MessageCircle, Share2, Bookmark, MoreHorizontal,
-  TrendingUp, Users, Bell, Award, Crown, Sparkles,
-  Image as ImageIcon, Video, FileText, Calendar, Plus
+  Heart, MessageCircle, Share, Bookmark, MoreHorizontal,
+  TrendingUp, Users, Award, Calendar, MapPin, Building,
+  Image as ImageIcon, Video, Link as LinkIcon, Smile,
+  PlusCircle, Bell, BookOpen, Target, BarChart3,
+  Sparkles, Brain, Zap, Star, Flame
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { formatDistanceToNow } from 'date-fns';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
-interface ModernPost {
+interface Post {
   id: string;
-  author: {
-    id: string;
-    name: string;
-    username: string;
-    avatar: string;
-    title: string;
-    company: string;
-    verified: boolean;
-    premium: boolean;
-  };
+  title: string;
   content: string;
-  image?: string;
-  timestamp: string;
+  image_url?: string;
   likes: number;
-  comments: number;
-  reposts: number;
-  isLiked: boolean;
-  isSaved: boolean;
-  isReposted: boolean;
-  tags?: string[];
+  comment_count: number;
+  created_at: string;
+  user_id: string;
+  profiles: {
+    full_name: string;
+    username: string;
+    avatar_url: string;
+    headline: string;
+    is_verified: boolean;
+  };
+}
+
+interface NewsArticle {
+  id: string;
+  title: string;
+  summary: string;
+  url: string;
+  source: string;
+  published_at: string;
+  thumbnail_url?: string;
 }
 
 const ModernHome = () => {
   const { user } = useAuth();
-  const { toast } = useToast();
-  const [posts, setPosts] = useState<ModernPost[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [news, setNews] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('for-you');
   const [showCreatePost, setShowCreatePost] = useState(false);
-  const [createPostContent, setCreatePostContent] = useState('');
-
-  // Mock data with modern finance focus
-  const mockPosts: ModernPost[] = [
-    {
-      id: '1',
-      author: {
-        id: '1',
-        name: 'Rajesh Kumar',
-        username: 'rajesh_financial',
-        avatar: '/placeholder.svg',
-        title: 'Senior Financial Advisor',
-        company: 'HDFC Bank',
-        verified: true,
-        premium: true
-      },
-      content: `🎯 Market Update: Nifty50 crosses 22,000 for the first time!
-
-Key highlights from today's session:
-• Banking stocks leading the rally (+2.3%)
-• IT sector showing strong momentum (+1.8%)
-• FII inflows continue for 5th consecutive day
-• Rupee strengthens against USD
-
-Investment Strategy for Q1 2025:
-1. Focus on large-cap banking stocks
-2. Consider defensive plays in FMCG
-3. Keep watching for correction opportunities
-4. Maintain 60-40 equity-debt allocation
-
-What's your take on the current market momentum? Are you positioning for a pullback or riding the wave?`,
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-      likes: 234,
-      comments: 45,
-      reposts: 12,
-      isLiked: false,
-      isSaved: false,
-      isReposted: false,
-      tags: ['MarketUpdate', 'Nifty50', 'InvestmentStrategy']
-    },
-    {
-      id: '2',
-      author: {
-        id: '2',
-        name: 'Priya Sharma',
-        username: 'priya_wealth',
-        avatar: '/placeholder.svg',
-        title: 'Wealth Manager',
-        company: 'Kotak Wealth',
-        verified: false,
-        premium: false
-      },
-      content: `💡 Tax Saving Season Alert! 
-
-With just 2 months left in FY24, here's your quick checklist:
-
-✅ Section 80C (₹1.5L limit)
-• ELSS Mutual Funds
-• PPF contributions  
-• Life insurance premiums
-
-✅ Section 80D (Medical Insurance)
-• ₹25K for self & family
-• Additional ₹50K for parents (60+)
-
-✅ Section 80CCD(1B) - NPS
-• Extra ₹50K deduction
-• Great for retirement planning
-
-Pro Tip: Don't invest just for tax saving! Choose instruments that align with your financial goals.
-
-Need help with tax planning? DM me!`,
-      timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-      likes: 156,
-      comments: 28,
-      reposts: 8,
-      isLiked: true,
-      isSaved: true,
-      isReposted: false,
-      tags: ['TaxPlanning', 'ELSS', 'FinancialPlanning']
-    }
-  ];
+  const [postContent, setPostContent] = useState('');
+  const [postTitle, setPostTitle] = useState('');
 
   useEffect(() => {
-    const loadPosts = async () => {
-      setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setPosts(mockPosts);
-      setLoading(false);
-    };
-
-    loadPosts();
+    loadFeedData();
   }, []);
 
-  const handleEngagement = async (postId: string, action: 'like' | 'save' | 'repost') => {
-    setPosts(prevPosts => 
-      prevPosts.map(post => {
-        if (post.id === postId) {
-          switch (action) {
-            case 'like':
-              return {
-                ...post,
-                isLiked: !post.isLiked,
-                likes: post.isLiked ? post.likes - 1 : post.likes + 1
-              };
-            case 'save':
-              return { ...post, isSaved: !post.isSaved };
-            case 'repost':
-              return {
-                ...post,
-                isReposted: !post.isReposted,
-                reposts: post.isReposted ? post.reposts - 1 : post.reposts + 1
-              };
-            default:
-              return post;
-          }
-        }
-        return post;
-      })
-    );
+  const loadFeedData = async () => {
+    try {
+      setLoading(true);
 
-    // Record interaction in user activities
-    if (user) {
-      try {
-        await supabase.from('user_activities').insert({
-          user_id: user.id,
-          activity_type: action,
-          target_type: 'post',
-          target_id: postId
-        });
-      } catch (error) {
-        console.error('Error recording activity:', error);
+      // Load posts with user profiles
+      const { data: postsData } = await supabase
+        .from('posts')
+        .select(`
+          *,
+          profiles!posts_user_id_fkey(
+            full_name,
+            username,
+            avatar_url,
+            headline,
+            is_verified
+          )
+        `)
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (postsData) {
+        setPosts(postsData);
       }
-    }
 
-    toast({
-      title: `Post ${action}d successfully!`,
-      description: `The post has been ${action}d.`
-    });
+      // Load financial news
+      const { data: newsData } = await supabase
+        .from('news_articles')
+        .select('*')
+        .order('published_at', { ascending: false })
+        .limit(10);
+
+      if (newsData) {
+        setNews(newsData);
+      }
+
+    } catch (error) {
+      console.error('Error loading feed:', error);
+      toast.error('Failed to load feed');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCreatePost = async () => {
-    if (!createPostContent.trim() || !user) return;
+    if (!postTitle.trim() || !postContent.trim() || !user) return;
 
     try {
       const { data, error } = await supabase
         .from('posts')
         .insert({
           user_id: user.id,
-          title: createPostContent.substring(0, 100),
-          content: createPostContent,
+          title: postTitle,
+          content: postContent,
           visibility: 'public'
         })
-        .select()
+        .select(`
+          *,
+          profiles!posts_user_id_fkey(
+            full_name,
+            username,
+            avatar_url,
+            headline,
+            is_verified
+          )
+        `)
         .single();
 
       if (error) throw error;
 
-      // Record post creation activity
+      // Add to user activities
       await supabase.from('user_activities').insert({
         user_id: user.id,
         activity_type: 'post',
@@ -213,48 +136,71 @@ Need help with tax planning? DM me!`,
         target_id: data.id
       });
 
-      setCreatePostContent('');
+      setPosts([data, ...posts]);
+      setPostTitle('');
+      setPostContent('');
       setShowCreatePost(false);
-      toast({
-        title: "Post created successfully!",
-        description: "Your post has been shared with your network."
-      });
-
-      // Refresh posts
-      // In real app, you'd add the new post to the feed
+      toast.success('Post created successfully!');
     } catch (error) {
       console.error('Error creating post:', error);
-      toast({
-        title: "Error creating post",
-        description: "Please try again.",
-        variant: "destructive"
-      });
+      toast.error('Failed to create post');
+    }
+  };
+
+  const handleLike = async (postId: string) => {
+    if (!user) return;
+
+    try {
+      // Check if already liked
+      const { data: existingLike } = await supabase
+        .from('likes')
+        .select('id')
+        .eq('post_id', postId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (existingLike) {
+        // Unlike
+        await supabase
+          .from('likes')
+          .delete()
+          .eq('post_id', postId)
+          .eq('user_id', user.id);
+
+        await supabase.rpc('decrement_likes', { post_id: postId });
+      } else {
+        // Like
+        await supabase
+          .from('likes')
+          .insert({
+            post_id: postId,
+            user_id: user.id
+          });
+
+        await supabase.rpc('increment_likes', { post_id: postId });
+
+        // Add to activities
+        await supabase.from('user_activities').insert({
+          user_id: user.id,
+          activity_type: 'like',
+          target_type: 'post',
+          target_id: postId
+        });
+      }
+
+      loadFeedData();
+    } catch (error) {
+      console.error('Error handling like:', error);
+      toast.error('Failed to update like');
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          <div className="space-y-6">
-            {[1, 2, 3].map(i => (
-              <Card key={i} className="rounded-3xl border-0 shadow-sm bg-white/80 backdrop-blur-sm animate-pulse">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="h-12 w-12 bg-slate-200 rounded-3xl"></div>
-                    <div className="space-y-2 flex-1">
-                      <div className="h-4 bg-slate-200 rounded-2xl w-1/3"></div>
-                      <div className="h-3 bg-slate-200 rounded-2xl w-1/4"></div>
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="h-4 bg-slate-200 rounded-2xl"></div>
-                    <div className="h-4 bg-slate-200 rounded-2xl w-3/4"></div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 rounded-full animate-spin mb-4 mx-auto"></div>
+          <p className="text-slate-600">Loading your feed...</p>
         </div>
       </div>
     );
@@ -262,248 +208,354 @@ Need help with tax planning? DM me!`,
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        
-        {/* Modern Create Post Widget */}
-        <Card className="mb-6 rounded-3xl border-0 shadow-sm bg-white/90 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
-          <CardContent className="p-6">
+      <div className="max-w-7xl mx-auto p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          
+          {/* Left Sidebar - Profile Summary */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* Profile Card */}
+            <Card className="rounded-3xl border-0 shadow-lg bg-white/90 backdrop-blur-sm">
+              <CardContent className="p-6 text-center">
+                <Avatar className="h-20 w-20 mx-auto mb-4 ring-2 ring-blue-100">
+                  <AvatarImage src={user?.user_metadata?.avatar_url} />
+                  <AvatarFallback className="bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 text-white font-bold text-lg">
+                    {user?.user_metadata?.full_name?.charAt(0) || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <h3 className="font-bold text-slate-900 mb-1">{user?.user_metadata?.full_name || 'User'}</h3>
+                <p className="text-slate-600 text-sm mb-4">Financial Professional</p>
+                <div className="grid grid-cols-2 gap-4 text-center">
+                  <div>
+                    <div className="font-bold text-lg text-slate-900">127</div>
+                    <div className="text-xs text-slate-600">Connections</div>
+                  </div>
+                  <div>
+                    <div className="font-bold text-lg text-slate-900">2.4K</div>
+                    <div className="text-xs text-slate-600">Followers</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Quick Stats */}
+            <Card className="rounded-3xl border-0 shadow-lg bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 text-white">
+              <CardContent className="p-6">
+                <h3 className="font-bold mb-4 flex items-center">
+                  <BarChart3 className="h-5 w-5 mr-2" />
+                  Portfolio Snapshot
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-blue-100">Total Value</span>
+                    <span className="font-bold">₹12.5L</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-blue-100">Today's P&L</span>
+                    <span className="font-bold text-green-300">+₹2,450</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-blue-100">Overall Return</span>
+                    <span className="font-bold text-green-300">+18.5%</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Center Column - Main Feed */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Create Post Card */}
+            <Card className="rounded-3xl border-0 shadow-lg bg-white/90 backdrop-blur-sm">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <Avatar className="h-12 w-12 ring-2 ring-blue-100">
+                    <AvatarImage src={user?.user_metadata?.avatar_url} />
+                    <AvatarFallback className="bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 text-white font-bold">
+                      {user?.user_metadata?.full_name?.charAt(0) || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowCreatePost(true)}
+                    className="flex-1 justify-start text-slate-500 hover:text-slate-700 rounded-3xl border-slate-200 hover:border-blue-300 hover:bg-blue-50"
+                  >
+                    Share your financial insights...
+                  </Button>
+                </div>
+                <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">
+                  <Button variant="ghost" size="sm" className="rounded-2xl text-blue-600 hover:bg-blue-50">
+                    <ImageIcon className="h-4 w-4 mr-2" />
+                    Photo
+                  </Button>
+                  <Button variant="ghost" size="sm" className="rounded-2xl text-green-600 hover:bg-green-50">
+                    <Video className="h-4 w-4 mr-2" />
+                    Video
+                  </Button>
+                  <Button variant="ghost" size="sm" className="rounded-2xl text-purple-600 hover:bg-purple-50">
+                    <LinkIcon className="h-4 w-4 mr-2" />
+                    Article
+                  </Button>
+                  <Button variant="ghost" size="sm" className="rounded-2xl text-orange-600 hover:bg-orange-50">
+                    <BarChart3 className="h-4 w-4 mr-2" />
+                    Poll
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Feed Posts */}
+            <div className="space-y-6">
+              {posts.map((post) => (
+                <Card key={post.id} className="rounded-3xl border-0 shadow-lg bg-white/90 backdrop-blur-sm hover:shadow-xl transition-all duration-300">
+                  <CardContent className="p-6">
+                    {/* Post Header */}
+                    <div className="flex items-start space-x-4 mb-4">
+                      <Avatar className="h-12 w-12 ring-2 ring-blue-100">
+                        <AvatarImage src={post.profiles?.avatar_url} />
+                        <AvatarFallback className="bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 text-white font-bold">
+                          {post.profiles?.full_name?.charAt(0) || 'U'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2">
+                          <h3 className="font-semibold text-slate-900">{post.profiles?.full_name}</h3>
+                          {post.profiles?.is_verified && (
+                            <Badge className="bg-blue-100 text-blue-800 text-xs rounded-full">Verified</Badge>
+                          )}
+                        </div>
+                        <p className="text-slate-600 text-sm">{post.profiles?.headline}</p>
+                        <p className="text-slate-500 text-xs">{new Date(post.created_at).toLocaleDateString()}</p>
+                      </div>
+                      <Button variant="ghost" size="sm" className="rounded-2xl">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </div>
+
+                    {/* Post Content */}
+                    <div className="mb-4">
+                      <h2 className="font-bold text-slate-900 text-lg mb-2">{post.title}</h2>
+                      <p className="text-slate-700 leading-relaxed">{post.content}</p>
+                      {post.image_url && (
+                        <img 
+                          src={post.image_url} 
+                          alt="Post image" 
+                          className="w-full rounded-2xl mt-4"
+                        />
+                      )}
+                    </div>
+
+                    {/* Post Actions */}
+                    <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleLike(post.id)}
+                        className="rounded-2xl hover:bg-red-50 hover:text-red-600"
+                      >
+                        <Heart className="h-4 w-4 mr-2" />
+                        {post.likes}
+                      </Button>
+                      <Button variant="ghost" size="sm" className="rounded-2xl hover:bg-blue-50 hover:text-blue-600">
+                        <MessageCircle className="h-4 w-4 mr-2" />
+                        {post.comment_count}
+                      </Button>
+                      <Button variant="ghost" size="sm" className="rounded-2xl hover:bg-green-50 hover:text-green-600">
+                        <Share className="h-4 w-4 mr-2" />
+                        Share
+                      </Button>
+                      <Button variant="ghost" size="sm" className="rounded-2xl hover:bg-yellow-50 hover:text-yellow-600">
+                        <Bookmark className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Right Sidebar - Features & News */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* AI Features */}
+            <Card className="rounded-3xl border-0 shadow-lg bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white">
+              <CardHeader>
+                <h3 className="font-bold flex items-center">
+                  <Sparkles className="h-5 w-5 mr-2" />
+                  AI Features
+                </h3>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/20 rounded-2xl">
+                  <Brain className="h-4 w-4 mr-2" />
+                  Portfolio Analysis
+                </Button>
+                <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/20 rounded-2xl">
+                  <Zap className="h-4 w-4 mr-2" />
+                  Smart Insights
+                </Button>
+                <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/20 rounded-2xl">
+                  <Target className="h-4 w-4 mr-2" />
+                  Goal Tracker
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Financial Learning */}
+            <Card className="rounded-3xl border-0 shadow-lg bg-white/90 backdrop-blur-sm">
+              <CardHeader>
+                <h3 className="font-bold text-slate-900 flex items-center">
+                  <BookOpen className="h-5 w-5 mr-2 text-green-600" />
+                  Fin Learning
+                </h3>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="p-3 bg-green-50 rounded-2xl">
+                  <h4 className="font-medium text-green-900 text-sm">Options Trading Basics</h4>
+                  <p className="text-green-700 text-xs">5 min read</p>
+                </div>
+                <div className="p-3 bg-blue-50 rounded-2xl">
+                  <h4 className="font-medium text-blue-900 text-sm">SIP vs Lump Sum</h4>
+                  <p className="text-blue-700 text-xs">3 min read</p>
+                </div>
+                <div className="p-3 bg-purple-50 rounded-2xl">
+                  <h4 className="font-medium text-purple-900 text-sm">Tax Saving Guide</h4>
+                  <p className="text-purple-700 text-xs">7 min read</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Trending News */}
+            <Card className="rounded-3xl border-0 shadow-lg bg-white/90 backdrop-blur-sm">
+              <CardHeader>
+                <h3 className="font-bold text-slate-900 flex items-center">
+                  <Flame className="h-5 w-5 mr-2 text-orange-600" />
+                  Trending News
+                </h3>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {news.slice(0, 5).map((article) => (
+                  <div key={article.id} className="p-3 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors cursor-pointer">
+                    <h4 className="font-medium text-slate-900 text-sm line-clamp-2 mb-1">{article.title}</h4>
+                    <div className="flex items-center justify-between">
+                      <p className="text-slate-600 text-xs">{article.source}</p>
+                      <p className="text-slate-500 text-xs">{new Date(article.published_at).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Market Widgets */}
+            <Card className="rounded-3xl border-0 shadow-lg bg-white/90 backdrop-blur-sm">
+              <CardHeader>
+                <h3 className="font-bold text-slate-900 flex items-center">
+                  <TrendingUp className="h-5 w-5 mr-2 text-green-600" />
+                  Market Overview
+                </h3>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-700">NIFTY 50</span>
+                  <div className="text-right">
+                    <div className="font-bold text-slate-900">21,456.30</div>
+                    <div className="text-green-600 text-sm">+1.2%</div>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-700">SENSEX</span>
+                  <div className="text-right">
+                    <div className="font-bold text-slate-900">70,823.15</div>
+                    <div className="text-green-600 text-sm">+0.8%</div>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-700">USD/INR</span>
+                  <div className="text-right">
+                    <div className="font-bold text-slate-900">83.24</div>
+                    <div className="text-red-600 text-sm">-0.1%</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+
+      {/* Create Post Modal */}
+      <Dialog open={showCreatePost} onOpenChange={setShowCreatePost}>
+        <DialogContent className="sm:max-w-2xl rounded-3xl border-0 shadow-2xl bg-white/95 backdrop-blur-xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-slate-900 flex items-center">
+              <PlusCircle className="h-6 w-6 mr-3 text-blue-600" />
+              Create Post
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6">
             <div className="flex items-center space-x-4">
               <Avatar className="h-12 w-12 ring-2 ring-blue-100">
                 <AvatarImage src={user?.user_metadata?.avatar_url} />
-                <AvatarFallback className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold">
+                <AvatarFallback className="bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 text-white font-bold">
                   {user?.user_metadata?.full_name?.charAt(0) || 'U'}
                 </AvatarFallback>
               </Avatar>
+              <div>
+                <p className="font-semibold text-slate-900">{user?.user_metadata?.full_name || 'User'}</p>
+                <p className="text-sm text-slate-600">Sharing with your network</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <Input
+                value={postTitle}
+                onChange={(e) => setPostTitle(e.target.value)}
+                placeholder="Give your post a compelling title..."
+                className="rounded-2xl border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
+              />
               
-              <Button
-                variant="ghost"
-                onClick={() => setShowCreatePost(true)}
-                className="flex-1 justify-start h-12 bg-slate-50/80 hover:bg-slate-100/80 border border-slate-200/50 rounded-3xl text-slate-600 font-normal"
-              >
-                Share your investment insights...
-              </Button>
+              <Textarea
+                value={postContent}
+                onChange={(e) => setPostContent(e.target.value)}
+                placeholder="What's happening in the markets? Share your insights..."
+                className="min-h-32 rounded-2xl border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 resize-none"
+              />
             </div>
-
-            {showCreatePost && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                className="mt-4 space-y-4"
-              >
-                <textarea
-                  value={createPostContent}
-                  onChange={(e) => setCreatePostContent(e.target.value)}
-                  placeholder="What's happening in the markets? Share your insights..."
-                  className="w-full min-h-32 p-4 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 resize-none bg-white/80 backdrop-blur-sm"
-                />
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Button variant="ghost" size="sm" className="rounded-2xl text-slate-600">
-                      <ImageIcon className="h-5 w-5 mr-2" />
-                      Photo
-                    </Button>
-                    <Button variant="ghost" size="sm" className="rounded-2xl text-slate-600">
-                      <Video className="h-5 w-5 mr-2" />
-                      Video
-                    </Button>
-                    <Button variant="ghost" size="sm" className="rounded-2xl text-slate-600">
-                      <FileText className="h-5 w-5 mr-2" />
-                      Document
-                    </Button>
-                  </div>
-                  
-                  <div className="flex items-center space-x-3">
-                    <Button
-                      variant="ghost"
-                      onClick={() => setShowCreatePost(false)}
-                      className="rounded-2xl"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={handleCreatePost}
-                      disabled={!createPostContent.trim()}
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-2xl px-6"
-                    >
-                      Post
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Feed Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-          <TabsList className="w-full bg-white/80 backdrop-blur-sm rounded-3xl p-1 shadow-sm border-0">
-            <TabsTrigger 
-              value="for-you"
-              className="flex-1 rounded-2xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white font-medium"
-            >
-              For You
-            </TabsTrigger>
-            <TabsTrigger 
-              value="following"
-              className="flex-1 rounded-2xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white font-medium"
-            >
-              Following
-            </TabsTrigger>
-            <TabsTrigger 
-              value="trending"
-              className="flex-1 rounded-2xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white font-medium"
-            >
-              Trending
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value={activeTab} className="mt-6">
-            <div className="space-y-6">
-              <AnimatePresence>
-                {posts.map((post, index) => (
-                  <motion.div
-                    key={post.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <Card className="rounded-3xl border-0 shadow-sm bg-white/90 backdrop-blur-sm hover:shadow-lg transition-all duration-300 group">
-                      <CardHeader className="pb-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center space-x-3">
-                            <Avatar className="h-12 w-12 ring-2 ring-slate-100">
-                              <AvatarImage src={post.author.avatar} />
-                              <AvatarFallback className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold">
-                                {post.author.name.split(' ').map(n => n[0]).join('')}
-                              </AvatarFallback>
-                            </Avatar>
-                            
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-2">
-                                <h3 className="font-semibold text-slate-900">{post.author.name}</h3>
-                                {post.author.verified && (
-                                  <Badge className="bg-blue-100 text-blue-800 rounded-full px-2 py-1 text-xs">
-                                    <Award className="h-3 w-3 mr-1" />
-                                    Verified
-                                  </Badge>
-                                )}
-                                {post.author.premium && (
-                                  <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full px-2 py-1 text-xs">
-                                    <Crown className="h-3 w-3 mr-1" />
-                                    Premium
-                                  </Badge>
-                                )}
-                              </div>
-                              <p className="text-sm text-slate-600">
-                                {post.author.title} at {post.author.company}
-                              </p>
-                              <p className="text-xs text-slate-500">
-                                {formatDistanceToNow(new Date(post.timestamp), { addSuffix: true })}
-                              </p>
-                            </div>
-                          </div>
-                          
-                          <Button variant="ghost" size="sm" className="rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity">
-                            <MoreHorizontal className="h-5 w-5" />
-                          </Button>
-                        </div>
-                      </CardHeader>
-                      
-                      <CardContent className="pt-0">
-                        <div className="space-y-4">
-                          <p className="text-slate-800 leading-relaxed whitespace-pre-line">
-                            {post.content}
-                          </p>
-                          
-                          {post.image && (
-                            <div className="rounded-2xl overflow-hidden">
-                              <img 
-                                src={post.image} 
-                                alt="Post content" 
-                                className="w-full h-auto object-cover"
-                              />
-                            </div>
-                          )}
-                          
-                          {post.tags && post.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-2">
-                              {post.tags.map((tag, index) => (
-                                <Badge
-                                  key={index}
-                                  variant="secondary"
-                                  className="rounded-full bg-blue-50 text-blue-700 hover:bg-blue-100 cursor-pointer text-xs"
-                                >
-                                  #{tag}
-                                </Badge>
-                              ))}
-                            </div>
-                          )}
-                          
-                          {/* Engagement Actions - Modern Style */}
-                          <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                            <div className="flex items-center space-x-6">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleEngagement(post.id, 'like')}
-                                className={`flex items-center space-x-2 rounded-2xl px-4 py-2 transition-all duration-200 ${
-                                  post.isLiked 
-                                    ? 'text-red-600 bg-red-50 hover:bg-red-100' 
-                                    : 'text-slate-600 hover:text-red-600 hover:bg-red-50'
-                                }`}
-                              >
-                                <Heart className={`h-5 w-5 ${post.isLiked ? 'fill-current' : ''}`} />
-                                <span className="font-medium">{post.likes}</span>
-                              </Button>
-                              
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="flex items-center space-x-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-2xl px-4 py-2 transition-all duration-200"
-                              >
-                                <MessageCircle className="h-5 w-5" />
-                                <span className="font-medium">{post.comments}</span>
-                              </Button>
-                              
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleEngagement(post.id, 'repost')}
-                                className={`flex items-center space-x-2 rounded-2xl px-4 py-2 transition-all duration-200 ${
-                                  post.isReposted 
-                                    ? 'text-green-600 bg-green-50 hover:bg-green-100' 
-                                    : 'text-slate-600 hover:text-green-600 hover:bg-green-50'
-                                }`}
-                              >
-                                <Share2 className="h-5 w-5" />
-                                <span className="font-medium">{post.reposts}</span>
-                              </Button>
-                            </div>
-                            
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleEngagement(post.id, 'save')}
-                              className={`rounded-2xl p-2 transition-all duration-200 ${
-                                post.isSaved 
-                                  ? 'text-blue-600 bg-blue-50 hover:bg-blue-100' 
-                                  : 'text-slate-600 hover:text-blue-600 hover:bg-blue-50'
-                              }`}
-                            >
-                              <Bookmark className={`h-5 w-5 ${post.isSaved ? 'fill-current' : ''}`} />
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+            
+            <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+              <div className="flex items-center space-x-3">
+                <Button variant="ghost" size="sm" className="rounded-2xl text-slate-600 hover:bg-slate-100">
+                  <ImageIcon className="h-5 w-5 mr-2" />
+                  Photo
+                </Button>
+                <Button variant="ghost" size="sm" className="rounded-2xl text-slate-600 hover:bg-slate-100">
+                  <Video className="h-5 w-5 mr-2" />
+                  Video
+                </Button>
+                <Button variant="ghost" size="sm" className="rounded-2xl text-slate-600 hover:bg-slate-100">
+                  <BarChart3 className="h-5 w-5 mr-2" />
+                  Chart
+                </Button>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <Button
+                  variant="ghost"
+                  onClick={() => setShowCreatePost(false)}
+                  className="rounded-2xl"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleCreatePost}
+                  disabled={!postTitle.trim() || !postContent.trim()}
+                  className="bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 hover:from-blue-700 hover:via-purple-700 hover:to-cyan-700 rounded-2xl px-6"
+                >
+                  Post
+                </Button>
+              </div>
             </div>
-          </TabsContent>
-        </Tabs>
-      </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
