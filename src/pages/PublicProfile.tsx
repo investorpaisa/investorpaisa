@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -94,7 +93,12 @@ const PublicProfile = () => {
         .single();
 
       if (profileData) {
-        setProfile(profileData);
+        // Ensure location is provided, use empty string as fallback
+        const profileWithLocation = {
+          ...profileData,
+          location: profileData.location || '' // Add fallback for location
+        };
+        setProfile(profileWithLocation);
       }
 
       // Load experiences
@@ -150,7 +154,13 @@ const PublicProfile = () => {
           .single();
 
         if (connectionData) {
-          setConnectionStatus(connectionData.status);
+          // Fix type issue by ensuring the status is one of the expected values
+          const status = connectionData.status;
+          if (status === 'pending' || status === 'connected') {
+            setConnectionStatus(status);
+          } else {
+            setConnectionStatus('none');
+          }
         }
       }
 

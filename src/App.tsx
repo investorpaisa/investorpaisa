@@ -13,6 +13,8 @@ import Login from '@/pages/auth/Login';
 import Register from '@/pages/auth/Register';
 import ModernHome from '@/pages/ModernHome';
 import ProfileNew from '@/pages/ProfileNew';
+import PublicProfile from '@/pages/PublicProfile';
+import EditProfile from '@/pages/EditProfile';
 import Market from '@/pages/Market';
 import Inbox from '@/pages/Inbox';
 import Notifications from '@/pages/Notifications';
