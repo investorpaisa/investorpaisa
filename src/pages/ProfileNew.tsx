@@ -110,32 +110,56 @@ const ProfileNew = () => {
 
   const loadActivities = async (profileId: string) => {
     try {
-      const { data, error } = await supabase
+      // Load activities with proper joins
+      const { data: activitiesData, error } = await supabase
         .from('user_activities')
         .select(`
-          id, activity_type, target_type, created_at,
-          posts:target_id (
-            id, title, content,
-            profiles:user_id (
-              full_name, avatar_url
-            )
-          )
+          id, 
+          activity_type, 
+          target_type, 
+          created_at
         `)
         .eq('user_id', profileId)
         .order('created_at', { ascending: false })
         .limit(50);
 
       if (error) throw error;
-      
-      setActivities(data.map(activity => ({
-        ...activity,
-        post: activity.posts ? {
-          id: activity.posts.id,
-          title: activity.posts.title,
-          content: activity.posts.content,
-          author: activity.posts.profiles
-        } : undefined
-      })));
+
+      // For each activity that targets a post, fetch the post details
+      const activitiesWithPosts = await Promise.all(
+        (activitiesData || []).map(async (activity) => {
+          if (activity.target_type === 'post') {
+            try {
+              const { data: postData } = await supabase
+                .from('posts')
+                .select(`
+                  id, title, content,
+                  profiles:user_id (
+                    full_name, avatar_url
+                  )
+                `)
+                .eq('id', activity.target_id)
+                .single();
+
+              return {
+                ...activity,
+                post: postData ? {
+                  id: postData.id,
+                  title: postData.title,
+                  content: postData.content,
+                  author: postData.profiles
+                } : undefined
+              };
+            } catch (postError) {
+              console.error('Error loading post for activity:', postError);
+              return activity;
+            }
+          }
+          return activity;
+        })
+      );
+
+      setActivities(activitiesWithPosts as Activity[]);
     } catch (error) {
       console.error('Error loading activities:', error);
     }
@@ -249,7 +273,7 @@ const ProfileNew = () => {
   if (!profile) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
-        <Card className="p-8 text-center rounded-2xl">
+        <Card className="p-8 text-center rounded-3xl">
           <h2 className="text-2xl font-bold text-slate-900 mb-2">Profile not found</h2>
           <p className="text-slate-600">The profile you're looking for doesn't exist.</p>
         </Card>
@@ -262,7 +286,7 @@ const ProfileNew = () => {
       <div className="max-w-4xl mx-auto px-4 py-6">
         
         {/* Profile Header */}
-        <Card className="overflow-hidden rounded-2xl shadow-sm border border-slate-200 bg-white/80 backdrop-blur-sm">
+        <Card className="overflow-hidden rounded-3xl shadow-sm border border-slate-200 bg-white/80 backdrop-blur-sm">
           {/* Banner */}
           <div className="h-48 bg-gradient-to-r from-blue-600 via-purple-600 to-green-600 relative">
             {profile.premium_member && (
@@ -272,7 +296,7 @@ const ProfileNew = () => {
               <Button 
                 variant="secondary" 
                 size="sm" 
-                className="absolute top-4 right-4 rounded-xl bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
+                className="absolute top-4 right-4 rounded-2xl bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
               >
                 <Camera className="h-4 w-4 mr-2" />
                 Edit banner
@@ -305,14 +329,14 @@ const ProfileNew = () => {
                   <>
                     <Button 
                       variant="outline" 
-                      className="rounded-xl border-slate-300 hover:bg-slate-50"
+                      className="rounded-2xl border-slate-300 hover:bg-slate-50"
                     >
                       <Mail className="h-4 w-4 mr-2" />
                       Message
                     </Button>
                     <Button 
                       onClick={toggleFollow}
-                      className={`rounded-xl ${
+                      className={`rounded-2xl ${
                         isFollowing 
                           ? 'bg-slate-600 hover:bg-slate-700 text-white' 
                           : 'bg-blue-600 hover:bg-blue-700 text-white'
@@ -324,7 +348,7 @@ const ProfileNew = () => {
                   </>
                 )}
                 {isOwnProfile && (
-                  <Button variant="outline" className="rounded-xl border-slate-300 hover:bg-slate-50">
+                  <Button variant="outline" className="rounded-2xl border-slate-300 hover:bg-slate-50">
                     <Edit3 className="h-4 w-4 mr-2" />
                     Edit profile
                   </Button>
@@ -399,7 +423,7 @@ const ProfileNew = () => {
         </Card>
 
         {/* Content Tabs */}
-        <Card className="mt-6 rounded-2xl shadow-sm border border-slate-200 bg-white/80 backdrop-blur-sm">
+        <Card className="mt-6 rounded-3xl shadow-sm border border-slate-200 bg-white/80 backdrop-blur-sm">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="w-full justify-start h-auto p-0 bg-transparent border-b border-slate-100 rounded-none">
               <TabsTrigger 
@@ -435,13 +459,13 @@ const ProfileNew = () => {
                 </div>
               ) : (
                 userPosts.map((post) => (
-                  <Card key={post.id} className="p-6 rounded-2xl border border-slate-100 hover:shadow-md transition-shadow">
+                  <Card key={post.id} className="p-6 rounded-3xl border border-slate-100 hover:shadow-md transition-shadow">
                     <div className="space-y-3">
                       <h3 className="text-lg font-semibold text-slate-900">{post.title}</h3>
                       <p className="text-slate-700 leading-relaxed line-clamp-3">{post.content}</p>
                       
                       {post.image_url && (
-                        <div className="rounded-xl overflow-hidden">
+                        <div className="rounded-2xl overflow-hidden">
                           <img 
                             src={post.image_url} 
                             alt="Post content" 
@@ -482,7 +506,7 @@ const ProfileNew = () => {
                 </div>
               ) : (
                 activities.map((activity) => (
-                  <div key={activity.id} className="flex items-start space-x-3 p-4 rounded-2xl bg-slate-50/50 hover:bg-slate-100/50 transition-colors">
+                  <div key={activity.id} className="flex items-start space-x-3 p-4 rounded-3xl bg-slate-50/50 hover:bg-slate-100/50 transition-colors">
                     <div className="flex-shrink-0 mt-1">
                       {getActivityIcon(activity.activity_type)}
                     </div>
@@ -493,7 +517,7 @@ const ProfileNew = () => {
                         <span className="text-slate-600">{getActivityText(activity)}</span>
                       </p>
                       {activity.post && (
-                        <div className="mt-2 p-3 bg-white rounded-xl border border-slate-200">
+                        <div className="mt-2 p-3 bg-white rounded-2xl border border-slate-200">
                           <h4 className="font-medium text-sm text-slate-900 mb-1">{activity.post.title}</h4>
                           <p className="text-sm text-slate-600 line-clamp-2">{activity.post.content}</p>
                           <p className="text-xs text-slate-500 mt-2">
