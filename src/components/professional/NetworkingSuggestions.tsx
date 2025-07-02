@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   UserPlus, MapPin, Building, Users, 
-  TrendingUp, Award
+  TrendingUp, Award, DollarSign
 } from 'lucide-react';
 
 interface NetworkingSuggestion {
@@ -34,7 +34,7 @@ export const NetworkingSuggestions: React.FC<NetworkingSuggestionsProps> = ({
         <div className="flex items-center justify-between">
           <h4 className="font-semibold text-gray-900 flex items-center">
             <Users className="h-5 w-5 mr-2 text-blue-600" />
-            People you may know
+            Financial professionals you may know
           </h4>
           <Button variant="ghost" size="sm" className="text-blue-600 hover:bg-blue-50">
             See all
@@ -58,7 +58,7 @@ export const NetworkingSuggestions: React.FC<NetworkingSuggestionsProps> = ({
                     {suggestion.name}
                   </h5>
                   {suggestion.verified && (
-                    <TrendingUp className="h-3 w-3 text-blue-600" />
+                    <DollarSign className="h-3 w-3 text-green-600" />
                   )}
                 </div>
                 
@@ -105,7 +105,7 @@ export const NetworkingSuggestions: React.FC<NetworkingSuggestionsProps> = ({
         </div>
         
         <Button variant="ghost" className="w-full mt-4 text-blue-600 hover:bg-blue-50">
-          Show more suggestions
+          View more financial professionals
         </Button>
       </CardContent>
     </Card>

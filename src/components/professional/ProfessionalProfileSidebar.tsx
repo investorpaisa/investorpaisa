@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
   Eye, Users, TrendingUp, Award, 
-  MapPin, Building, Star, Crown
+  MapPin, Building, Star, Crown, DollarSign
 } from 'lucide-react';
 
 interface ProfessionalProfileSidebarProps {
@@ -33,7 +33,7 @@ export const ProfessionalProfileSidebar: React.FC<ProfessionalProfileSidebarProp
       {/* Main Profile Card */}
       <Card className="bg-white border border-gray-200 overflow-hidden">
         {/* Banner */}
-        <div className="h-16 bg-gradient-to-r from-blue-600 to-indigo-600 relative">
+        <div className="h-16 bg-gradient-to-r from-blue-600 to-green-600 relative">
           {profile.premium && (
             <Crown className="absolute top-2 right-2 h-5 w-5 text-yellow-300 fill-current" />
           )}
@@ -83,7 +83,7 @@ export const ProfessionalProfileSidebar: React.FC<ProfessionalProfileSidebarProp
         <CardHeader className="pb-3">
           <h4 className="font-semibold text-gray-900 flex items-center">
             <TrendingUp className="h-4 w-4 mr-2 text-green-600" />
-            Analytics
+            Investment Analytics
           </h4>
         </CardHeader>
         <CardContent className="pt-0">
@@ -91,7 +91,7 @@ export const ProfessionalProfileSidebar: React.FC<ProfessionalProfileSidebarProp
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Eye className="h-4 w-4 text-blue-600" />
-                <span className="text-sm text-gray-600">Profile views</span>
+                <span className="text-sm text-gray-600">Portfolio views</span>
               </div>
               <span className="text-sm font-semibold text-blue-600">{profile.profileViews}</span>
             </div>
@@ -99,7 +99,7 @@ export const ProfessionalProfileSidebar: React.FC<ProfessionalProfileSidebarProp
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <TrendingUp className="h-4 w-4 text-green-600" />
-                <span className="text-sm text-gray-600">Post impressions</span>
+                <span className="text-sm text-gray-600">Post engagement</span>
               </div>
               <span className="text-sm font-semibold text-green-600">{profile.postImpressions}</span>
             </div>
@@ -111,8 +111,8 @@ export const ProfessionalProfileSidebar: React.FC<ProfessionalProfileSidebarProp
       <Card className="bg-white border border-gray-200">
         <CardHeader className="pb-3">
           <h4 className="font-semibold text-gray-900 flex items-center">
-            <Award className="h-4 w-4 mr-2 text-purple-600" />
-            Top Skills
+            <DollarSign className="h-4 w-4 mr-2 text-green-600" />
+            Investment Expertise
           </h4>
         </CardHeader>
         <CardContent className="pt-0">
@@ -128,7 +128,7 @@ export const ProfessionalProfileSidebar: React.FC<ProfessionalProfileSidebarProp
             ))}
             
             <Button variant="ghost" size="sm" className="w-full mt-2 text-blue-600 hover:bg-blue-50">
-              Show all skills
+              Show all expertise
             </Button>
           </div>
         </CardContent>

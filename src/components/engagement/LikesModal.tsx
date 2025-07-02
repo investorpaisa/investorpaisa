@@ -39,9 +39,9 @@ export const LikesModal: React.FC<LikesModalProps> = ({
     const mockUsers: ProfessionalUser[] = [
       {
         id: '1',
-        username: 'sarah_finance',
+        username: 'sarah_investor',
         full_name: 'Sarah Johnson',
-        headline: 'Investment Analyst at Goldman Sachs',
+        headline: 'Investment Analyst at HDFC Securities',
         avatar_url: '/placeholder.svg',
         location: 'Mumbai, India',
         industry: 'Investment Banking',
@@ -56,9 +56,9 @@ export const LikesModal: React.FC<LikesModalProps> = ({
         id: '2',
         username: 'amit_trader',
         full_name: 'Amit Patel',
-        headline: 'Senior Equity Trader',
+        headline: 'Senior Equity Trader at Zerodha',
         avatar_url: '/placeholder.svg',
-        location: 'Delhi, India',
+        location: 'Bangalore, India',
         industry: 'Capital Markets',
         followers: 1834,
         following: 456,
@@ -69,12 +69,12 @@ export const LikesModal: React.FC<LikesModalProps> = ({
       },
       {
         id: '3',
-        username: 'financial_guru',
+        username: 'financial_advisor_ravi',
         full_name: 'Ravi Kumar',
-        headline: 'Chartered Accountant & Tax Consultant',
+        headline: 'Certified Financial Planner & Investment Advisor',
         avatar_url: '/placeholder.svg',
-        location: 'Bangalore, India',
-        industry: 'Financial Services',
+        location: 'Delhi, India',
+        industry: 'Financial Advisory',
         followers: 3421,
         following: 234,
         connections: 2109,
@@ -105,7 +105,7 @@ export const LikesModal: React.FC<LikesModalProps> = ({
       <DialogContent className="sm:max-w-[500px] max-h-[70vh]">
         <DialogHeader>
           <DialogTitle>
-            Likes ({totalLikes})
+            Reactions ({totalLikes})
           </DialogTitle>
         </DialogHeader>
         
@@ -137,7 +137,7 @@ export const LikesModal: React.FC<LikesModalProps> = ({
                       <h4 className="font-medium text-gray-900">{user.full_name}</h4>
                       {user.is_verified && (
                         <Badge className="bg-blue-100 text-blue-800 text-xs">
-                          Verified
+                          Verified Investor
                         </Badge>
                       )}
                       {user.premium_member && (

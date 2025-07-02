@@ -5,89 +5,89 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
-  Users, TrendingUp, Briefcase, MessageSquare, 
+  Users, TrendingUp, DollarSign, MessageSquare, 
   Star, Shield, Award, Globe, ArrowRight,
-  CheckCircle, Zap, Target
+  CheckCircle, Zap, Target, BarChart3
 } from 'lucide-react';
 
 const Landing: React.FC = () => {
   const features = [
     {
       icon: Users,
-      title: 'Professional Networking',
-      description: 'Connect with industry professionals, build meaningful relationships, and expand your network.',
+      title: 'Financial Community',
+      description: 'Connect with investors, traders, financial advisors, and finance enthusiasts from across India.',
       color: 'text-blue-600',
       bgColor: 'bg-blue-100'
     },
     {
-      icon: Briefcase,
-      title: 'Career Opportunities',
-      description: 'Discover job openings, showcase your expertise, and advance your career.',
+      icon: DollarSign,
+      title: 'Investment Insights',
+      description: 'Share investment strategies, market analysis, and get advice from experienced investors.',
       color: 'text-green-600',
       bgColor: 'bg-green-100'
     },
     {
       icon: TrendingUp,
-      title: 'Industry Insights',
-      description: 'Stay updated with latest trends, market analysis, and professional content.',
+      title: 'Market Discussions',
+      description: 'Stay updated with stock market trends, crypto insights, and financial news discussions.',
       color: 'text-purple-600',
       bgColor: 'bg-purple-100'
     },
     {
       icon: MessageSquare,
-      title: 'Professional Messaging',
-      description: 'Communicate directly with colleagues, mentors, and industry experts.',
+      title: 'Financial Mentorship',
+      description: 'Connect with financial mentors, share experiences, and learn from successful investors.',
       color: 'text-orange-600',
       bgColor: 'bg-orange-100'
     }
   ];
 
   const stats = [
-    { number: '10M+', label: 'Active Professionals' },
-    { number: '500K+', label: 'Companies' },
-    { number: '2M+', label: 'Job Postings' },
-    { number: '50K+', label: 'Industry Experts' }
+    { number: '50K+', label: 'Financial Enthusiasts' },
+    { number: '1000+', label: 'Investment Advisors' },
+    { number: '25K+', label: 'Market Discussions' },
+    { number: '500+', label: 'Finance Experts' }
   ];
 
   const testimonials = [
     {
       name: 'Priya Sharma',
-      role: 'Senior Financial Analyst',
-      company: 'HDFC Bank',
-      content: 'ProfessionalIn helped me connect with industry leaders and land my dream job. The platform\'s networking features are incredible.',
+      role: 'Equity Research Analyst',
+      company: 'HDFC Securities',
+      content: 'InvestorPaisa helped me connect with seasoned investors and learn practical investment strategies. The community discussions are incredibly valuable.',
       avatar: '/placeholder.svg',
       verified: true
     },
     {
       name: 'Rahul Verma',
-      role: 'Investment Manager',
-      company: 'Mutual Fund Corp',
-      content: 'The quality of professional content and discussions here is unmatched. It\'s become my go-to platform for industry insights.',
+      role: 'Mutual Fund Distributor',
+      company: 'Groww',
+      content: 'The quality of financial discussions and market insights shared here is exceptional. It\'s become my daily source for investment ideas.',
       avatar: '/placeholder.svg',
       verified: true
     },
     {
       name: 'Ananya Patel',
-      role: 'Fintech Entrepreneur',
-      company: 'StartupTech',
-      content: 'From finding co-founders to securing investors, ProfessionalIn has been instrumental in my startup journey.',
+      role: 'Finance Blogger',
+      company: 'Personal Finance Pro',
+      content: 'From learning about SIPs to understanding market cycles, InvestorPaisa has been instrumental in my financial education journey.',
       avatar: '/placeholder.svg',
       verified: false
     }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">in</span>
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-green-600 rounded-lg flex items-center justify-center">
+                <DollarSign className="text-white h-6 w-6" />
               </div>
-              <span className="font-bold text-2xl text-gray-900">ProfessionalIn</span>
-              <Badge className="bg-blue-100 text-blue-800 text-xs">Beta</Badge>
+              <span className="font-bold text-2xl text-gray-900">InvestorPaisa</span>
+              <Badge className="bg-green-100 text-green-800 text-xs">Live</Badge>
             </div>
             
             <div className="flex items-center space-x-4">
@@ -98,7 +98,7 @@ const Landing: React.FC = () => {
               </Link>
               <Link to="/register">
                 <Button className="bg-blue-600 hover:bg-blue-700 font-medium">
-                  Join Now
+                  Join Community
                 </Button>
               </Link>
             </div>
@@ -111,26 +111,26 @@ const Landing: React.FC = () => {
         <div className="max-w-7xl mx-auto text-center">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-5xl lg:text-7xl font-bold text-gray-900 mb-8 leading-tight">
-              Your Professional
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> Network</span>
-              <br />Starts Here
+              Your Financial
+              <span className="bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent"> Community</span>
+              <br />Awaits You
             </h1>
             
             <p className="text-xl lg:text-2xl text-gray-600 mb-12 leading-relaxed">
-              Connect with industry professionals, discover opportunities, and build your career 
-              on India's fastest-growing professional platform.
+              Connect with investors, share market insights, and grow your wealth together 
+              on India's premier financial social platform.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
               <Link to="/register">
                 <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-4 h-auto">
-                  Get Started Free
+                  Start Investing Together
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Link to="/professional">
+              <Link to="/market">
                 <Button variant="outline" size="lg" className="text-lg px-8 py-4 h-auto border-2">
-                  Explore Platform
+                  Explore Markets
                 </Button>
               </Link>
             </div>
@@ -157,18 +157,18 @@ const Landing: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
-              Everything You Need to
-              <span className="text-blue-600"> Succeed</span>
+              Everything You Need for
+              <span className="text-green-600"> Financial Success</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Our comprehensive platform provides all the tools you need to build your professional presence,
-              connect with the right people, and advance your career.
+              Our comprehensive platform provides all the tools you need to build your investment knowledge,
+              connect with the right people, and grow your wealth systematically.
             </p>
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {features.map((feature, index) => (
-              <Card key={index} className="group hover:shadow-xl transition-all duration-300 border-2 hover:border-blue-200">
+              <Card key={index} className="group hover:shadow-xl transition-all duration-300 border-2 hover:border-green-200">
                 <CardContent className="p-8">
                   <div className="flex items-start space-x-4">
                     <div className={`p-3 rounded-xl ${feature.bgColor} group-hover:scale-110 transition-transform duration-300`}>
@@ -196,10 +196,10 @@ const Landing: React.FC = () => {
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
               Trusted by
-              <span className="text-blue-600"> Professionals</span>
+              <span className="text-green-600"> Smart Investors</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Join thousands of professionals who have transformed their careers with ProfessionalIn.
+              Join thousands of investors who have enhanced their financial journey with InvestorPaisa.
             </p>
           </div>
           
@@ -217,7 +217,7 @@ const Landing: React.FC = () => {
                       <div className="flex items-center space-x-2">
                         <h4 className="font-semibold text-gray-900">{testimonial.name}</h4>
                         {testimonial.verified && (
-                          <CheckCircle className="h-4 w-4 text-blue-600" />
+                          <CheckCircle className="h-4 w-4 text-green-600" />
                         )}
                       </div>
                       <p className="text-sm text-gray-600">{testimonial.role}</p>
@@ -235,25 +235,25 @@ const Landing: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-purple-600">
+      <section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-green-600">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
-            Ready to Accelerate Your Career?
+            Ready to Accelerate Your Wealth?
           </h2>
           <p className="text-xl text-blue-100 mb-10">
-            Join ProfessionalIn today and connect with opportunities that matter.
+            Join InvestorPaisa today and connect with investment opportunities that matter.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/register">
               <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4 h-auto font-semibold">
-                Join Free Today
+                Start Your Journey
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Link to="/professional">
+            <Link to="/market">
               <Button variant="outline" size="lg" className="text-white border-white hover:bg-white hover:text-blue-600 text-lg px-8 py-4 h-auto">
-                Learn More
+                Explore Markets
               </Button>
             </Link>
           </div>
@@ -266,23 +266,23 @@ const Landing: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <div className="lg:col-span-2">
               <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold">in</span>
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-green-600 rounded-lg flex items-center justify-center">
+                  <DollarSign className="text-white h-5 w-5" />
                 </div>
-                <span className="font-bold text-xl">ProfessionalIn</span>
+                <span className="font-bold text-xl">InvestorPaisa</span>
               </div>
               <p className="text-gray-400 max-w-md">
-                Building the future of professional networking in India. Connect, grow, and succeed with us.
+                Building the future of financial community in India. Invest, learn, and grow together with us.
               </p>
             </div>
             
             <div>
               <h4 className="font-semibold mb-4">Platform</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><Link to="/professional" className="hover:text-white">Professional Feed</Link></li>
+                <li><Link to="/home" className="hover:text-white">Investment Feed</Link></li>
                 <li><Link to="/network" className="hover:text-white">My Network</Link></li>
-                <li><Link to="/jobs" className="hover:text-white">Jobs</Link></li>
-                <li><Link to="/messaging" className="hover:text-white">Messaging</Link></li>
+                <li><Link to="/market" className="hover:text-white">Markets</Link></li>
+                <li><Link to="/inbox" className="hover:text-white">Messages</Link></li>
               </ul>
             </div>
             
@@ -298,7 +298,7 @@ const Landing: React.FC = () => {
           </div>
           
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 ProfessionalIn. All rights reserved.</p>
+            <p>&copy; 2024 InvestorPaisa. All rights reserved.</p>
           </div>
         </div>
       </footer>
