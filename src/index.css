@@ -9,6 +9,7 @@
   --color-primary: #000000;
   --color-primary-hover: #1a1a1a;
   --color-gold: #d4af37;
+  --border-radius: 24px;
 }
 
 @layer base {
@@ -17,7 +18,7 @@
   }
   
   body {
-    @apply bg-gray-50 text-foreground font-sans;
+    @apply bg-gradient-to-br from-slate-50 via-white to-blue-50 text-foreground font-sans;
     font-family: var(--font-sans);
   }
 
@@ -25,19 +26,50 @@
     font-family: var(--font-sans);
     font-weight: 600;
   }
+
+  /* Apply curved corners globally */
+  .rounded, [class*="rounded-"]:not([class*="rounded-none"]):not([class*="rounded-full"]) {
+    border-radius: 24px !important;
+  }
+
+  /* Override specific components for consistent curved design */
+  .card, .button, .input, .select, .dialog, .popover, .dropdown, .sheet {
+    border-radius: 24px !important;
+  }
+
+  /* Ensure nested elements also get curved corners */
+  .card > *, .button > *, .dialog > * {
+    border-radius: inherit;
+  }
 }
 
 @layer components {
+  /* Modern curved button styles */
   .investorpaisa-primary {
-    @apply bg-black text-white hover:bg-gray-800;
+    @apply bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300;
   }
   
   .investorpaisa-secondary {
-    @apply bg-gray-100 text-black hover:bg-gray-200;
+    @apply bg-white/80 backdrop-blur-sm text-slate-900 hover:bg-white/90 border border-slate-200 rounded-3xl shadow-sm hover:shadow-lg transition-all duration-300;
   }
   
   .investorpaisa-outline {
-    @apply border border-black text-black hover:bg-black hover:text-white;
+    @apply border-2 border-gradient-to-r from-blue-600 to-purple-600 text-slate-900 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 rounded-3xl transition-all duration-300;
+  }
+
+  /* Modern card styles */
+  .modern-card {
+    @apply bg-white/90 backdrop-blur-sm border-0 shadow-lg rounded-3xl hover:shadow-xl transition-all duration-300;
+  }
+
+  /* Modern input styles */
+  .modern-input {
+    @apply bg-white/80 backdrop-blur-sm border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200;
+  }
+
+  /* Glass morphism effect */
+  .glass-morphism {
+    @apply bg-white/90 backdrop-blur-xl border border-white/20 shadow-2xl rounded-3xl;
   }
 }
 
@@ -52,43 +84,102 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;  
+    overflow: hidden;
+  }
+
+  /* Modern gradient backgrounds */
+  .gradient-bg-1 {
+    @apply bg-gradient-to-br from-blue-50 via-white to-purple-50;
+  }
+  
+  .gradient-bg-2 {
+    @apply bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600;
+  }
+
+  /* Modern shadows */
+  .shadow-modern {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  .shadow-modern-lg {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
 }
 
-/* LinkedIn-style animations */
+/* Modern LinkedIn-style animations */
 .linkedin-hover {
-  @apply transition-all duration-200 ease-in-out;
+  @apply transition-all duration-300 ease-out;
 }
 
 .linkedin-hover:hover {
+  @apply transform -translate-y-1 shadow-xl;
+}
+
+/* Modern Cred-style animations */
+.cred-hover {
+  @apply transition-all duration-200 ease-out;
+}
+
+.cred-hover:hover {
   @apply transform scale-105 shadow-lg;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar with curved design */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 12px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-gray-100;
+  @apply bg-slate-100 rounded-full;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 rounded-full;
+  @apply bg-gradient-to-r from-blue-400 to-purple-400 rounded-full;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-400;
+  @apply from-blue-500 to-purple-500;
 }
 
-/* InvestorPaisa brand colors */
+/* InvestorPaisa modern brand colors */
 .bg-investorpaisa-primary {
-  background-color: var(--color-primary);
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
 }
 
 .text-investorpaisa-primary {
-  color: var(--color-primary);
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .border-investorpaisa-primary {
-  border-color: var(--color-primary);
+  border-image: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) 1;
+}
+
+/* Modern glassmorphism effects */
+.glass-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+}
+
+/* AI gradient effect for search */
+.ai-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }

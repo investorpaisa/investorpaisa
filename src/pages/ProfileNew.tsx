@@ -265,7 +265,7 @@ const ProfileNew = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
@@ -273,8 +273,8 @@ const ProfileNew = () => {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
-        <Card className="p-8 text-center rounded-3xl">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 flex items-center justify-center">
+        <Card className="p-8 text-center rounded-3xl shadow-lg border-0 bg-white/90 backdrop-blur-sm">
           <h2 className="text-2xl font-bold text-slate-900 mb-2">Profile not found</h2>
           <p className="text-slate-600">The profile you're looking for doesn't exist.</p>
         </Card>
@@ -283,21 +283,24 @@ const ProfileNew = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <div className="max-w-4xl mx-auto px-4 py-6">
         
-        {/* Profile Header */}
-        <Card className="overflow-hidden rounded-3xl shadow-sm border border-slate-200 bg-white/80 backdrop-blur-sm">
-          {/* Banner */}
-          <div className="h-48 bg-gradient-to-r from-blue-600 via-purple-600 to-green-600 relative">
+        {/* Modern Profile Header */}
+        <Card className="overflow-hidden rounded-3xl shadow-lg border-0 bg-white/90 backdrop-blur-sm mb-6">
+          {/* Banner with Gradient */}
+          <div className="h-48 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 relative">
             {profile.premium_member && (
-              <Crown className="absolute top-4 right-4 h-8 w-8 text-yellow-300 fill-current" />
+              <div className="absolute top-6 right-6 flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-2xl px-4 py-2">
+                <Crown className="h-5 w-5 text-yellow-300" />
+                <span className="text-white font-medium">Premium</span>
+              </div>
             )}
             {isOwnProfile && (
               <Button 
                 variant="secondary" 
                 size="sm" 
-                className="absolute top-4 right-4 rounded-2xl bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
+                className="absolute top-6 left-6 rounded-2xl bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border-white/30"
               >
                 <Camera className="h-4 w-4 mr-2" />
                 Edit banner
@@ -305,22 +308,22 @@ const ProfileNew = () => {
             )}
           </div>
 
-          <div className="px-6 pb-6">
+          <div className="px-8 pb-8">
             {/* Avatar and Basic Info */}
-            <div className="flex items-end justify-between -mt-16 mb-6">
+            <div className="flex items-end justify-between -mt-20 mb-6">
               <div className="relative">
-                <Avatar className="h-32 w-32 ring-4 ring-white shadow-lg">
+                <Avatar className="h-40 w-40 ring-4 ring-white shadow-2xl">
                   <AvatarImage src={profile.avatar_url} />
-                  <AvatarFallback className="bg-blue-600 text-white text-3xl font-bold">
+                  <AvatarFallback className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-4xl font-bold">
                     {profile.full_name?.charAt(0) || 'U'}
                   </AvatarFallback>
                 </Avatar>
                 {isOwnProfile && (
                   <Button 
                     size="sm" 
-                    className="absolute -bottom-2 -right-2 rounded-full h-10 w-10 p-0 bg-blue-600 hover:bg-blue-700"
+                    className="absolute -bottom-2 -right-2 rounded-full h-12 w-12 p-0 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg"
                   >
-                    <Camera className="h-4 w-4" />
+                    <Camera className="h-5 w-5" />
                   </Button>
                 )}
               </div>
@@ -330,17 +333,17 @@ const ProfileNew = () => {
                   <>
                     <Button 
                       variant="outline" 
-                      className="rounded-2xl border-slate-300 hover:bg-slate-50"
+                      className="rounded-2xl border-slate-300 hover:bg-slate-50 px-6"
                     >
                       <Mail className="h-4 w-4 mr-2" />
                       Message
                     </Button>
                     <Button 
                       onClick={toggleFollow}
-                      className={`rounded-2xl ${
+                      className={`rounded-2xl px-6 ${
                         isFollowing 
                           ? 'bg-slate-600 hover:bg-slate-700 text-white' 
-                          : 'bg-blue-600 hover:bg-blue-700 text-white'
+                          : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white'
                       }`}
                     >
                       <Users className="h-4 w-4 mr-2" />
@@ -349,7 +352,7 @@ const ProfileNew = () => {
                   </>
                 )}
                 {isOwnProfile && (
-                  <Button variant="outline" className="rounded-2xl border-slate-300 hover:bg-slate-50">
+                  <Button variant="outline" className="rounded-2xl border-slate-300 hover:bg-slate-50 px-6">
                     <Edit3 className="h-4 w-4 mr-2" />
                     Edit profile
                   </Button>
@@ -357,110 +360,106 @@ const ProfileNew = () => {
               </div>
             </div>
 
-            {/* Profile Info */}
-            <div className="space-y-4">
+            {/* Profile Info with Modern Design */}
+            <div className="space-y-6">
               <div>
-                <div className="flex items-center space-x-2 mb-2">
-                  <h1 className="text-3xl font-bold text-slate-900">{profile.full_name}</h1>
+                <div className="flex items-center space-x-3 mb-3">
+                  <h1 className="text-4xl font-bold text-slate-900">{profile.full_name}</h1>
                   {profile.is_verified && (
-                    <Badge className="bg-blue-100 text-blue-800 rounded-lg">
-                      <TrendingUp className="h-3 w-3 mr-1" />
+                    <Badge className="bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 rounded-2xl px-3 py-1">
+                      <Award className="h-4 w-4 mr-1" />
                       Verified Investor
                     </Badge>
                   )}
                   {profile.premium_member && (
-                    <Badge className="bg-yellow-100 text-yellow-800 rounded-lg">
-                      <Crown className="h-3 w-3 mr-1" />
+                    <Badge className="bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-800 rounded-2xl px-3 py-1">
+                      <Crown className="h-4 w-4 mr-1" />
                       Premium
                     </Badge>
                   )}
                 </div>
-                <p className="text-lg text-slate-700 font-medium">{profile.headline}</p>
+                <p className="text-xl text-slate-700 font-medium">{profile.headline}</p>
               </div>
 
-              <div className="flex items-center space-x-6 text-sm text-slate-600">
+              <div className="flex items-center space-x-8 text-sm text-slate-600">
                 {profile.current_company && (
-                  <div className="flex items-center space-x-1">
-                    <Building className="h-4 w-4" />
+                  <div className="flex items-center space-x-2">
+                    <Building className="h-5 w-5" />
                     <span>{profile.current_company}</span>
                   </div>
                 )}
                 {profile.industry && (
-                  <div className="flex items-center space-x-1">
-                    <TrendingUp className="h-4 w-4" />
+                  <div className="flex items-center space-x-2">
+                    <TrendingUp className="h-5 w-5" />
                     <span>{profile.industry}</span>
                   </div>
                 )}
-                <div className="flex items-center space-x-1">
-                  <Calendar className="h-4 w-4" />
+                <div className="flex items-center space-x-2">
+                  <Calendar className="h-5 w-5" />
                   <span>Joined {formatDistanceToNow(new Date(profile.created_at), { addSuffix: true })}</span>
                 </div>
               </div>
 
               {profile.bio && (
-                <p className="text-slate-700 leading-relaxed">{profile.bio}</p>
+                <p className="text-slate-700 leading-relaxed text-lg">{profile.bio}</p>
               )}
 
-              <div className="flex items-center space-x-8 pt-4 border-t border-slate-100">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-slate-900">{profile.followers}</div>
-                  <div className="text-sm text-slate-600">Followers</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-slate-900">{profile.following}</div>
-                  <div className="text-sm text-slate-600">Following</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-slate-900">{profile.connection_count}</div>
-                  <div className="text-sm text-slate-600">Connections</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-slate-900">{userPosts.length}</div>
-                  <div className="text-sm text-slate-600">Posts</div>
-                </div>
+              {/* Stats with Modern Cards */}
+              <div className="grid grid-cols-4 gap-4 pt-6 border-t border-slate-100">
+                {[
+                  { label: 'Followers', value: profile.followers, color: 'from-blue-500 to-purple-500' },
+                  { label: 'Following', value: profile.following, color: 'from-green-500 to-teal-500' },
+                  { label: 'Connections', value: profile.connection_count, color: 'from-orange-500 to-red-500' },
+                  { label: 'Posts', value: userPosts.length, color: 'from-pink-500 to-rose-500' }
+                ].map((stat, index) => (
+                  <div key={index} className="text-center">
+                    <div className={`h-12 w-12 bg-gradient-to-r ${stat.color} rounded-2xl flex items-center justify-center mx-auto mb-2`}>
+                      <span className="text-2xl font-bold text-white">{stat.value}</span>
+                    </div>
+                    <div className="text-sm font-medium text-slate-600">{stat.label}</div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </Card>
 
-        {/* Content Tabs */}
-        <Card className="mt-6 rounded-3xl shadow-sm border border-slate-200 bg-white/80 backdrop-blur-sm">
+        {/* Modern Content Tabs */}
+        <Card className="rounded-3xl shadow-lg border-0 bg-white/90 backdrop-blur-sm">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="w-full justify-start h-auto p-0 bg-transparent border-b border-slate-100 rounded-none">
-              <TabsTrigger 
-                value="posts" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:text-blue-600 px-6 py-4"
-              >
-                Posts ({userPosts.length})
-              </TabsTrigger>
-              <TabsTrigger 
-                value="activity" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:text-blue-600 px-6 py-4"
-              >
-                Activity ({activities.length})
-              </TabsTrigger>
-              <TabsTrigger 
-                value="about" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:text-blue-600 px-6 py-4"
-              >
-                About
-              </TabsTrigger>
+              {[
+                { value: 'posts', label: `Posts (${userPosts.length})` },
+                { value: 'activity', label: `Activity (${activities.length})` },
+                { value: 'about', label: 'About' }
+              ].map((tab) => (
+                <TabsTrigger 
+                  key={tab.value}
+                  value={tab.value}
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:text-blue-600 px-8 py-4 font-medium"
+                >
+                  {tab.label}
+                </TabsTrigger>
+              ))}
             </TabsList>
 
-            <TabsContent value="posts" className="p-6 space-y-6">
+            {/* Tab Contents with modern styling */}
+            <TabsContent value="posts" className="p-8 space-y-6">
               {userPosts.length === 0 ? (
-                <div className="text-center py-12">
-                  <Edit3 className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                <div className="text-center py-16">
+                  <div className="h-24 w-24 bg-gradient-to-r from-blue-100 to-purple-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                    <Edit3 className="h-12 w-12 text-blue-600" />
+                  </div>
+                  <h3 className="text-2xl font-semibold text-slate-900 mb-3">
                     {isOwnProfile ? "You haven't posted anything yet" : `${profile.full_name} hasn't posted anything yet`}
                   </h3>
-                  <p className="text-slate-600">
+                  <p className="text-slate-600 text-lg">
                     {isOwnProfile ? "Share your investment insights with the community!" : "Check back later for new posts."}
                   </p>
                 </div>
               ) : (
                 userPosts.map((post) => (
-                  <Card key={post.id} className="p-6 rounded-3xl border border-slate-100 hover:shadow-md transition-shadow">
+                  <Card key={post.id} className="p-8 rounded-3xl border border-slate-100 hover:shadow-lg transition-all duration-300 bg-white/80 backdrop-blur-sm">
                     <div className="space-y-3">
                       <h3 className="text-lg font-semibold text-slate-900">{post.title}</h3>
                       <p className="text-slate-700 leading-relaxed line-clamp-3">{post.content}</p>

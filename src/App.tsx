@@ -4,14 +4,14 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from '@/contexts/AuthContext';
 import { Toaster } from '@/components/ui/toaster';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import MainLayout from '@/layouts/MainLayout';
+import ModernLayout from '@/layouts/ModernLayout';
 import AuthLayout from '@/layouts/AuthLayout';
 
 // Pages
 import Landing from '@/pages/Landing';
 import Login from '@/pages/auth/Login';
 import Register from '@/pages/auth/Register';
-import ProfessionalHome from '@/pages/ProfessionalHome';
+import ModernHome from '@/pages/ModernHome';
 import ProfileNew from '@/pages/ProfileNew';
 import Market from '@/pages/Market';
 import Inbox from '@/pages/Inbox';
@@ -30,9 +30,9 @@ function App() {
               <Route path="register" element={<Register />} />
             </Route>
 
-            {/* Protected routes with main layout */}
-            <Route path="/" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-              <Route path="professional" element={<ProfessionalHome />} />
+            {/* Protected routes with modern layout */}
+            <Route path="/" element={<ProtectedRoute><ModernLayout /></ProtectedRoute>}>
+              <Route path="professional" element={<ModernHome />} />
               <Route path="home" element={<Navigate to="/professional" replace />} />
               <Route path="feed" element={<Navigate to="/professional" replace />} />
               <Route path="profile" element={<ProfileNew />} />
