@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -9,7 +10,7 @@ import {
   MapPin, Calendar, Building, Globe, Mail, Phone,
   UserPlus, MessageCircle, MoreHorizontal, ArrowLeft,
   Briefcase, GraduationCap, Award, Users, Heart,
-  MessageSquare, Share, Bookmark
+  MessageSquare, Share, Bookmark, Edit3
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -75,33 +76,52 @@ const PublicProfile = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'none' | 'pending' | 'connected'>('none');
 
+  // Check if this is the user's own profile
+  const isOwnProfile = !userId || userId === user?.id;
+  const profileId = userId || user?.id;
+
   useEffect(() => {
-    if (userId) {
+    if (profileId) {
       loadProfileData();
     }
-  }, [userId]);
+  }, [profileId]);
 
   const loadProfileData = async () => {
     try {
       setLoading(true);
 
-      // Load profile
-      const { data: profileData } = await supabase
+      // Load profile with actual connection counts
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', userId)
+        .eq('id', profileId)
         .single();
 
+      if (profileError) throw profileError;
+
       if (profileData) {
-        // Now location should be available from the database
-        setProfile(profileData);
+        // Get real connection counts
+        const [followersResult, followingResult, connectionsResult] = await Promise.all([
+          supabase.from('follows').select('id').eq('following_id', profileId),
+          supabase.from('follows').select('id').eq('follower_id', profileId),
+          supabase.from('connections').select('id').eq('receiver_id', profileId).eq('status', 'connected')
+        ]);
+
+        const realProfile = {
+          ...profileData,
+          followers: followersResult.data?.length || 0,
+          following: followingResult.data?.length || 0,
+          connection_count: connectionsResult.data?.length || 0
+        };
+
+        setProfile(realProfile);
       }
 
       // Load experiences
       const { data: experienceData } = await supabase
         .from('experiences')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', profileId)
         .order('start_date', { ascending: false });
 
       if (experienceData) {
@@ -112,18 +132,18 @@ const PublicProfile = () => {
       const { data: educationData } = await supabase
         .from('education')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', profileId)
         .order('start_year', { ascending: false });
 
       if (educationData) {
         setEducation(educationData);
       }
 
-      // Load posts
+      // Load posts with real data
       const { data: postsData } = await supabase
         .from('posts')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', profileId)
         .order('created_at', { ascending: false })
         .limit(10);
 
@@ -135,22 +155,21 @@ const PublicProfile = () => {
       const { data: skillsData } = await supabase
         .from('skills')
         .select('skill_name')
-        .eq('user_id', userId);
+        .eq('user_id', profileId);
 
       if (skillsData) {
         setSkills(skillsData.map(s => s.skill_name));
       }
 
       // Check connection status
-      if (user && user.id !== userId) {
+      if (user && user.id !== profileId) {
         const { data: connectionData } = await supabase
           .from('connections')
           .select('status')
-          .or(`and(requester_id.eq.${user.id},receiver_id.eq.${userId}),and(requester_id.eq.${userId},receiver_id.eq.${user.id})`)
+          .or(`and(requester_id.eq.${user.id},receiver_id.eq.${profileId}),and(requester_id.eq.${profileId},receiver_id.eq.${user.id})`)
           .single();
 
         if (connectionData) {
-          // Fix type issue by ensuring the status is one of the expected values
           const status = connectionData.status;
           if (status === 'pending' || status === 'connected') {
             setConnectionStatus(status);
@@ -188,11 +207,19 @@ const PublicProfile = () => {
     }
   };
 
+  const handleEditProfile = () => {
+    navigate('/edit-profile');
+  };
+
+  const handleNewMessage = () => {
+    navigate('/messages/new');
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full animate-spin mb-4 mx-auto"></div>
+          <div className="w-8 h-8 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-full animate-spin mb-4 mx-auto"></div>
           <p className="text-slate-600">Loading profile...</p>
         </div>
       </div>
@@ -201,7 +228,7 @@ const PublicProfile = () => {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-slate-900 mb-2">Profile not found</h2>
           <p className="text-slate-600 mb-4">The profile you're looking for doesn't exist.</p>
@@ -215,9 +242,9 @@ const PublicProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50">
       {/* Header with Banner */}
-      <div className="relative h-64 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600">
+      <div className="relative h-64 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600">
         {profile.banner_image && (
           <img 
             src={profile.banner_image} 
@@ -249,7 +276,7 @@ const PublicProfile = () => {
                 <div className="text-center">
                   <Avatar className="h-32 w-32 mx-auto mb-4 ring-4 ring-white shadow-xl">
                     <AvatarImage src={profile.avatar_url} />
-                    <AvatarFallback className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-2xl font-bold">
+                    <AvatarFallback className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-2xl font-bold">
                       {profile.full_name?.charAt(0) || 'U'}
                     </AvatarFallback>
                   </Avatar>
@@ -257,42 +284,56 @@ const PublicProfile = () => {
                   <div className="flex items-center justify-center space-x-2 mb-2">
                     <h1 className="text-2xl font-bold text-slate-900">{profile.full_name}</h1>
                     {profile.is_verified && (
-                      <Badge className="bg-blue-100 text-blue-800 rounded-full">Verified</Badge>
+                      <Badge className="bg-emerald-100 text-emerald-800 rounded-full">Verified</Badge>
                     )}
                   </div>
                   
                   <p className="text-slate-600 mb-1">@{profile.username}</p>
                   <p className="text-lg font-medium text-slate-800 mb-4">{profile.headline}</p>
                   
-                  {user && user.id !== profile.id && (
-                    <div className="flex space-x-2 mb-4">
-                      {connectionStatus === 'none' && (
-                        <Button
-                          onClick={handleConnect}
-                          className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-2xl"
+                  {isOwnProfile ? (
+                    <Button
+                      onClick={handleEditProfile}
+                      className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-2xl mb-4"
+                    >
+                      <Edit3 className="h-4 w-4 mr-2" />
+                      Edit Profile
+                    </Button>
+                  ) : (
+                    user && user.id !== profile.id && (
+                      <div className="flex space-x-2 mb-4">
+                        {connectionStatus === 'none' && (
+                          <Button
+                            onClick={handleConnect}
+                            className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-2xl"
+                          >
+                            <UserPlus className="h-4 w-4 mr-2" />
+                            Connect
+                          </Button>
+                        )}
+                        {connectionStatus === 'pending' && (
+                          <Button variant="outline" disabled className="flex-1 rounded-2xl">
+                            Request Sent
+                          </Button>
+                        )}
+                        {connectionStatus === 'connected' && (
+                          <Button variant="outline" className="flex-1 rounded-2xl">
+                            <Users className="h-4 w-4 mr-2" />
+                            Connected
+                          </Button>
+                        )}
+                        <Button 
+                          variant="outline" 
+                          className="rounded-2xl"
+                          onClick={handleNewMessage}
                         >
-                          <UserPlus className="h-4 w-4 mr-2" />
-                          Connect
+                          <MessageCircle className="h-4 w-4" />
                         </Button>
-                      )}
-                      {connectionStatus === 'pending' && (
-                        <Button variant="outline" disabled className="flex-1 rounded-2xl">
-                          Request Sent
+                        <Button variant="outline" className="rounded-2xl">
+                          <MoreHorizontal className="h-4 w-4" />
                         </Button>
-                      )}
-                      {connectionStatus === 'connected' && (
-                        <Button variant="outline" className="flex-1 rounded-2xl">
-                          <Users className="h-4 w-4 mr-2" />
-                          Connected
-                        </Button>
-                      )}
-                      <Button variant="outline" className="rounded-2xl">
-                        <MessageCircle className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" className="rounded-2xl">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </div>
+                      </div>
+                    )
                   )}
                 </div>
 
@@ -325,15 +366,15 @@ const PublicProfile = () => {
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
-                    <div className="font-bold text-lg text-slate-900">{profile.connection_count || 0}</div>
+                    <div className="font-bold text-lg text-slate-900">{profile.connection_count}</div>
                     <div className="text-sm text-slate-600">Connections</div>
                   </div>
                   <div>
-                    <div className="font-bold text-lg text-slate-900">{profile.followers || 0}</div>
+                    <div className="font-bold text-lg text-slate-900">{profile.followers}</div>
                     <div className="text-sm text-slate-600">Followers</div>
                   </div>
                   <div>
-                    <div className="font-bold text-lg text-slate-900">{profile.following || 0}</div>
+                    <div className="font-bold text-lg text-slate-900">{profile.following}</div>
                     <div className="text-sm text-slate-600">Following</div>
                   </div>
                 </div>
@@ -345,7 +386,7 @@ const PublicProfile = () => {
               <Card className="rounded-3xl border-0 shadow-lg bg-white/90 backdrop-blur-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center text-lg">
-                    <Award className="h-5 w-5 mr-2 text-blue-600" />
+                    <Award className="h-5 w-5 mr-2 text-emerald-600" />
                     Skills & Expertise
                   </CardTitle>
                 </CardHeader>
@@ -355,7 +396,7 @@ const PublicProfile = () => {
                       <Badge
                         key={index}
                         variant="secondary"
-                        className="rounded-full bg-blue-50 text-blue-700 hover:bg-blue-100"
+                        className="rounded-full bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
                       >
                         {skill}
                       </Badge>
@@ -385,15 +426,15 @@ const PublicProfile = () => {
               <Card className="rounded-3xl border-0 shadow-lg bg-white/90 backdrop-blur-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <Briefcase className="h-5 w-5 mr-2 text-blue-600" />
+                    <Briefcase className="h-5 w-5 mr-2 text-emerald-600" />
                     Experience
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {experiences.map((exp) => (
-                    <div key={exp.id} className="border-l-2 border-blue-200 pl-4">
+                    <div key={exp.id} className="border-l-2 border-emerald-200 pl-4">
                       <h3 className="font-semibold text-slate-900">{exp.position}</h3>
-                      <p className="text-blue-600 font-medium">{exp.company}</p>
+                      <p className="text-emerald-600 font-medium">{exp.company}</p>
                       <p className="text-slate-600 text-sm">{exp.location}</p>
                       <p className="text-slate-500 text-sm">
                         {exp.start_date} - {exp.is_current ? 'Present' : exp.end_date}
@@ -412,15 +453,15 @@ const PublicProfile = () => {
               <Card className="rounded-3xl border-0 shadow-lg bg-white/90 backdrop-blur-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <GraduationCap className="h-5 w-5 mr-2 text-blue-600" />
+                    <GraduationCap className="h-5 w-5 mr-2 text-emerald-600" />
                     Education
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {education.map((edu) => (
-                    <div key={edu.id} className="border-l-2 border-purple-200 pl-4">
+                    <div key={edu.id} className="border-l-2 border-teal-200 pl-4">
                       <h3 className="font-semibold text-slate-900">{edu.institution}</h3>
-                      <p className="text-purple-600 font-medium">{edu.degree}</p>
+                      <p className="text-teal-600 font-medium">{edu.degree}</p>
                       <p className="text-slate-600">{edu.field_of_study}</p>
                       <p className="text-slate-500 text-sm">
                         {edu.start_year} - {edu.end_year}
