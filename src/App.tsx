@@ -8,24 +8,24 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { SessionProvider } from "@/contexts/SessionContext";
 import "./App.css";
 
-import Landing from "@/pages/Landing";
-import Login from "@/pages/auth/Login";
-import Register from "@/pages/auth/Register";
+import LandingPage from "@/pages/LandingPage";
+import { LoginPage } from "@/pages/auth/LoginPage";
+import { RegisterPage } from "@/pages/auth/RegisterPage";
 import Home from "@/pages/Home";
 import Profile from "@/pages/Profile";
 import ProfileNew from "@/pages/ProfileNew";
 import PublicProfile from "@/pages/PublicProfile";
 import EditProfile from "@/pages/EditProfile";
-import Discover from "@/pages/Discover";
-import Inbox from "@/pages/Inbox";
+import Search from "@/pages/Search";
+import Messages from "@/pages/Messages";
 import MessagesNew from "@/pages/MessagesNew";
 import Notifications from "@/pages/Notifications";
 import Circle from "@/pages/Circle";
-import Portfolio from "@/pages/Portfolio";
-import Market from "@/pages/Market";
-import Feed from "@/pages/Feed";
-import { MyNetwork } from "@/pages/MyNetwork";
-import ProtectedRoute from "@/components/ProtectedRoute";
+import Settings from "@/pages/Settings";
+import EmailIntegration from "@/pages/EmailIntegration";
+import Help from "@/pages/Help";
+import CreatePost from "@/pages/CreatePost";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -40,9 +40,9 @@ function App() {
             <SessionProvider>
               <Routes>
                 {/* Public routes */}
-                <Route path="/" element={<Landing />} />
-                <Route path="/auth/login" element={<Login />} />
-                <Route path="/auth/register" element={<Register />} />
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/auth/login" element={<LoginPage />} />
+                <Route path="/auth/register" element={<RegisterPage />} />
                 
                 {/* Protected routes */}
                 <Route path="/home" element={
@@ -70,14 +70,14 @@ function App() {
                     <EditProfile />
                   </ProtectedRoute>
                 } />
-                <Route path="/discover" element={
+                <Route path="/search" element={
                   <ProtectedRoute>
-                    <Discover />
+                    <Search />
                   </ProtectedRoute>
                 } />
-                <Route path="/inbox" element={
+                <Route path="/messages" element={
                   <ProtectedRoute>
-                    <Inbox />
+                    <Messages />
                   </ProtectedRoute>
                 } />
                 <Route path="/messages/new" element={
@@ -92,22 +92,27 @@ function App() {
                 } />
                 <Route path="/network" element={
                   <ProtectedRoute>
-                    <MyNetwork />
+                    <Circle />
                   </ProtectedRoute>
                 } />
-                <Route path="/portfolio" element={
+                <Route path="/settings" element={
                   <ProtectedRoute>
-                    <Portfolio />
+                    <Settings />
                   </ProtectedRoute>
                 } />
-                <Route path="/market" element={
+                <Route path="/email-integration" element={
                   <ProtectedRoute>
-                    <Market />
+                    <EmailIntegration />
                   </ProtectedRoute>
                 } />
-                <Route path="/feed" element={
+                <Route path="/help" element={
                   <ProtectedRoute>
-                    <Feed />
+                    <Help />
+                  </ProtectedRoute>
+                } />
+                <Route path="/create-post" element={
+                  <ProtectedRoute>
+                    <CreatePost />
                   </ProtectedRoute>
                 } />
                 
