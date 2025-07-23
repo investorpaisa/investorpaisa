@@ -52,12 +52,15 @@ export const getCurrentUser = async () => {
 
 export const signInWithGoogle = async () => {
   try {
-    const { signInWithPopup } = await import('firebase/auth');
-    const result = await signInWithPopup(firebaseAuth, googleProvider);
-    const token = await result.user.getIdToken();
-    const { error } = await supabase.auth.signInWithIdToken({
+    if (!supabase) {
+      throw new Error('Supabase client not initialized');
+    }
+
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      token
+      options: {
+        redirectTo: `${window.location.origin}/home`
+      }
     });
 
     if (error) {
