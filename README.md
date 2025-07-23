@@ -36,6 +36,8 @@ npm i
 npm run dev
 ```
 
+Create a `.env` file based on `.env.example` and add your Supabase and Firebase credentials before running the app.
+
 **Edit a file directly in GitHub**
 
 - Navigate to the desired file(s).
