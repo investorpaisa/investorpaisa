@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { firebaseAuth, googleProvider } from "@/integrations/firebase";
 import { User } from "../api";
 import { fetchUserProfile, formatUser, showToast } from "./utils";
 import { trackUserEvent } from "@/services/analytics/googleAnalytics";
@@ -51,31 +52,25 @@ export const getCurrentUser = async () => {
 
 export const signInWithGoogle = async () => {
   try {
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const { signInWithPopup } = await import('firebase/auth');
+    const result = await signInWithPopup(firebaseAuth, googleProvider);
+    const token = await result.user.getIdToken();
+    const { error } = await supabase.auth.signInWithIdToken({
       provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}`,
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
-        }
-      }
+      token
     });
 
     if (error) {
       throw error;
     }
 
-    // Track Google signin attempt
     trackUserEvent.login('google');
-
-    console.log("Redirecting to Google auth:", data);
   } catch (error) {
-    console.error("Google sign in error:", error);
+    console.error('Google sign in error:', error);
     showToast(
-      "Google sign in failed",
-      error instanceof Error ? error.message : "Something went wrong",
-      "destructive"
+      'Google sign in failed',
+      error instanceof Error ? error.message : 'Something went wrong',
+      'destructive'
     );
     throw error;
   }

@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { firebaseAuth, googleProvider } from '@/integrations/firebase';
 import { UserProfile, OnboardingData, UserRole } from '@/types/app';
 import { useToast } from '@/hooks/use-toast';
 
@@ -287,23 +288,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signInWithGoogle = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { signInWithPopup } = await import('firebase/auth');
+      const result = await signInWithPopup(firebaseAuth, googleProvider);
+      const token = await result.user.getIdToken();
+      const { error } = await supabase.auth.signInWithIdToken({
         provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/home`
-        }
+        token
       });
 
       if (error) {
         toast({
-          title: "Google sign in failed",
+          title: 'Google sign in failed',
           description: error.message,
-          variant: "destructive"
+          variant: 'destructive'
         });
         throw error;
       }
     } catch (error) {
       console.error('Google sign in error:', error);
+      toast({
+        title: 'Google sign in failed',
+        description:
+          error instanceof Error ? error.message : 'Something went wrong',
+        variant: 'destructive'
+      });
       throw error;
     }
   };
