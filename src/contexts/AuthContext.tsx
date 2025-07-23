@@ -37,6 +37,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
+  // If Supabase isn't configured, expose a minimal context so that
+  // the landing page can render without runtime errors.
+  if (!supabase) {
+    const value: AuthContextType = {
+      user: null,
+      profile: null,
+      loading: false,
+      signUp: async () => ({ error: new Error('Supabase not configured') }),
+      signIn: async () => ({ error: new Error('Supabase not configured') }),
+      signOut: async () => {},
+      updateProfile: async () => {},
+      completeOnboarding: async () => {},
+      signInWithGoogle: async () => {},
+      register: async () => ({ error: new Error('Supabase not configured') }),
+      login: async () => ({ user: null, error: new Error('Supabase not configured') })
+    };
+
+    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  }
+
   useEffect(() => {
     // Get initial session
     const getInitialSession = async () => {

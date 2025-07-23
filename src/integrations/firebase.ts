@@ -10,6 +10,20 @@ const firebaseConfig = {
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
 };
 
-const app = initializeApp(firebaseConfig);
-export const firebaseAuth = getAuth(app);
-export const googleProvider = new GoogleAuthProvider();
+let firebaseAuth: ReturnType<typeof getAuth> | null = null;
+let googleProvider: GoogleAuthProvider | null = null;
+
+if (
+  firebaseConfig.apiKey &&
+  firebaseConfig.authDomain &&
+  firebaseConfig.projectId &&
+  firebaseConfig.appId
+) {
+  const app = initializeApp(firebaseConfig);
+  firebaseAuth = getAuth(app);
+  googleProvider = new GoogleAuthProvider();
+} else {
+  console.warn('Firebase environment variables are missing. Firebase not initialized.');
+}
+
+export { firebaseAuth, googleProvider };
