@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { firebaseAuth, googleProvider } from '@/integrations/firebase';
+import { login, register } from '@/services/auth';
 import { UserProfile, OnboardingData, UserRole } from '@/types/app';
 import { useToast } from '@/hooks/use-toast';
 
@@ -37,21 +38,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  // If Supabase isn't configured, expose a minimal context so that
-  // the landing page can render without runtime errors.
+  // If Supabase isn't configured, fall back to custom API authentication
   if (!supabase) {
+    const signUp = async (email: string, password: string, _userData?: any) => {
+      const result = await register('', email, password);
+      return { error: result ? null : new Error('Registration failed') };
+    };
+
+    const signIn = async (email: string, password: string) => {
+      const result = await login(email, password);
+      if (result) {
+        setUser({} as User); // minimal user placeholder
+        return { error: null };
+      }
+      return { error: new Error('Login failed') };
+    };
+
+    const signOut = async () => {
+      setUser(null);
+    };
+
     const value: AuthContextType = {
-      user: null,
+      user,
       profile: null,
       loading: false,
-      signUp: async () => ({ error: new Error('Supabase not configured') }),
-      signIn: async () => ({ error: new Error('Supabase not configured') }),
-      signOut: async () => {},
+      signUp,
+      signIn,
+      signOut,
       updateProfile: async () => {},
       completeOnboarding: async () => {},
       signInWithGoogle: async () => {},
-      register: async () => ({ error: new Error('Supabase not configured') }),
-      login: async () => ({ user: null, error: new Error('Supabase not configured') })
+      register: signUp,
+      login: async (email: string, password: string) => {
+        const result = await login(email, password);
+        return { user: result ? ({} as User) : null, error: result ? null : new Error('Login failed') };
+      }
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

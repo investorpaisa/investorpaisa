@@ -1,58 +1,31 @@
+export interface LoginResponse {
+  idToken: string;
+  refreshToken: string;
+  uid: string;
+}
 
-import { supabase } from "@/integrations/supabase/client";
-import { User } from "../api";
-import { fetchUserProfile, formatUser, showToast } from "./utils";
-import { trackUserEvent } from "@/services/analytics/googleAnalytics";
+import { showToast } from './utils';
 
-export const login = async (email: string, password: string) => {
+export const login = async (email: string, password: string): Promise<LoginResponse | null> => {
   try {
-    // Login with Supabase
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
     });
 
-    if (authError) {
-      // Email not confirmed errors should be handled gracefully
-      if (authError.message.includes('Email not confirmed') || authError.code === 'email_not_confirmed') {
-        // Instead of trying to login anyway, suggest email verification
-        showToast(
-          "Email not verified",
-          "Please check your inbox and verify your email before logging in",
-          "destructive"
-        );
-        return null;
-      }
-      
-      throw authError;
+    const data: LoginResponse | { error: any } = await response.json();
+
+    if (!response.ok || (data as any).error) {
+      const errMsg = (data as any).error?.message || 'Login failed';
+      throw new Error(errMsg);
     }
 
-    if (!authData.user) {
-      throw new Error("Login failed");
-    }
-
-    // Get user profile data
-    const profileData = await fetchUserProfile(authData.user.id);
-
-    // Track successful login
-    trackUserEvent.login('email');
-
-    showToast(
-      "Login successful",
-      "Welcome back to Investor Paisa!"
-    );
-
-    // Return user data
-    return formatUser(authData.user, profileData);
+    showToast('Login successful', 'Welcome back to Investor Paisa!');
+    return data as LoginResponse;
   } catch (error) {
-    console.error("Login error:", error);
-    
-    showToast(
-      "Login failed",
-      error instanceof Error ? error.message : "Something went wrong",
-      "destructive"
-    );
-    
+    console.error('Login error:', error);
+    showToast('Login failed', error instanceof Error ? error.message : 'Something went wrong', 'destructive');
     return null;
   }
 };

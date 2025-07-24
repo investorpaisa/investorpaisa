@@ -1,60 +1,39 @@
+export interface RegisterResponse {
+  idToken: string;
+  refreshToken: string;
+  uid: string;
+}
 
-import { supabase } from "@/integrations/supabase/client";
-import { User } from "../api";
-import { showToast } from "./utils";
-import { login } from "./loginService";
-import { trackUserEvent } from "@/services/analytics/googleAnalytics";
+import { showToast } from './utils';
+import { login } from './loginService';
 
-export const register = async (name: string, email: string, password: string) => {
+export const register = async (
+  name: string,
+  email: string,
+  password: string
+): Promise<RegisterResponse | null> => {
   try {
-    // Register user with Supabase
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: name,
-          username: email.split('@')[0],
-        }
-      }
+    const response = await fetch('/api/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
     });
 
-    if (authError) {
-      throw authError;
+    const data: RegisterResponse | { error: any } = await response.json();
+
+    if (!response.ok || (data as any).error) {
+      const errMsg = (data as any).error?.message || 'Registration failed';
+      throw new Error(errMsg);
     }
 
-    if (!authData.user) {
-      throw new Error("Failed to create user account");
-    }
-
-    // Track successful signup
-    trackUserEvent.signup('email');
-
-    // Auto-login the user after registration (without waiting for email confirmation)
+    // Auto-login after successful registration
     await login(email, password);
 
-    showToast(
-      "Registration successful",
-      "Your account has been created successfully"
-    );
-
-    // Return user data with the correct role type
-    return {
-      id: authData.user.id,
-      name: name,
-      email: email,
-      role: 'user' as 'user' | 'expert', // Ensure role is correctly typed
-      followers: 0,
-      following: 0,
-      joined: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-    };
+    showToast('Registration successful', 'Your account has been created successfully');
+    return data as RegisterResponse;
   } catch (error) {
-    console.error("Registration error:", error);
-    showToast(
-      "Registration failed",
-      error instanceof Error ? error.message : "Something went wrong",
-      "destructive"
-    );
+    console.error('Registration error:', error);
+    showToast('Registration failed', error instanceof Error ? error.message : 'Something went wrong', 'destructive');
     return null;
   }
 };
