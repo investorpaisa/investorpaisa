@@ -14,16 +14,1273 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ai_requests: {
+        Row: {
+          completion_tokens: number | null
+          created_at: string
+          error_message: string | null
+          id: string
+          latency_ms: number | null
+          model: string
+          prompt_tokens: number | null
+          request_type: string
+          status: string | null
+          total_tokens: number | null
+          user_id: string | null
+        }
+        Insert: {
+          completion_tokens?: number | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          latency_ms?: number | null
+          model: string
+          prompt_tokens?: number | null
+          request_type: string
+          status?: string | null
+          total_tokens?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          completion_tokens?: number | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          latency_ms?: number | null
+          model?: string
+          prompt_tokens?: number | null
+          request_type?: string
+          status?: string | null
+          total_tokens?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      answers: {
+        Row: {
+          ai_generated: boolean | null
+          author_id: string
+          body_detailed: string | null
+          body_simple: string | null
+          body_steps: Json | null
+          created_at: string
+          downvote_count: number | null
+          id: string
+          is_accepted: boolean | null
+          is_verified: boolean | null
+          moderation_status:
+            | Database["public"]["Enums"]["moderation_status"]
+            | null
+          post_id: string
+          updated_at: string
+          upvote_count: number | null
+        }
+        Insert: {
+          ai_generated?: boolean | null
+          author_id: string
+          body_detailed?: string | null
+          body_simple?: string | null
+          body_steps?: Json | null
+          created_at?: string
+          downvote_count?: number | null
+          id?: string
+          is_accepted?: boolean | null
+          is_verified?: boolean | null
+          moderation_status?:
+            | Database["public"]["Enums"]["moderation_status"]
+            | null
+          post_id: string
+          updated_at?: string
+          upvote_count?: number | null
+        }
+        Update: {
+          ai_generated?: boolean | null
+          author_id?: string
+          body_detailed?: string | null
+          body_simple?: string | null
+          body_steps?: Json | null
+          created_at?: string
+          downvote_count?: number | null
+          id?: string
+          is_accepted?: boolean | null
+          is_verified?: boolean | null
+          moderation_status?:
+            | Database["public"]["Enums"]["moderation_status"]
+            | null
+          post_id?: string
+          updated_at?: string
+          upvote_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "answers_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      auth_providers: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          is_primary: boolean | null
+          phone: string | null
+          provider: string
+          provider_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_primary?: boolean | null
+          phone?: string | null
+          provider: string
+          provider_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_primary?: boolean | null
+          phone?: string | null
+          provider?: string
+          provider_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      badges: {
+        Row: {
+          color: string | null
+          created_at: string
+          criteria: Json | null
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          points: number | null
+          slug: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          criteria?: Json | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          points?: number | null
+          slug: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          criteria?: Json | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          points?: number | null
+          slug?: string
+        }
+        Relationships: []
+      }
+      bookmarks: {
+        Row: {
+          collection_name: string | null
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          collection_name?: string | null
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          collection_name?: string | null
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      comments: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          deleted_at: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          is_pinned: boolean | null
+          like_count: number | null
+          moderation_status:
+            | Database["public"]["Enums"]["moderation_status"]
+            | null
+          parent_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          deleted_at?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          is_pinned?: boolean | null
+          like_count?: number | null
+          moderation_status?:
+            | Database["public"]["Enums"]["moderation_status"]
+            | null
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          deleted_at?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          is_pinned?: boolean | null
+          like_count?: number | null
+          moderation_status?:
+            | Database["public"]["Enums"]["moderation_status"]
+            | null
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversation_participants: {
+        Row: {
+          conversation_id: string
+          id: string
+          is_muted: boolean | null
+          joined_at: string
+          last_read_at: string | null
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          id?: string
+          is_muted?: boolean | null
+          joined_at?: string
+          last_read_at?: string | null
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          id?: string
+          is_muted?: boolean | null
+          joined_at?: string
+          last_read_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_participants_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          is_group: boolean | null
+          name: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_group?: boolean | null
+          name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_group?: boolean | null
+          name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      device_sessions: {
+        Row: {
+          created_at: string
+          device_name: string | null
+          device_type: string | null
+          expires_at: string | null
+          id: string
+          ip_address: unknown
+          last_active_at: string | null
+          refresh_token_hash: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_name?: string | null
+          device_type?: string | null
+          expires_at?: string | null
+          id?: string
+          ip_address?: unknown
+          last_active_at?: string | null
+          refresh_token_hash?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_name?: string | null
+          device_type?: string | null
+          expires_at?: string | null
+          id?: string
+          ip_address?: unknown
+          last_active_at?: string | null
+          refresh_token_hash?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      events: {
+        Row: {
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          event_data: Json | null
+          event_name: string
+          id: string
+          ip_address: unknown
+          session_id: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          event_data?: Json | null
+          event_name: string
+          id?: string
+          ip_address?: unknown
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          event_data?: Json | null
+          event_name?: string
+          id?: string
+          ip_address?: unknown
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      expert_profiles: {
+        Row: {
+          created_at: string
+          credentials: string | null
+          firm_name: string | null
+          follower_count: number | null
+          id: string
+          license_id: string | null
+          license_verified: boolean | null
+          rating: number | null
+          sebi_registered: boolean | null
+          session_count: number | null
+          specializations: string[] | null
+          updated_at: string
+          user_id: string
+          verification_status:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+          years_experience: number | null
+        }
+        Insert: {
+          created_at?: string
+          credentials?: string | null
+          firm_name?: string | null
+          follower_count?: number | null
+          id?: string
+          license_id?: string | null
+          license_verified?: boolean | null
+          rating?: number | null
+          sebi_registered?: boolean | null
+          session_count?: number | null
+          specializations?: string[] | null
+          updated_at?: string
+          user_id: string
+          verification_status?:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+          years_experience?: number | null
+        }
+        Update: {
+          created_at?: string
+          credentials?: string | null
+          firm_name?: string | null
+          follower_count?: number | null
+          id?: string
+          license_id?: string | null
+          license_verified?: boolean | null
+          rating?: number | null
+          sebi_registered?: boolean | null
+          session_count?: number | null
+          specializations?: string[] | null
+          updated_at?: string
+          user_id?: string
+          verification_status?:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
+      follows: {
+        Row: {
+          created_at: string
+          follower_id: string
+          following_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          following_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          following_id?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      live_sessions: {
+        Row: {
+          cover_url: string | null
+          created_at: string
+          description: string | null
+          duration_minutes: number | null
+          expert_id: string
+          id: string
+          is_free: boolean | null
+          max_participants: number | null
+          participant_count: number | null
+          price: number | null
+          recording_url: string | null
+          start_time: string
+          status: Database["public"]["Enums"]["session_status"] | null
+          title: string
+          topics: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          expert_id: string
+          id?: string
+          is_free?: boolean | null
+          max_participants?: number | null
+          participant_count?: number | null
+          price?: number | null
+          recording_url?: string | null
+          start_time: string
+          status?: Database["public"]["Enums"]["session_status"] | null
+          title: string
+          topics?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          expert_id?: string
+          id?: string
+          is_free?: boolean | null
+          max_participants?: number | null
+          participant_count?: number | null
+          price?: number | null
+          recording_url?: string | null
+          start_time?: string
+          status?: Database["public"]["Enums"]["session_status"] | null
+          title?: string
+          topics?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          body: string | null
+          conversation_id: string
+          created_at: string
+          deleted_at: string | null
+          id: string
+          media_urls: string[] | null
+          reply_to_id: string | null
+          sender_id: string
+          status: Database["public"]["Enums"]["message_status"] | null
+          updated_at: string
+        }
+        Insert: {
+          body?: string | null
+          conversation_id: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          media_urls?: string[] | null
+          reply_to_id?: string | null
+          sender_id: string
+          status?: Database["public"]["Enums"]["message_status"] | null
+          updated_at?: string
+        }
+        Update: {
+          body?: string | null
+          conversation_id?: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          media_urls?: string[] | null
+          reply_to_id?: string | null
+          sender_id?: string
+          status?: Database["public"]["Enums"]["message_status"] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_reply_to_id_fkey"
+            columns: ["reply_to_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      moderation_queue: {
+        Row: {
+          ai_decision: Database["public"]["Enums"]["moderation_status"] | null
+          author_id: string | null
+          created_at: string
+          entity_id: string
+          entity_type: string
+          human_decision:
+            | Database["public"]["Enums"]["moderation_status"]
+            | null
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          risk_reasons: string[] | null
+          risk_score: number | null
+        }
+        Insert: {
+          ai_decision?: Database["public"]["Enums"]["moderation_status"] | null
+          author_id?: string | null
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          human_decision?:
+            | Database["public"]["Enums"]["moderation_status"]
+            | null
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          risk_reasons?: string[] | null
+          risk_score?: number | null
+        }
+        Update: {
+          ai_decision?: Database["public"]["Enums"]["moderation_status"] | null
+          author_id?: string | null
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          human_decision?:
+            | Database["public"]["Enums"]["moderation_status"]
+            | null
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          risk_reasons?: string[] | null
+          risk_score?: number | null
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          actor_id: string | null
+          body: string | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          is_read: boolean | null
+          payload: Json | null
+          title: string | null
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          body?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          is_read?: boolean | null
+          payload?: Json | null
+          title?: string | null
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          body?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          is_read?: boolean | null
+          payload?: Json | null
+          title?: string | null
+          type?: Database["public"]["Enums"]["notification_type"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      post_tags: {
+        Row: {
+          post_id: string
+          tag_id: string
+        }
+        Insert: {
+          post_id: string
+          tag_id: string
+        }
+        Update: {
+          post_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_tags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_topics: {
+        Row: {
+          post_id: string
+          topic_id: string
+        }
+        Insert: {
+          post_id: string
+          topic_id: string
+        }
+        Update: {
+          post_id?: string
+          topic_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_topics_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_topics_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          ai_generated: boolean | null
+          ai_rewritten: boolean | null
+          author_id: string
+          body: string | null
+          body_html: string | null
+          comment_count: number | null
+          created_at: string
+          deleted_at: string | null
+          downvote_count: number | null
+          id: string
+          is_featured: boolean | null
+          is_pinned: boolean | null
+          like_count: number | null
+          link_preview: Json | null
+          link_url: string | null
+          media_urls: string[] | null
+          moderation_score: number | null
+          moderation_status:
+            | Database["public"]["Enums"]["moderation_status"]
+            | null
+          poll_data: Json | null
+          save_count: number | null
+          share_count: number | null
+          title: string | null
+          type: Database["public"]["Enums"]["post_type"]
+          updated_at: string
+          upvote_count: number | null
+          view_count: number | null
+        }
+        Insert: {
+          ai_generated?: boolean | null
+          ai_rewritten?: boolean | null
+          author_id: string
+          body?: string | null
+          body_html?: string | null
+          comment_count?: number | null
+          created_at?: string
+          deleted_at?: string | null
+          downvote_count?: number | null
+          id?: string
+          is_featured?: boolean | null
+          is_pinned?: boolean | null
+          like_count?: number | null
+          link_preview?: Json | null
+          link_url?: string | null
+          media_urls?: string[] | null
+          moderation_score?: number | null
+          moderation_status?:
+            | Database["public"]["Enums"]["moderation_status"]
+            | null
+          poll_data?: Json | null
+          save_count?: number | null
+          share_count?: number | null
+          title?: string | null
+          type?: Database["public"]["Enums"]["post_type"]
+          updated_at?: string
+          upvote_count?: number | null
+          view_count?: number | null
+        }
+        Update: {
+          ai_generated?: boolean | null
+          ai_rewritten?: boolean | null
+          author_id?: string
+          body?: string | null
+          body_html?: string | null
+          comment_count?: number | null
+          created_at?: string
+          deleted_at?: string | null
+          downvote_count?: number | null
+          id?: string
+          is_featured?: boolean | null
+          is_pinned?: boolean | null
+          like_count?: number | null
+          link_preview?: Json | null
+          link_url?: string | null
+          media_urls?: string[] | null
+          moderation_score?: number | null
+          moderation_status?:
+            | Database["public"]["Enums"]["moderation_status"]
+            | null
+          poll_data?: Json | null
+          save_count?: number | null
+          share_count?: number | null
+          title?: string | null
+          type?: Database["public"]["Enums"]["post_type"]
+          updated_at?: string
+          upvote_count?: number | null
+          view_count?: number | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          cover_url: string | null
+          created_at: string
+          email: string | null
+          followers_count: number | null
+          following_count: number | null
+          full_name: string | null
+          goals: string[] | null
+          headline: string | null
+          id: string
+          interests: string[] | null
+          is_expert: boolean | null
+          is_premium: boolean | null
+          is_verified: boolean | null
+          language: string | null
+          location: string | null
+          onboarding_completed: boolean | null
+          portfolio_change: number | null
+          portfolio_value: number | null
+          posts_count: number | null
+          trust_level: Database["public"]["Enums"]["trust_level"] | null
+          trust_score: number | null
+          updated_at: string
+          username: string | null
+          website: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          cover_url?: string | null
+          created_at?: string
+          email?: string | null
+          followers_count?: number | null
+          following_count?: number | null
+          full_name?: string | null
+          goals?: string[] | null
+          headline?: string | null
+          id: string
+          interests?: string[] | null
+          is_expert?: boolean | null
+          is_premium?: boolean | null
+          is_verified?: boolean | null
+          language?: string | null
+          location?: string | null
+          onboarding_completed?: boolean | null
+          portfolio_change?: number | null
+          portfolio_value?: number | null
+          posts_count?: number | null
+          trust_level?: Database["public"]["Enums"]["trust_level"] | null
+          trust_score?: number | null
+          updated_at?: string
+          username?: string | null
+          website?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          cover_url?: string | null
+          created_at?: string
+          email?: string | null
+          followers_count?: number | null
+          following_count?: number | null
+          full_name?: string | null
+          goals?: string[] | null
+          headline?: string | null
+          id?: string
+          interests?: string[] | null
+          is_expert?: boolean | null
+          is_premium?: boolean | null
+          is_verified?: boolean | null
+          language?: string | null
+          location?: string | null
+          onboarding_completed?: boolean | null
+          portfolio_change?: number | null
+          portfolio_value?: number | null
+          posts_count?: number | null
+          trust_level?: Database["public"]["Enums"]["trust_level"] | null
+          trust_score?: number | null
+          updated_at?: string
+          username?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
+      reactions: {
+        Row: {
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          reaction_type: Database["public"]["Enums"]["reaction_type"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          reaction_type: Database["public"]["Enums"]["reaction_type"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          reaction_type?: Database["public"]["Enums"]["reaction_type"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          referral_code: string
+          referred_id: string | null
+          referrer_id: string
+          reward_given: boolean | null
+          status: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code: string
+          referred_id?: string | null
+          referrer_id: string
+          reward_given?: boolean | null
+          status?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code?: string
+          referred_id?: string | null
+          referrer_id?: string
+          reward_given?: boolean | null
+          status?: string | null
+        }
+        Relationships: []
+      }
+      search_history: {
+        Row: {
+          clicked_result_id: string | null
+          clicked_result_type: string | null
+          created_at: string
+          id: string
+          query: string
+          result_count: number | null
+          user_id: string | null
+        }
+        Insert: {
+          clicked_result_id?: string | null
+          clicked_result_type?: string | null
+          created_at?: string
+          id?: string
+          query: string
+          result_count?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          clicked_result_id?: string | null
+          clicked_result_type?: string | null
+          created_at?: string
+          id?: string
+          query?: string
+          result_count?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      session_participants: {
+        Row: {
+          id: string
+          joined_at: string | null
+          left_at: string | null
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          joined_at?: string | null
+          left_at?: string | null
+          session_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          joined_at?: string | null
+          left_at?: string | null
+          session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_participants_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "live_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tags: {
+        Row: {
+          created_at: string
+          id: string
+          is_trending: boolean | null
+          name: string
+          slug: string
+          usage_count: number | null
+          weekly_count: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_trending?: boolean | null
+          name: string
+          slug: string
+          usage_count?: number | null
+          weekly_count?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_trending?: boolean | null
+          name?: string
+          slug?: string
+          usage_count?: number | null
+          weekly_count?: number | null
+        }
+        Relationships: []
+      }
+      topic_follows: {
+        Row: {
+          created_at: string
+          topic_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          topic_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          topic_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topic_follows_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      topics: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          follower_count: number | null
+          icon: string | null
+          id: string
+          is_trending: boolean | null
+          name: string
+          post_count: number | null
+          slug: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          follower_count?: number | null
+          icon?: string | null
+          id?: string
+          is_trending?: boolean | null
+          name: string
+          post_count?: number | null
+          slug: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          follower_count?: number | null
+          icon?: string | null
+          id?: string
+          is_trending?: boolean | null
+          name?: string
+          post_count?: number | null
+          slug?: string
+        }
+        Relationships: []
+      }
+      trust_events: {
+        Row: {
+          created_at: string
+          delta: number
+          event_type: Database["public"]["Enums"]["trust_event_type"]
+          id: string
+          reason: string | null
+          reference_id: string | null
+          reference_type: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          delta: number
+          event_type: Database["public"]["Enums"]["trust_event_type"]
+          id?: string
+          reason?: string | null
+          reference_id?: string | null
+          reference_type?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          delta?: number
+          event_type?: Database["public"]["Enums"]["trust_event_type"]
+          id?: string
+          reason?: string | null
+          reference_id?: string | null
+          reference_type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_badges: {
+        Row: {
+          badge_id: string
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["user_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      message_status: "sent" | "delivered" | "read"
+      moderation_status: "pending" | "approved" | "quarantined" | "rejected"
+      notification_type:
+        | "like"
+        | "comment"
+        | "follow"
+        | "mention"
+        | "answer"
+        | "system"
+        | "live_session"
+        | "badge"
+      post_type:
+        | "question"
+        | "tip"
+        | "thread"
+        | "video"
+        | "poll"
+        | "link_converted"
+        | "insight"
+      reaction_type: "like" | "upvote" | "downvote" | "save"
+      session_status: "scheduled" | "live" | "ended" | "cancelled"
+      trust_event_type:
+        | "post_created"
+        | "answer_accepted"
+        | "upvote_received"
+        | "downvote_received"
+        | "report_received"
+        | "verified"
+        | "badge_earned"
+      trust_level: "newbie" | "member" | "trusted" | "expert" | "legend"
+      user_role: "learner" | "creator" | "expert" | "admin"
+      verification_status: "unverified" | "pending" | "verified" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +1407,42 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      message_status: ["sent", "delivered", "read"],
+      moderation_status: ["pending", "approved", "quarantined", "rejected"],
+      notification_type: [
+        "like",
+        "comment",
+        "follow",
+        "mention",
+        "answer",
+        "system",
+        "live_session",
+        "badge",
+      ],
+      post_type: [
+        "question",
+        "tip",
+        "thread",
+        "video",
+        "poll",
+        "link_converted",
+        "insight",
+      ],
+      reaction_type: ["like", "upvote", "downvote", "save"],
+      session_status: ["scheduled", "live", "ended", "cancelled"],
+      trust_event_type: [
+        "post_created",
+        "answer_accepted",
+        "upvote_received",
+        "downvote_received",
+        "report_received",
+        "verified",
+        "badge_earned",
+      ],
+      trust_level: ["newbie", "member", "trusted", "expert", "legend"],
+      user_role: ["learner", "creator", "expert", "admin"],
+      verification_status: ["unverified", "pending", "verified", "rejected"],
+    },
   },
 } as const
