@@ -2,7 +2,9 @@
 
 import { createLovableAuth } from "@lovable.dev/cloud-auth-js";
 import { supabase } from "../supabase/client";
-const lovableAuth = createLovableAuth();
+
+// Create auth instance
+const lovableAuth = createLovableAuth({ projectId: "bsohwunirrweljahztbo" });
 
 export const lovable = {
   auth: {
@@ -19,11 +21,14 @@ export const lovable = {
         return result;
       }
 
-      try {
-        await supabase.auth.setSession(result.tokens);
-      } catch (e) {
-        return { error: e instanceof Error ? e : new Error(String(e)) };
+      if (supabase) {
+        try {
+          await supabase.auth.setSession(result.tokens);
+        } catch (e) {
+          return { error: e instanceof Error ? e : new Error(String(e)) };
+        }
       }
+      
       return result;
     },
   },

@@ -1,15 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  --color-primary: #000000;
-  --color-primary-hover: #1a1a1a;
-  --color-gold: #d4af37;
-  --border-radius: 24px;
+@layer base {
+  :root {
+    /* InvestorPaisa Design System - Dark Theme with Teal Accents */
+    --background: 222 47% 8%;
+    --foreground: 210 40% 98%;
+    
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+    
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+    
+    --primary: 174 100% 36%;
+    --primary-foreground: 222 47% 8%;
+    
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    
+    --accent: 174 100% 36%;
+    --accent-foreground: 222 47% 8%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --success: 142 76% 36%;
+    --success-foreground: 210 40% 98%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 222 47% 8%;
+    
+    --border: 217 33% 20%;
+    --input: 217 33% 17%;
+    --ring: 174 100% 36%;
+    
+    --radius: 0.75rem;
+    
+    /* Sidebar */
+    --sidebar-background: 222 47% 8%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 174 100% 36%;
+    --sidebar-primary-foreground: 222 47% 8%;
+    --sidebar-accent: 217 33% 17%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217 33% 20%;
+    --sidebar-ring: 174 100% 36%;
+    
+    /* Chart colors */
+    --chart-1: 174 100% 36%;
+    --chart-2: 142 76% 36%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 0 84% 60%;
+  }
+
+  .light {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    
+    --primary: 174 100% 36%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 222 47% 11%;
+    
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    
+    --accent: 174 100% 36%;
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 222 47% 8%;
+    
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 174 100% 36%;
+  }
 }
 
 @layer base {
@@ -18,119 +104,13 @@
   }
   
   body {
-    @apply bg-gradient-to-br from-slate-50 via-white to-blue-50 text-foreground font-sans;
-    font-family: var(--font-sans);
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
-
+  
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-sans);
-    font-weight: 600;
-  }
-
-  /* Apply curved corners globally */
-  .rounded, [class*="rounded-"]:not([class*="rounded-none"]):not([class*="rounded-full"]) {
-    border-radius: 24px !important;
-  }
-
-  /* Override specific components for consistent curved design */
-  .card, .button, .input, .select, .dialog, .popover, .dropdown, .sheet {
-    border-radius: 24px !important;
-  }
-
-  /* Ensure nested elements also get curved corners */
-  .card > *, .button > *, .dialog > * {
-    border-radius: inherit;
-  }
-
-  /* Mobile-first responsive design */
-  @media (max-width: 768px) {
-    .container {
-      @apply px-4;
-    }
-    
-    h1 {
-      @apply text-2xl;
-    }
-    
-    h2 {
-      @apply text-xl;
-    }
-    
-    .grid-cols-auto-mobile {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  /* Tablet responsive */
-  @media (min-width: 769px) and (max-width: 1024px) {
-    .container {
-      @apply px-6;
-    }
-  }
-}
-
-@layer components {
-  /* Modern AI gradient button styles */
-  .investorpaisa-primary {
-    @apply bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 text-white hover:from-blue-700 hover:via-purple-700 hover:to-cyan-700 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300;
-  }
-  
-  .investorpaisa-secondary {
-    @apply bg-white/80 backdrop-blur-sm text-slate-900 hover:bg-white/90 border border-slate-200 rounded-3xl shadow-sm hover:shadow-lg transition-all duration-300;
-  }
-  
-  .investorpaisa-outline {
-    @apply border-2 border-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 text-slate-900 hover:bg-gradient-to-r hover:from-blue-50 hover:via-purple-50 hover:to-cyan-50 rounded-3xl transition-all duration-300;
-  }
-
-  /* AI gradient backgrounds */
-  .ai-gradient {
-    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
-    background-size: 200% 200%;
-    animation: gradientShift 3s ease infinite;
-  }
-
-  .ai-gradient-text {
-    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  /* Modern card styles */
-  .modern-card {
-    @apply bg-white/90 backdrop-blur-sm border-0 shadow-lg rounded-3xl hover:shadow-xl transition-all duration-300;
-  }
-
-  /* Modern input styles */
-  .modern-input {
-    @apply bg-white/80 backdrop-blur-sm border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200;
-  }
-
-  /* Glass morphism effect */
-  .glass-morphism {
-    @apply bg-white/90 backdrop-blur-xl border border-white/20 shadow-2xl rounded-3xl;
-  }
-
-  /* Mobile responsive utilities */
-  .mobile-container {
-    @apply px-4 sm:px-6 lg:px-8;
-  }
-  
-  .mobile-grid {
-    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6;
-  }
-  
-  .mobile-text {
-    @apply text-sm sm:text-base lg:text-lg;
-  }
-  
-  .mobile-padding {
-    @apply p-4 sm:p-6 lg:p-8;
-  }
-  
-  .mobile-margin {
-    @apply m-4 sm:m-6 lg:m-8;
+    font-family: 'Space Grotesk', sans-serif;
   }
 }
 
@@ -139,6 +119,70 @@
     text-wrap: balance;
   }
   
+  /* Glassmorphism */
+  .glass {
+    @apply bg-card/80 backdrop-blur-xl border border-border/50;
+  }
+  
+  .glass-hover {
+    @apply hover:bg-card/90 transition-colors;
+  }
+  
+  /* Gradient text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary to-emerald-400 bg-clip-text text-transparent;
+  }
+  
+  /* Glow effects */
+  .glow-primary {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
+  
+  .glow-primary-lg {
+    box-shadow: 0 0 40px hsl(var(--primary) / 0.4);
+  }
+  
+  /* Animation utilities */
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.4s ease-out;
+  }
+  
+  .animate-slide-in-right {
+    animation: slideInRight 0.3s ease-out;
+  }
+  
+  /* Custom scrollbar */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/50;
+  }
+  
+  /* Line clamp */
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -152,145 +196,63 @@
     -webkit-box-orient: vertical;  
     overflow: hidden;
   }
+}
 
-  /* AI gradient backgrounds */
-  .gradient-bg-ai {
-    @apply bg-gradient-to-br from-blue-600 via-purple-600 to-cyan-600;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
   }
-  
-  .gradient-bg-ai-light {
-    @apply bg-gradient-to-br from-blue-50 via-purple-50 to-cyan-50;
-  }
-
-  /* Modern shadows */
-  .shadow-modern {
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  }
-
-  .shadow-modern-lg {
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  }
-
-  /* Mobile-first responsive utilities */
-  .safe-area-bottom {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  
-  .safe-area-top {
-    padding-top: env(safe-area-inset-top);
-  }
-  
-  /* Touch-friendly sizing */
-  .touch-target {
-    @apply min-w-[44px] min-h-[44px];
-  }
-  
-  /* Mobile viewport fixes */
-  .mobile-vh {
-    height: 100vh;
-    height: 100dvh; /* Dynamic viewport height for mobile browsers */
+  to {
+    opacity: 1;
   }
 }
 
-/* AI gradient animation */
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Modern LinkedIn-style animations */
-.linkedin-hover {
-  @apply transition-all duration-300 ease-out;
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
-.linkedin-hover:hover {
-  @apply transform -translate-y-1 shadow-xl;
+/* Custom focus styles */
+*:focus-visible {
+  @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
 }
 
-/* Modern Cred-style animations */
-.cred-hover {
-  @apply transition-all duration-200 ease-out;
+/* Selection color */
+::selection {
+  @apply bg-primary/30 text-foreground;
 }
 
-.cred-hover:hover {
-  @apply transform scale-105 shadow-lg;
-}
-
-/* Custom scrollbar with curved design */
+/* Custom scrollbar for dark theme */
 ::-webkit-scrollbar {
-  width: 12px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-slate-100 rounded-full;
+  @apply bg-background;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 rounded-full;
+  @apply bg-border rounded-full;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply from-blue-500 via-purple-500 to-cyan-500;
+  @apply bg-muted-foreground/50;
 }
-
-/* Mobile scrollbar */
-@media (max-width: 768px) {
-  ::-webkit-scrollbar {
-    width: 8px;
-  }
-}
-
-/* InvestorPaisa AI brand colors */
-.bg-investorpaisa-primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
-}
-
-.text-investorpaisa-primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.border-investorpaisa-primary {
-  border-image: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%) 1;
-}
-
-/* Modern glassmorphism effects */
-.glass-card {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-}
-
-/* Mobile-specific animations */
-@media (max-width: 768px) {
-  .mobile-animate {
-    @apply transition-transform duration-200 ease-out;
-  }
-  
-  .mobile-animate:active {
-    @apply scale-95;
-  }
-}
-
-/* Responsive font sizes */
-.responsive-text-xs { @apply text-xs sm:text-sm; }
-.responsive-text-sm { @apply text-sm sm:text-base; }
-.responsive-text-base { @apply text-base sm:text-lg; }
-.responsive-text-lg { @apply text-lg sm:text-xl; }
-.responsive-text-xl { @apply text-xl sm:text-2xl; }
-.responsive-text-2xl { @apply text-2xl sm:text-3xl; }
-.responsive-text-3xl { @apply text-3xl sm:text-4xl; }
-.responsive-text-4xl { @apply text-4xl sm:text-5xl; }
-
-/* Mobile-optimized spacing */
-.mobile-space-y-2 { @apply space-y-2 sm:space-y-4; }
-.mobile-space-y-4 { @apply space-y-4 sm:space-y-6; }
-.mobile-space-y-6 { @apply space-y-6 sm:space-y-8; }
-.mobile-space-x-2 { @apply space-x-2 sm:space-x-4; }
-.mobile-space-x-4 { @apply space-x-4 sm:space-x-6; }
-.mobile-space-x-6 { @apply space-x-6 sm:space-x-8; }
